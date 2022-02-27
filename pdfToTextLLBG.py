@@ -1,42 +1,51 @@
 import fitz,re,sys,os
 
-doc = fitz.open(sys.argv[1])
+# Ouverture fichiers pdf dans repertoire
+files = os.listdir(sys.argv[1])
+files = filter(lambda f: f.endswith(('.pdf','.PDF')), files)
 
-page = doc.load_page(0) # Lecture de la premiere page TODO DOIT BOUCLER SUR TOUTE LES PAGES
-dl = page.get_displaylist()
-tp = dl.get_textpage()
-tp_text = tp.extractText()
+for file in files:
+    doc = fitz.open(sys.argv[1]+ '/'+file)
 
-### PARTIE TEXTE BRUT ###
+    page = doc.load_page(0) # Lecture de la premiere page TODO DOIT BOUCLER SUR TOUTE LES PAGES
+    dl = page.get_displaylist()
+    tp = dl.get_textpage()
+    tp_text = tp.extractText()
 
-print(tp_text)
-#print(doc.metadata)
+    ### PARTIE TEXTE BRUT (POUR TEST) ###
 
-### PARTIE NOM FICHIER ###
+    #print(tp_text)
+    #print(doc.metadata)
 
-print("Filename:")
-path = sys.argv[1]
-basename = os.path.basename(path)
-print(basename+"\n")
+    ### PARTIE NOM FICHIER ###
 
-### PARTIE TITRE (torres moreno)###
+    print("Filename:")
+    path = sys.argv[1]
+    basename = os.path.basename(path)
+    print(file+'\n')
 
-print("Title:")
-title = doc.metadata["title"]
-#if title == "":
-    #patternTitle = "^\A(.*)$"
-    #title = re.search(patternTitle, tp_text).group(1)
-print(title)
+    ### PARTIE TITRE ###
 
-### PARTIE AUTEURS ###
+    print("Title:")
+    title = doc.metadata["title"]
+    if title == "":
+        patternTitle = "^\A(.*)$"
+        title = re.search(patternTitle, tp_text)
+    print(title)
 
-print("Author:")
-print(doc.metadata["author"]+"\n")
+    ### PARTIE AUTEURS ###
 
-### PARTIE ABSTRACT ###
+    print("Author:")
+    print(doc.metadata["author"] + '\n')
 
-patternAbstract = "Abstract\n((.|\n)*)(?=1\nIntroduction)"
+    ### PARTIE ABSTRACT ###
 
-print("Abstract:")
-result = re.search(patternAbstract, tp_text).group(1)
-print(result+"\n")
+    patternAbstract = "(Abstract(-|.|\n))((.|\n)*)(?=(1(\n| )Introduction)|(I. INTRODUCTION))"
+
+    print("Abstract:")
+    if re.search(patternAbstract, tp_text) != None:
+        abstract = re.search(patternAbstract, tp_text).group(3)
+        print(abstract)
+        print('\n')
+    else:
+        print("Abstract non trouvé !\n\n")
