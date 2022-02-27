@@ -29,13 +29,15 @@ for file in files:
 
     print("Title:")
     title = doc.metadata["title"]
-    if title == "":
-        patternTitle = "^\A(.*)"
-        title = re.search(patternTitle, tp_text)
-        print(title.group(0))
+    if title == "" :
+        patternTitle = "^\A(.*)\n"
+        if re.search(patternTitle, tp_text) != None:
+            title = re.search(patternTitle, tp_text).group(0)
+            print(title + '\n')
+        else:
+            print("Titre non trouvé !\n")
     else:
-        print(title)
-    print('\n')
+        print(title + '\n')
 
     ### PARTIE AUTEURS ###
 
@@ -63,12 +65,26 @@ for file in files:
         print('\n')
 
     ### PARTIE ABSTRACT ###
-    patternAbstract = "(Abstract(-|.|\n))((.|\n)*)(?=(1(\n| )Introduction)|(I. INTRODUCTION))"
 
+    patternAbstract = "(Abstract(-|.| |\n))\n? ?((.|\n)*)(?=(1(\n| |( \n)|. )Introduction)|(I. INTRODUCTION))"
+    patternWithoutAbstract = "(?<=\n)(.|\n)*(?=(1(\n| |( \n)|. )Introduction)|(I. INTRODUCTION))"
     print("Abstract:")
-    if re.search(patternAbstract, tp_text) is not None:
+
+    if re.search(patternAbstract, tp_text) != None:
         abstract = re.search(patternAbstract, tp_text).group(3)
+        abstract = abstract.replace('\n', ' ')
+        abstract = abstract.replace("  ", ' ')
+        abstract = abstract.replace("- ", '')
         print(abstract)
         print('\n')
+
+    elif re.search(patternWithoutAbstract, tp_text) != None :
+        abstract = re.search(patternWithoutAbstract, tp_text).group(0)
+        abstract = abstract.replace('\n', ' ')
+        abstract = abstract.replace("  ", ' ')
+        abstract = abstract.replace("- ", '')
+        print(abstract)
+        print('\n')
+        
     else:
         print("Abstract non trouvé !\n\n")
