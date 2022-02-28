@@ -9,7 +9,7 @@ files = os.listdir(sys.argv[1])
 files = filter(lambda f: f.endswith(('.pdf', '.PDF')), files)
 
 # Creation du sous-dossier ou deposer les fichiers textes
-res_folder_path = sys.argv[1] + "\\result"
+res_folder_path = sys.argv[1] + "/result"
 if os.path.isdir(res_folder_path):
     shutil.rmtree(res_folder_path)
 os.mkdir(res_folder_path)
@@ -36,7 +36,7 @@ for file in files:
     ### PARTIE NOM FICHIER ###
 
     # recuperation du nom du fichier pdf
-    file_basename = os.path.basename(sys.argv[1] + '\\' + file)
+    file_basename = os.path.basename(sys.argv[1] + '/' + file)
     filename_display = file_basename + '\n'
 
     # transformation du nom pour le futur fichier texte
@@ -111,7 +111,7 @@ for file in files:
         abstract_display = "Abstract non trouvé !"
 
     # creation et ouverture du fichier .txt
-    txtFileToFill = open(res_folder_path + '\\' + txt_basename + ".txt", "w+")
+    txtFileToFill = open(res_folder_path + '/' + txt_basename + ".txt", "w+")
 
     # ecriture du nom du fichier, du titre, des auteurs et de l'abstract
     txtFileToFill.write(filename_display)
