@@ -2,6 +2,7 @@ from lib2to3.pgen2.token import EQUAL
 import fitz, re, sys, os
 import textmanipulation as txtmanip
 import shutil
+import time
 
 # Ouverture fichiers pdf dans repertoire
 files = os.listdir(sys.argv[1])
@@ -12,6 +13,11 @@ res_folder_path = sys.argv[1] + "\\result"
 if os.path.isdir(res_folder_path):
     shutil.rmtree(res_folder_path)
 os.mkdir(res_folder_path)
+
+# Nombre de fichier parcouru
+index = 0
+# Heure initial
+start_time = time.time()
 
 for file in files:
     # ouverture du fichier .pdf
@@ -120,3 +126,12 @@ for file in files:
 
     # fermeture du fichier
     txtFileToFill.close()
+
+    index += 1
+
+interval = time.time() - start_time
+
+print('\n', end="")
+print("Exécution de pdfToTextLLBG terminée")
+print("\t"+ str(index) +" fichiers traités")
+print("\t"+ str(interval) + " secondes")
