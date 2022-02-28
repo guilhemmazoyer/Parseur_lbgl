@@ -1,14 +1,20 @@
 from lib2to3.pgen2.token import EQUAL
 import fitz, re, sys, os
 import textmanipulation as txtmanip
+import shutil
 
 # Ouverture fichiers pdf dans repertoire
 files = os.listdir(sys.argv[1])
 files = filter(lambda f: f.endswith(('.pdf', '.PDF')), files)
 
-index = 0
+# Creation du sous-dossier ou deposer les fichiers textes
+res_folder_path = sys.argv[1] + "\\result"
+if os.path.isdir(res_folder_path):
+    shutil.rmtree(res_folder_path)
+os.mkdir(res_folder_path)
 
 for file in files:
+    # ouverture du fichier .pdf
     doc = fitz.open(sys.argv[1] + '/' + file)
 
     page = doc.load_page(0)  # Lecture de la premiere page TODO DOIT BOUCLER SUR TOUTE LES PAGES
@@ -21,21 +27,19 @@ for file in files:
     # print(tp_text)
     # print(doc.metadata)
 
-    ### SEPARATEUR ###
-
-    if index != 0:
-        print(" ---\n")
-
     ### PARTIE NOM FICHIER ###
 
-    print("Filename:")
-    path = sys.argv[1]
-    basename = os.path.basename(path)
-    print(file + '\n')
+    # recuperation du nom du fichier pdf
+    filename_display = "Filename:\n"
+    file_basename = os.path.basename(sys.argv[1] + '\\' + file)
+    filename_display += file_basename + '\n' + '\n'
+
+    # transformation du nom pour le futur fichier texte
+    txt_basename = file_basename[0:file_basename.find('.')]
 
     ### PARTIE TITRE ###
 
-    print("Title:")
+    title_display = "Title:\n"
     title = doc.metadata["title"]
     patternCorrectTitle = r"/|\\"
     if title == "" or re.search(patternCorrectTitle, title) is not None:
@@ -43,15 +47,15 @@ for file in files:
         if re.search(patternTitle, tp_text) is not None:
             title = re.search(patternTitle, tp_text).group(0)
             title = txtmanip.spaceandreturn(title)
-            print(title + '\n')
+            title_display += title + '\n' + '\n'
         else:
-            print("Titre non trouvé !\n")
+            title_display += "Titre non trouvé !\n\n"
     else:
-        print(title + '\n')
+        title_display += title + '\n' + '\n'
 
     ### PARTIE AUTEURS ###
 
-    print("Author:")
+    author_display = "Author:\n"
     author = doc.metadata["author"]
     if author is None or author == "":
         patternAuthors = "([\w.\-]+@[\w.\-]+[.][a-zA-Z]{2,4})"
@@ -64,10 +68,9 @@ for file in files:
                 if email_decompose.find('.') != -1:
                     nom = email_decompose[0:email_decompose.find('.')]
                     prenom = email_decompose[email_decompose.find('.') + 1:]
-                    print(nom, prenom, "; ", end="")
+                    author_display += nom + prenom + "; "
                 else:
-                    print(email_decompose, "; ", end="")
-            print('\n')
+                    author_display += email_decompose + "; "
 
         else:
             patternAuthors = r"^{[\w,\s\-]+}@[\w.\-]+[.][a-zA-Z]{2,4}"
@@ -79,31 +82,41 @@ for file in files:
                     names = re.findall("[\w]+", email_decompose)
 
                     for name in names:
-                        print(name, "; ", end="")
-                print('\n')
+                        author_display += name + "; "
             else:
-                print("Auteurs non trouvés \n")
+                author_display += "Auteurs non trouvés"
     else:
         author = txtmanip.spaceandreturn(author)
-        print(author,'\n')
+        author_display += author
+    author_display += "\n\n"
 
     ### PARTIE ABSTRACT ###
 
     patternAbstract = r"(Abstract(-|.| |\n))\n? ?((.|\n)*)(?=(1(\n| |( \n)|. )Introduction)|(I. INTRODUCTION))"
     patternWithoutAbstract = r"(?<=\n)(.|\n)*(?=(1(\n| |( \n)|. )Introduction)|(I. INTRODUCTION))"
-    print("Abstract:")
+    abstract_display = "Abstract:\n"
 
     if re.search(patternAbstract, tp_text) is not None:
         abstract = re.search(patternAbstract, tp_text).group(3)
         abstract = txtmanip.spaceandreturn(abstract)
-        print(abstract,'\n')
+        abstract_display += abstract
 
     elif re.search(patternWithoutAbstract, tp_text) is not None :
         abstract = re.search(patternWithoutAbstract, tp_text).group(0)
         abstract = txtmanip.spaceandreturn(abstract)
-        print(abstract,'\n')
+        abstract_display += abstract
         
     else:
-        print("Abstract non trouvé !\n")
+        abstract_display += "Abstract non trouvé !"
 
-    index+=1
+    # creation et ouverture du fichier .txt
+    txtFileToFill = open(res_folder_path + '\\' + txt_basename + ".txt", "w+")
+
+    # ecriture du nom du fichier, du titre, des auteurs et de l'abstract
+    txtFileToFill.write(filename_display)
+    txtFileToFill.write(title_display)
+    txtFileToFill.write(author_display)
+    txtFileToFill.write(abstract_display)
+
+    # fermeture du fichier
+    txtFileToFill.close()
