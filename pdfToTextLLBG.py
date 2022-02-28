@@ -36,16 +36,14 @@ for file in files:
     ### PARTIE NOM FICHIER ###
 
     # recuperation du nom du fichier pdf
-    filename_display = "Filename:\n"
     file_basename = os.path.basename(sys.argv[1] + '\\' + file)
-    filename_display += file_basename + '\n' + '\n'
+    filename_display = file_basename + '\n'
 
     # transformation du nom pour le futur fichier texte
     txt_basename = file_basename[0:file_basename.find('.')]
 
     ### PARTIE TITRE ###
 
-    title_display = "Title:\n"
     title = doc.metadata["title"]
     patternCorrectTitle = r"/|\\"
     if title == "" or re.search(patternCorrectTitle, title) is not None:
@@ -53,15 +51,15 @@ for file in files:
         if re.search(patternTitle, tp_text) is not None:
             title = re.search(patternTitle, tp_text).group(0)
             title = txtmanip.spaceandreturn(title)
-            title_display += title + '\n' + '\n'
+            title_display = title + '\n'
         else:
-            title_display += "Titre non trouvé !\n\n"
+            title_display = "Titre non trouvé !\n"
     else:
-        title_display += title + '\n' + '\n'
+        title_display = title + '\n'
 
     ### PARTIE AUTEURS ###
 
-    author_display = "Author:\n"
+    author_display = ""
     author = doc.metadata["author"]
     if author is None or author == "":
         patternAuthors = "([\w.\-]+@[\w.\-]+[.][a-zA-Z]{2,4})"
@@ -94,26 +92,23 @@ for file in files:
     else:
         author = txtmanip.spaceandreturn(author)
         author_display += author
-    author_display += "\n\n"
+    author_display += "\n"
 
     ### PARTIE ABSTRACT ###
 
     patternAbstract = r"(Abstract(-|.| |\n))\n? ?((.|\n)*)(?=(1(\n| |( \n)|. )Introduction)|(I. INTRODUCTION))"
     patternWithoutAbstract = r"(?<=\n)(.|\n)*(?=(1(\n| |( \n)|. )Introduction)|(I. INTRODUCTION))"
-    abstract_display = "Abstract:\n"
 
     if re.search(patternAbstract, tp_text) is not None:
         abstract = re.search(patternAbstract, tp_text).group(3)
-        abstract = txtmanip.spaceandreturn(abstract)
-        abstract_display += abstract
+        abstract_display = txtmanip.spaceandreturn(abstract)
 
     elif re.search(patternWithoutAbstract, tp_text) is not None :
         abstract = re.search(patternWithoutAbstract, tp_text).group(0)
-        abstract = txtmanip.spaceandreturn(abstract)
-        abstract_display += abstract
+        abstract_display = txtmanip.spaceandreturn(abstract)
         
     else:
-        abstract_display += "Abstract non trouvé !"
+        abstract_display = "Abstract non trouvé !"
 
     # creation et ouverture du fichier .txt
     txtFileToFill = open(res_folder_path + '\\' + txt_basename + ".txt", "w+")
