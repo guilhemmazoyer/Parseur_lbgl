@@ -1,0 +1,47 @@
+@startuml Corpus_Analyzer
+
+class PdfToTxt {
+    +folder : String
+    +resFolder : String
+    +manager : FileManager
+
+    -pdfToText(folder) : void
+    +getParts() : void
+    -getTitle() : String
+    -getAuthors(): String
+    -getAbstract() : String
+}
+
+class PdfToXML {
+
+}
+
+class FileManager {
+    +folder : String
+    +resFolder : String
+    +files : Array<String>
+
+    -FilesManager(folder) : void
+    +writeTxt(txt_basename, filename_display, title_display , author_display, abstract_display)
+    +getTextFirstPage() : Array<String>
+    +getMetadatas() : Array<Map<>>
+    +getFiles() : Array<String>
+}
+
+enum textManipulation {
+    REGEX_TITLE
+    REGEX_AUTHORS
+    REGEX_ABSTRACT
+    REGEX_NO_ABSTRACT
+
+    +cleanText(text) : String
+}
+
+Launch .. PdfToTxt
+Launch .. PdfToXML
+
+PdfToTxt *-- FileManager
+PdfToXML *-- FileManager
+PdfToXML *-- PdfToTxt
+
+@enduml
