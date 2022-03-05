@@ -7,7 +7,7 @@ import sys, platform, time, os
 # Affichage de l'assistance
 def helpPDFtoFiles():
     # TODO
-    print("")
+    print("pdfParser help :")
 
 # Heure et index initial
 start_time = time.time()
