@@ -1,13 +1,16 @@
 from lib2to3.pgen2.token import OP
 from fileManager import fileManager as fM
-# from pdfToTxt import pdfToTxt
-# from pdfToXML import pdfToXML
 import sys, platform, time, os
 
 # Affichage de l'assistance
 def helpPDFtoFiles():
-    # TODO
-    print("pdfParser help :")
+    print("\nPython launch.py <Folder path> [Option]")
+    print("\tFolder path:")
+    print("\t\tExact or relative path")
+    print("\tOption:")
+    print("\t\tIf this parameter is leave blank, the option by default is -x")
+    print("\t\t-x Parser from .pdf to .xml files")
+    print("\t\t-t Parser from .pdf to .txt files")
 
 # Heure et index initial
 start_time = time.time()
@@ -39,13 +42,13 @@ if FOLDER == '-h' or FOLDER == "help":
 
 # cas de dossier invalide
 elif FOLDER_EXIST == False:
-    print("Dossier inexistant")
-    print("Pour plus d'informations : Python launch.py -h")
+    print("The \"" + FOLDER + "\" folder does not exist")
+    print("For more information : Python launch.py -h")
 
 # cas d'option invalide
 elif OPTION is not None and OPTION != '-t' and OPTION !='-x':
-    print("Option invalide")
-    print("Pour plus d'informations : Python launch.py -h")
+    print("Invalid option")
+    print("For more information : Python launch.py -h")
 
 # cas valide
 else:
@@ -60,6 +63,6 @@ else:
     interval = time.time() - start_time
 
     # Affichage de fin de programme
-    print('\n' + "Execution de pdfParser termine")
-    print('\t' + str(fM.getIndex()) + " fichiers traites")
-    print('\t' + "Realise en " + str(interval) + " secondes" + '\n')
+    print('\n' + "pdfParser execution completed")
+    print('\t' + str(fM.getIndex()) + " files processed")
+    print('\t' + "Completed in " + str(interval) + " seconds" + '\n')
