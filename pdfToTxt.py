@@ -1,7 +1,7 @@
 import re, sys, os
-import textManipulation as txtmanip
+import textmanipulation as txtmanip
 from fileManager import fileManager
-from textManipulation import REGEX_ABSTRACT, REGEX_AUTHORS, REGEX_NO_ABSTRACT, REGEX_TITLE
+from textmanipulation import REGEX_ABSTRACT, REGEX_AUTHORS, REGEX_NO_ABSTRACT, REGEX_TITLE
 
 class pdfToTxt:
     folder = ""
