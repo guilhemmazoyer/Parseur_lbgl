@@ -1,5 +1,5 @@
 # **Parseur_LLBG**
-## Parseur d'articles scientifiques du format pdf au format texte.
+## Parseur d'articles scientifiques du format pdf au format texte ou xml.
 <br>
 
 ## **1.Installations**
