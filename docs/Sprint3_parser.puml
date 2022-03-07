@@ -1,0 +1,79 @@
+@startuml
+
+package Parser {
+	class Launch {
+		helpPDFtoFiles():void
+		checkFolderExist():boolean
+		checkOption():boolean
+		finishMessage():void
+	}
+
+	class PdfToPlainText {
+		filename:String
+		title:String
+		authors:String[]
+		emails:String[]
+		abstract:String
+		references:String[]
+		pdfToPlainText()
+		fileProcessing(file):void
+	}
+
+	class FileManager {
+		OS_NAME:boolean
+		toFormat:Class
+		FOLDER:String
+		RESULT_FOLDER:String
+		fileManager(toTXT, FOLDER)
+		fileManager(toXML, FOLDER)
+		checkSystem():boolean
+		createResultFolder():void
+		writeTXT(String):void
+		writeXML(String):void
+		getFiles(FOLDER):String[]
+	}
+
+	package ToFormat {
+		class toTXT{
+			folder:String
+			files:String[]
+			FM:FileManager
+			pdfToPlainText:pdfToPlainText
+			toTXT(FOLDER)
+			allPDF():void
+		}
+	
+		class ToXML{
+			folder:String
+			files:String[]
+			FM:FileManager
+			toXML(FOLDER)
+		}
+	}
+
+	package Utils {
+		enum TEXTMANIPULATION {
+			REGEX_TITLE
+			REGEX_AUTHORS
+			REGEX_EMAILS
+			REGEX_MULTI_EMAILS
+			REGEX_ABSTRACT
+			REGEX_NO_ABSTRACT
+			REGEX_REFERENCES
+			cleanText(String):String
+			arrangeTXT(PdfToPlainText):String
+			arrangeXML(PdfToPlainText):String
+		}
+	}
+}
+
+Launch .> ToFormat : FOLDER
+ToXML .> FileManager : FOLDER
+ToXML.> PdfToPlainText : file
+ToXML .> TEXTMANIPULATION : PdfToPlainText
+FileManager .> ToXML : files[]
+PdfToPlainText .> TEXTMANIPULATION : String
+
+hide Launch circle
+
+@enduml

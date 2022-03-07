@@ -1,5 +1,7 @@
+import imp
 from lib2to3.pgen2.token import OP
-from fileManager import fileManager as fM
+from toTXT import ToTXT
+from toXML import ToXML
 import sys, platform, time, os
 
 # Affichage de l'assistance
@@ -11,6 +13,17 @@ def helpPDFtoFiles():
     print("\t\tIf this parameter is leave blank, the option by default is -x")
     print("\t\t-x Parser from .pdf to .xml files")
     print("\t\t-t Parser from .pdf to .txt files")
+
+# Verification de l'existence du dossier rentre en parametre
+def checkFolderExist():
+    return os.path.exists(FOLDER)
+
+# Verification de l'option passée en parametre
+def checkOption(option):
+    if OPTION is not None and OPTION != '-t' and OPTION !='-x':
+        return False
+    else:
+        return True
 
 # Heure et index initial
 start_time = time.time()
@@ -30,39 +43,34 @@ elif len(sys.argv) == 3:
 else:
     helpPDFtoFiles()
 
-# Recuperation du systeme d'exploitation, True si "Windows", False sinon
-OS_NAME = (platform.system() == "Windows")
-
-# Verification de l'existence du dossier rentre en parametre
-FOLDER_EXIST = os.path.exists(FOLDER)
-
 # assistance
 if FOLDER == '-h' or FOLDER == "help":
     helpPDFtoFiles()
 
 # cas de dossier invalide
-elif FOLDER_EXIST == False:
+elif checkFolderExist() == False:
     print("The \"" + FOLDER + "\" folder does not exist")
     print("For more information : Python launch.py -h")
 
 # cas d'option invalide
-elif OPTION is not None and OPTION != '-t' and OPTION !='-x':
+elif checkOption == False:
     print("Invalid option")
     print("For more information : Python launch.py -h")
 
 # cas valide
 else:
-    # Initialise la class fileManager
-    fM.__init__(FOLDER, OPTION)
-    if OS_NAME:
-        fM.pdfFilesProcessingWindows()
+    # Initialise la class ToFormat
+    if OPTION == '-t':
+        ToTXT.__init__(FOLDER)
+        ToTXT.allPDF()
     else:
-        fM.pdfFilesProcessing()
+        ToXML.__init__(FOLDER)
+        ToXML.allPDF()
 
     # Calcul de la duree du programme
     interval = time.time() - start_time
 
     # Affichage de fin de programme
     print('\n' + "pdfParser execution completed")
-    print('\t' + str(fM.getIndex()) + " files processed")
+    print('\t' + str(len(ToXML.files)) + " files processed")
     print('\t' + "Completed in " + str(interval) + " seconds" + '\n')

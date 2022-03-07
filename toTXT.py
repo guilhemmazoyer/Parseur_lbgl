@@ -3,7 +3,7 @@ import textmanipulation as txtmanip
 from fileManager import fileManager
 from textmanipulation import REGEX_ABSTRACT, REGEX_AUTHORS, REGEX_NO_ABSTRACT, REGEX_TITLE
 
-class pdfToTxt:
+class ToTXT:
     folder = ""
     resFolder = ""
     manager = None

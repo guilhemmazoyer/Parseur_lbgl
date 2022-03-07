@@ -1,7 +1,8 @@
 import fitz
-import os, sys, shutil
+import os, sys, shutil, platform
 
-class fileManager:
+class FileManager:
+    OS_NAME = False
     folder = ""
     resFolder = ""
     option = ""
@@ -11,9 +12,9 @@ class fileManager:
     def __init__(self, folder, option):
         self.folder = folder
         self.option = option
-        files = os.listdir(self.folder)
-        files = filter(lambda f: f.endswith(('.pdf', '.PDF')), files)
-        self.files = list(files)
+        
+        # Recuperation du systeme d'exploitation, True si "Windows", False sinon
+        self.OS_NAME = (platform.system() == "Windows")
 
     # Creer un dossier "result" dans le dossier source
     def createResultFolder(self):
