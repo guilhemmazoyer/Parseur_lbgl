@@ -22,6 +22,21 @@ class FileManager:
             shutil.rmtree(self.resFolder)
         os.mkdir(self.resFolder)
 
+    #
+    def openFile(self, file):
+        if self.OS_NAME:
+            return fitz.open(self.folder + "\\" + file)
+        else:
+            return fitz.open(self.folder + "/" + file)
+
+    def getFileName(self, file):
+        if self.OS_NAME:
+            file_basename = os.path.basename(self.folder + "\\" + file)
+        else:
+            file_basename = os.path.basename(self.folder + "/" + file)
+        
+        return file_basename[0:file_basename.find('.')]
+
     # 
     def createResultFileTXT(self):
         # TODO
@@ -55,36 +70,6 @@ class FileManager:
 
         # Fermeture du fichier
         txtFileToFill.close()
-
-    def getTextFirstPage(self):
-        texts = []
-
-        for file in self.files:
-
-            # Ouverture du fichier .pdf
-            doc = fitz.open(sys.argv[1] + '/' + file)
-            page = doc.load_page(0)
-            dl = page.get_displaylist()
-            tp = dl.get_textpage()
-            texts.append(tp.extractText())
-        
-        return texts
-    
-    def getMetadatas(self):
-        metadatas = []
-        index = 0
-        for file in self.files:
-            doc = fitz.open(sys.argv[1] + '/' + file)
-            metadatas.append(doc.metadata)
-            self.index += 1
-
-        return metadatas
-
-    def getFiles(self):
-        return self.files
-    
-    def getIndex(self):
-        return self.index
     
     def pdfFilesProcessing(self):
         # Créer le dossier result

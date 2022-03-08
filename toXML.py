@@ -1,8 +1,7 @@
-import re, sys, os
+import os
 import textmanipulation as txtmanip
 from fileManager import FileManager as fM
 from PdfToPlainText import PdfToPlainText
-from textmanipulation import REGEX_ABSTRACT, REGEX_AUTHORS, REGEX_NO_ABSTRACT, REGEX_TITLE
 
 class ToXML:
     folder = ""
@@ -15,8 +14,8 @@ class ToXML:
         self.folder = folder
 
         # Initialisations de FileManager et PdfToPlainText
-        self.manager = fM.__init__(self,folder)
-        self.pdfTPT = PdfToPlainText.__init__()
+        self.manager = fM.__init__(self,self.folder)
+        self.pdfTPT = PdfToPlainText.__init__(self.manager)
 
         # Recuperation des fichiers
         files = os.listdir(self.folder)
@@ -24,7 +23,6 @@ class ToXML:
         self.files = list(files)
 
     def allPDF(self):
-
         for file in self.files:
             self.pdfTPT.fileProcessing(file)
             result = txtmanip.arrangeXML(self.pdfTPT)
