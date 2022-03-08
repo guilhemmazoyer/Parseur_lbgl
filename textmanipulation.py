@@ -21,8 +21,8 @@ def cleanText(text):
 
 def arrangeTXT(pdfTTP):
     # TODO
-    print("")
+    return "test"
 
 def arrangeXML(pdfTTP):
     # TODO
-    print("")
+    return "test"

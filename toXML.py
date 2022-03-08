@@ -31,4 +31,4 @@ class ToXML:
         for file in self.files:
             self.pdfTPT.fileProcessing(self.pdfTPT, file)
             result = txtmanip.arrangeXML(self.pdfTPT)
-            self.manager.writeXML(result)
+            self.manager.writeXML(self.manager, self.pdfTPT, result)

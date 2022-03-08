@@ -41,9 +41,12 @@ class FileManager:
         return file_basename[0:file_basename.find('.')]
 
     #
-    def writeTxt(self, result):
+    def writeTXT(self, pdfTPT, result):
         # Creation et ouverture du fichier .txt
-        txtFileToFill = open(self.resFolder + '/' + txt_basename + ".txt", "w+")
+        if self.OS_NAME:
+            txtFileToFill = open(self.resFolder + '\\' + pdfTPT.filename + ".txt", "w+")
+        else:
+            txtFileToFill = open(self.resFolder + '/' + pdfTPT.filename + ".txt", "w+")
 
         # Ecriture du nom du fichier, du titre, des auteurs et de l'abstract
         txtFileToFill.write(result)
@@ -52,26 +55,15 @@ class FileManager:
         txtFileToFill.close()
 
     #
-    def writeXML(self, result):
+    def writeXML(self, pdfTPT, result):
         # Creation et ouverture du fichier .txt
-        txtFileToFill = open(self.resFolder + '/' + txt_basename + ".xml", "w+")
+        if self.OS_NAME:
+            txtFileToFill = open(self.resFolder + '\\' + pdfTPT.filename + ".xml", "w+")
+        else:
+            txtFileToFill = open(self.resFolder + '/' + pdfTPT.filename + ".xml", "w+")
 
         # Ecriture du nom du fichier, du titre, des auteurs et de l'abstract
         txtFileToFill.write(result)
 
         # Fermeture du fichier
         txtFileToFill.close()
-    
-    def pdfFilesProcessing(self):
-        # Créer le dossier result
-        self.resFolder = self.folder + "/result"
-        self.createResultFolder(self)
-
-        # TODO
-
-    def pdfFilesProcessingWindows(self):
-         # Créer le dossier result
-        self.resFolder = self.folder + "\result"
-        self.createResultFolder(self)
-
-        # TODO
