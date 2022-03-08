@@ -25,19 +25,19 @@ class PdfToPlainText:
     # Processus majeur, determine tous les attributs a partir d'un fichier
     def fileProcessing(self, file):
         self.currentFile = file
-        self.doc = self.manager.openFile(self.currentFile)
+        self.doc = self.manager.openFile(self.manager, self.currentFile)
 
         # Recupere la premiere page et les metadonnees
-        text = self.getTextFirstPage()
-        metadata = self.getMetadata()
+        text = self.getTextFirstPage(self)
+        metadata = self.getMetadata(self)
 
-        self.__setFilename()
-        self.__setTitle(metadata, text)
-        self.__setAuthorsAndemails(metadata, text)
-        self.__setAbstract(text)
+        self.__setFilename(self)
+        self.__setTitle(self, metadata, text)
+        self.__setAuthorsAndemails(self, metadata, text)
+        self.__setAbstract(self, text)
 
-        fullText = self.getTextAllPages()
-        self.__setReferences(fullText)
+        fullText = self.getTextAllPages(self)
+        self.__setReferences(self, fullText)
 
     # Recupere la page de garde de l'article
     def getTextFirstPage(self):
@@ -52,7 +52,7 @@ class PdfToPlainText:
     # Recupere toutes les pages du documents
     def getTextAllPages(self):
         # Ouverture de toutes les pages du fichier .pdf
-        page = self.doc.load_page()
+        page = self.doc.load_page(0)
         dl = page.get_displaylist()
         tp = dl.get_textpage()
         rawText = tp.extractText()
@@ -65,7 +65,7 @@ class PdfToPlainText:
 
     # Definit le nom du fichier
     def __setFilename(self):
-        self.filename = self.manager.getFileName(self.currentFile)
+        self.filename = self.manager.getFileName(self.manager, self.currentFile)
 
     # Definit le titre de l'article
     def __setTitle(self, metadatas, text):

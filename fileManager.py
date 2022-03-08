@@ -1,5 +1,5 @@
 import fitz
-import os, sys, shutil, platform
+import os, shutil, platform
 
 class FileManager:
     OS_NAME = False
@@ -13,9 +13,15 @@ class FileManager:
         # Recuperation du systeme d'exploitation, True si "Windows", False sinon
         self.OS_NAME = (platform.system() == "Windows")
 
+        # Chemin vers le fichier de resultat
+        if self.OS_NAME:
+            self.resFolder = folder + "\\" + "result"
+        else:
+            self.resFolder = folder + "/" + "result"
+
     # Creer un dossier "result" dans le dossier source
     def createResultFolder(self):
-        if os.path.exist(self.resFolder):
+        if os.path.exists(self.resFolder):
             shutil.rmtree(self.resFolder)
         os.mkdir(self.resFolder)
 
@@ -34,36 +40,24 @@ class FileManager:
         
         return file_basename[0:file_basename.find('.')]
 
-    # 
-    def createResultFileTXT(self):
-        # TODO
-        print("")
-    
     #
-    def createResultFileXML(self):
-        # TODO
-        print("")
-
-    #
-    def writeTxt(self, txt_basename, filename_display, title_display , author_display, abstract_display):
+    def writeTxt(self, result):
         # Creation et ouverture du fichier .txt
         txtFileToFill = open(self.resFolder + '/' + txt_basename + ".txt", "w+")
 
         # Ecriture du nom du fichier, du titre, des auteurs et de l'abstract
-        txtFileToFill.write(filename_display)
-        txtFileToFill.write(title_display)
-        txtFileToFill.write(author_display)
-        txtFileToFill.write(abstract_display)
+        txtFileToFill.write(result)
 
         # Fermeture du fichier
         txtFileToFill.close()
 
     #
-    def writeXML(self, txt_basename, filename_display, title_display , author_display, abstract_display):
-        # Creation et ouverture du fichier .xml
+    def writeXML(self, result):
+        # Creation et ouverture du fichier .txt
         txtFileToFill = open(self.resFolder + '/' + txt_basename + ".xml", "w+")
 
-        # TODO
+        # Ecriture du nom du fichier, du titre, des auteurs et de l'abstract
+        txtFileToFill.write(result)
 
         # Fermeture du fichier
         txtFileToFill.close()

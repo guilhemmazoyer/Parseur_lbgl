@@ -14,8 +14,13 @@ class ToXML:
         self.folder = folder
 
         # Initialisations de FileManager et PdfToPlainText
-        self.manager = fM.__init__(fM, self.folder)
-        self.pdfTPT = PdfToPlainText.__init__(PdfToPlainText, self.manager)
+        fM.__init__(fM, self.folder)
+        self.manager = fM
+        PdfToPlainText.__init__(PdfToPlainText, self.manager)
+        self.pdfTPT = PdfToPlainText
+
+        # Creer le dossier resultat
+        self.manager.createResultFolder(self.manager)
 
         # Recuperation des fichiers
         files = os.listdir(self.folder)
@@ -24,6 +29,6 @@ class ToXML:
 
     def allPDF(self):
         for file in self.files:
-            self.pdfTPT.fileProcessing(file)
+            self.pdfTPT.fileProcessing(self.pdfTPT, file)
             result = txtmanip.arrangeXML(self.pdfTPT)
             self.manager.writeXML(result)
