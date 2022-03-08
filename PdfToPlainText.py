@@ -52,6 +52,8 @@ class PdfToPlainText:
     # Recupere toutes les pages du documents
     def getTextAllPages(self):
         # Ouverture de toutes les pages du fichier .pdf
+        # TODO
+
         page = self.doc.load_page(0)
         dl = page.get_displaylist()
         tp = dl.get_textpage()
