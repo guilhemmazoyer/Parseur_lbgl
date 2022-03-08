@@ -14,8 +14,8 @@ class ToTXT:
         self.folder = folder
 
         # Initialisations de FileManager et PdfToPlainText
-        self.manager = fM.__init__(self,self.folder)
-        self.pdfTPT = PdfToPlainText.__init__(self.manager)
+        self.manager = fM.__init__(fM, self.folder)
+        self.pdfTPT = PdfToPlainText.__init__(PdfToPlainText, self.manager)
 
         # Recuperation des fichiers
         files = os.listdir(self.folder)

@@ -1,8 +1,7 @@
-import imp
 from lib2to3.pgen2.token import OP
 from toTXT import ToTXT
 from toXML import ToXML
-import sys, platform, time, os
+import sys, time, os
 
 # Affichage de l'assistance
 def helpPDFtoFiles():
@@ -61,11 +60,11 @@ elif checkOption == False:
 else:
     # Initialise la class ToFormat
     if OPTION == '-t':
-        ToTXT.__init__(FOLDER)
-        ToTXT.allPDF()
+        ToTXT.__init__(ToTXT, FOLDER)
+        ToTXT.allPDF(ToTXT)
     else:
-        ToXML.__init__(FOLDER)
-        ToXML.allPDF()
+        ToXML.__init__(ToXML, FOLDER)
+        ToXML.allPDF(ToXML)
 
     # Calcul de la duree du programme
     interval = time.time() - start_time

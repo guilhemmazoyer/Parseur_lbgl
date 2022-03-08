@@ -5,13 +5,10 @@ class FileManager:
     OS_NAME = False
     folder = ""
     resFolder = ""
-    option = ""
-    index = 0
     files = []
 
-    def __init__(self, folder, option):
+    def __init__(self, folder):
         self.folder = folder
-        self.option = option
         
         # Recuperation du systeme d'exploitation, True si "Windows", False sinon
         self.OS_NAME = (platform.system() == "Windows")
