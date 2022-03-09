@@ -68,6 +68,7 @@ class PdfToPlainText:
     def __setTitle(self, metadatas, text):
         title = metadatas["title"]
 
+        # Si metadata vide
         if title is None or title == "":
             # On recupere le titre avec regex (premiere ligne)
             if re.search(REGEX_TITLE, text) is not None:
