@@ -23,17 +23,18 @@ sudo apt install python3-pip
 
 PyMuPDF
 ```
-$ pip install PyMuPDF
+pip install PyMuPDF
 ```
 
 ## Utilisation
 
-- Le programme nécessite en paramètre le dossier dans lequel sont rangés les fichiers au format PDF à modifier. 
-- Le dossier de résultat sera créer à l'emplacement donné en paramètre et rassemblera les fichiers textes générés à partir des fichier PDF.
+```
+python ./launch.py <folder> [Option]
+```
+### Folder
 
-```
-$ Python ./launch.py <folder> [Option]
-```
+- Le programme nécessite en paramètre le dossier dans lequel sont rangés les fichiers au format PDF à extraire. 
+- Le dossier de résultat sera créé à cette emplacement donné en paramètre et rassemblera les fichiers résultats générés à partir des fichiers au format PDF.
 
 ### Options
 
