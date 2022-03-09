@@ -1,4 +1,4 @@
-from math import floor, ceil, fmod
+from math import floor, ceil
 
 class ProgressBar:
     total_index = 0
