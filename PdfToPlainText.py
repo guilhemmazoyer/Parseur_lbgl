@@ -54,6 +54,8 @@ class PdfToPlainText:
         # Ouverture de toutes les pages du fichier .pdf
         # TODO
 
+        # Ouverture de la premiere page du fichier .pdf
+        # A enlever apres la realisation de la partie au dessus
         page = self.doc.load_page(0)
         dl = page.get_displaylist()
         tp = dl.get_textpage()
@@ -86,6 +88,8 @@ class PdfToPlainText:
 
         self.title = title
 
+
+
     # Definit les auteurs et leurs emails
     def __setAuthorsAndemails(self, metadatas, text):
         authorDisplay = ""
@@ -117,11 +121,14 @@ class PdfToPlainText:
                 else:
                     authorDisplay += "Auteurs non trouvés"
         else:
+            self.__getEmails(self, text)
             author = txtmanip.cleanText(author)
-            authorDisplay += author
+            authorDisplay = author
 
-        authorDisplay += "\n"
         return authorDisplay
+
+    def __getEmails(self, text):
+        
 
     # Definit la partie Abstract de l'article
     def __setAbstract(self, text):

@@ -20,9 +20,37 @@ def cleanText(text):
     return text
 
 def arrangeTXT(pdfTTP):
-    # TODO
-    return "test"
+    mergeAll = pdfTTP.filename + '\n' + pdfTTP.title + '\n'
+
+    for author in pdfTTP.authors:
+        mergeAll += author + '; '
+    mergeAll += '\n'
+
+    for email in pdfTTP.emails:
+        mergeAll += email + '; '
+
+    mergeAll += '\n' + pdfTTP.abstract + '\n' + pdfTTP.references
+
+    return mergeAll
 
 def arrangeXML(pdfTTP):
-    # TODO
-    return "test"
+    mergeAll = "<article>\n"
+    mergeAll += "\t<preamble> " + pdfTTP.filename + " </preamble>\n"
+    mergeAll += "\t<titre> " + pdfTTP.title + " </title>\n"
+    mergeAll += "\t<auteurs>\n"
+    
+    i = 0
+    for author in pdfTTP.authors:
+        mergeAll = "\t\t<auteur>\n"
+        mergeAll = "\t\t\t<name>\n " + author + " </name>\n"
+        mergeAll = "\t\t\t<mail> " + pdfTTP.emails[i] + " </mail>\n"
+        mergeAll = "\t\t</auteur>\n"
+
+        i+=1
+    
+    mergeAll += "\t</auteurs>\n"
+    mergeAll += "\t<abstract> " + pdfTTP.abstract + " </abstract>\n"
+    mergeAll += "\t<biblio> " + pdfTTP.references + " </biblio>\n"
+    mergeAll += "</article>"
+
+    return mergeAll
