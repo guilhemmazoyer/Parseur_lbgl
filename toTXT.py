@@ -16,13 +16,11 @@ class ToTXT:
         self.folder = folder
 
         # Initialisations de FileManager et PdfToPlainText
-        fM.__init__(fM, self.folder)
-        self.manager = fM
-        PdfToPlainText.__init__(PdfToPlainText, self.manager)
-        self.pdfTPT = PdfToPlainText
+        self.manager = fM(self.folder)
+        self.pdfTPT = PdfToPlainText(self.manager)
 
         # Creer le dossier resultat
-        self.manager.createResultFolder(self.manager)
+        self.manager.createResultFolder()
 
         # Recuperation des fichiers
         files = os.listdir(self.folder)
@@ -30,13 +28,13 @@ class ToTXT:
         self.files = list(files)
 
     def allPDF(self, numberTotalFiles):
-        pbar.__init__(pbar, numberTotalFiles)
+        progressBar = pbar(numberTotalFiles)
         index = 0
-        pbar.progress(pbar, index)
+        pbar.progress(index)
         for file in self.files:
-            self.pdfTPT.fileProcessing(self.pdfTPT, file)
+            self.pdfTPT.fileProcessing(file)
             result = txtmanip.arrangeTXT(self.pdfTPT)
-            self.manager.writeTXT(self.manager, self.pdfTPT, result)
-            pbar.progress(pbar, index)
+            self.manager.writeTXT(self.pdfTPT, result)
+            progressBar.progress(index)
             index += 1
-        pbar.progress(pbar, index)
+        progressBar.progress(index)

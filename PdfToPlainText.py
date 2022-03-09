@@ -25,30 +25,25 @@ class PdfToPlainText:
     # Processus majeur, determine tous les attributs a partir d'un fichier
     def fileProcessing(self, file):
 
-        self.resetCoreVariables(self)
+        self.resetCoreVariables()
 
         self.currentFile = file
-        self.doc = self.manager.openFile(self.manager, self.currentFile)
+        self.doc = self.manager.openFile(self.currentFile)
 
         # Recupere la premiere page et les metadonnees
-        text = self.getTextFirstPage(self)
-        metadata = self.getMetadata(self)
+        text = self.getTextFirstPage()
+        metadata = self.getMetadata()
 
-        self.__setFilename(self)
-        self.__setTitle(self, metadata, text)
-        self.__setAuthorsAndEmails(self, metadata, text)
-        self.__setAbstract(self, text)
-
-        self.__setReferences(self)
+        self.__setFilename()
+        self.__setTitle(metadata, text)
+        self.__setAuthorsAndEmails(metadata, text)
+        self.__setAbstract(text)
+        self.__setReferences()
 
     def resetCoreVariables(self):
-        self.currentFile = ""
         self.doc = []
-        self.filename = ""
-        self.title = ""
         self.authors = []
         self.emails = []
-        self.abstract = ""
         self.references = []
 
     # Recupere la page de garde de l'article
@@ -67,7 +62,7 @@ class PdfToPlainText:
 
     # Definit le nom du fichier
     def __setFilename(self):
-        self.filename = self.manager.getFileName(self.manager, self.currentFile)
+        self.filename = self.manager.getFileName(self.currentFile)
 
     # Definit le titre de l'article
     def __setTitle(self, metadatas, text):
@@ -95,7 +90,7 @@ class PdfToPlainText:
     # Definit les auteurs et leurs emails
     def __setAuthorsAndEmails(self, metadatas, text):
         meta_author = metadatas["author"]
-        type_email = self.findEmails(self, text)
+        type_email = self.findEmails(text)
 
         if meta_author is None or meta_author == "":
             if type_email == 0:
