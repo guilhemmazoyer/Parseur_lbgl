@@ -39,6 +39,7 @@ def arrangeXML(pdfTTP):
     mergeAll += "\t<titre> " + pdfTTP.title + " </title>\n"
     mergeAll += "\t<auteurs>\n"
     
+    '''
     i = 0
     for author in pdfTTP.authors:
         mergeAll = "\t\t<auteur>\n"
@@ -47,6 +48,7 @@ def arrangeXML(pdfTTP):
         mergeAll = "\t\t</auteur>\n"
 
         i+=1
+    '''
     
     mergeAll += "\t</auteurs>\n"
     mergeAll += "\t<abstract> " + pdfTTP.abstract + " </abstract>\n"

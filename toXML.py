@@ -1,5 +1,6 @@
 import os
 import textmanipulation as txtmanip
+import progressbar as pbar
 from fileManager import FileManager as fM
 from PdfToPlainText import PdfToPlainText
 
@@ -28,7 +29,11 @@ class ToXML:
         self.files = list(files)
 
     def allPDF(self):
+        total_index = len(self.files)
+        index = 0
+        pbar.progress(index, total_index)
         for file in self.files:
             self.pdfTPT.fileProcessing(self.pdfTPT, file)
             result = txtmanip.arrangeXML(self.pdfTPT)
             self.manager.writeXML(self.manager, self.pdfTPT, result)
+        pbar.progress(index, total_index)

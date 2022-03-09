@@ -36,26 +36,11 @@ class PdfToPlainText:
         self.__setAuthorsAndEmails(self, metadata, text)
         self.__setAbstract(self, text)
 
-        fullText = self.getTextAllPages(self)
-        self.__setReferences(self, fullText)
+        self.__setReferences(self)
 
     # Recupere la page de garde de l'article
     def getTextFirstPage(self):
         # Ouverture de la premiere page du fichier .pdf
-        page = self.doc.load_page(0)
-        dl = page.get_displaylist()
-        tp = dl.get_textpage()
-        rawText = tp.extractText()
-
-        return txtmanip.cleanText(rawText)
-    
-    # Recupere toutes les pages du documents
-    def getTextAllPages(self):
-        # Ouverture de toutes les pages du fichier .pdf
-        # TODO
-
-        # Ouverture de la premiere page du fichier .pdf
-        # A enlever apres la realisation de la partie au dessus
         page = self.doc.load_page(0)
         dl = page.get_displaylist()
         tp = dl.get_textpage()
@@ -87,8 +72,6 @@ class PdfToPlainText:
             title = "Titre non trouvé !"
 
         self.title = title
-
-
 
     # Definit les auteurs et leurs emails
     def __setAuthorsAndEmails(self, metadatas, text):
