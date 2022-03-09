@@ -24,6 +24,9 @@ class PdfToPlainText:
     
     # Processus majeur, determine tous les attributs a partir d'un fichier
     def fileProcessing(self, file):
+
+        self.resetCoreVariables(self)
+
         self.currentFile = file
         self.doc = self.manager.openFile(self.manager, self.currentFile)
 
@@ -37,6 +40,16 @@ class PdfToPlainText:
         self.__setAbstract(self, text)
 
         self.__setReferences(self)
+
+    def resetCoreVariables(self):
+        self.currentFile = ""
+        self.doc = []
+        self.filename = ""
+        self.title = ""
+        self.authors = []
+        self.emails = []
+        self.abstract = ""
+        self.references = []
 
     # Recupere la page de garde de l'article
     def getTextFirstPage(self):
@@ -60,8 +73,14 @@ class PdfToPlainText:
     def __setTitle(self, metadatas, text):
         title = metadatas["title"]
 
+        if title is None or title == "":
+            # On recupere le titre avec regex (premiere ligne)
+            if re.search(REGEX_TITLE, text) is not None:
+                title = re.search(REGEX_TITLE, text).group(0)
+                title = txtmanip.cleanText(title)
+
         # Si les metadata sont incoherentes
-        if re.search(REGEX_CORRECT_TITLE, title) is not None:
+        elif re.search(REGEX_CORRECT_TITLE, title) is not None:
             
             # On recupere le titre avec regex (premiere ligne)
             if re.search(REGEX_TITLE, text) is not None:
@@ -80,7 +99,7 @@ class PdfToPlainText:
 
         if meta_author is None or meta_author == "":
             if type_email == 0:
-                self.authors = "Auteurs non trouvés"
+                self.authors.append("Auteurs non trouvés")
 
             elif type_email == 1:
                 for email in self.emails:
@@ -104,7 +123,7 @@ class PdfToPlainText:
     
         else:
             meta_author = txtmanip.cleanText(meta_author)
-            self.authors = meta_author
+            self.authors.append(meta_author)
 
     # Trouve les emails et renvoie le type de formulation de celle-ci
     def findEmails(self, text):
@@ -139,6 +158,6 @@ class PdfToPlainText:
         return abstractDisplay
 
     # Definit les references de l'article
-    def __setReferences(self, fullText):
+    def __setReferences(self):
         # TODO
-        print()
+        self.references.append("test")

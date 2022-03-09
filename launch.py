@@ -61,15 +61,17 @@ else:
     # Initialise la class ToFormat
     if OPTION == '-t':
         ToTXT.__init__(ToTXT, FOLDER)
-        ToTXT.allPDF(ToTXT)
+        numberTotalFiles = len(ToTXT.files)
+        ToTXT.allPDF(ToTXT, numberTotalFiles)
     else:
         ToXML.__init__(ToXML, FOLDER)
-        ToXML.allPDF(ToXML)
+        numberTotalFiles = len(ToXML.files)
+        ToXML.allPDF(ToXML, numberTotalFiles)
 
     # Calcul de la duree du programme
     interval = time.time() - start_time
 
     # Affichage de fin de programme
     print('\n' + "pdfParser execution completed")
-    print('\t' + str(len(ToXML.files)) + " files processed")
+    print('\t' + str(numberTotalFiles) + " files processed")
     print('\t' + "Completed in " + str(interval) + " seconds" + '\n')

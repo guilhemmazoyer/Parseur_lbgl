@@ -29,7 +29,10 @@ def arrangeTXT(pdfTTP):
     for email in pdfTTP.emails:
         mergeAll += email + '; '
 
-    mergeAll += '\n' + pdfTTP.abstract + '\n' + pdfTTP.references
+    mergeAll += '\n' + pdfTTP.abstract
+
+    for reference in pdfTTP.references:
+        mergeAll += reference + "; "
 
     return mergeAll
 
@@ -52,7 +55,10 @@ def arrangeXML(pdfTTP):
     
     mergeAll += "\t</auteurs>\n"
     mergeAll += "\t<abstract> " + pdfTTP.abstract + " </abstract>\n"
-    mergeAll += "\t<biblio> " + pdfTTP.references + " </biblio>\n"
+    mergeAll += "\t<biblios>\n"
+    for reference in pdfTTP.references:
+        mergeAll += "\t\t<biblio> " + reference + " </biblio>\n"
+    mergeAll += "\t</biblios>\n"
     mergeAll += "</article>"
 
     return mergeAll

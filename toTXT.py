@@ -3,6 +3,7 @@ import textmanipulation as txtmanip
 import progressbar as pbar
 from fileManager import FileManager as fM
 from PdfToPlainText import PdfToPlainText
+from progressbar import ProgressBar as pbar
 
 class ToTXT:
     folder = ""
@@ -28,12 +29,14 @@ class ToTXT:
         files = filter(lambda f: f.endswith(('.pdf', '.PDF')), files)
         self.files = list(files)
 
-    def allPDF(self):
-        total_index = len(self.files)
+    def allPDF(self, numberTotalFiles):
+        pbar.__init__(pbar, numberTotalFiles)
         index = 0
-        pbar.progress(index, total_index)
+        pbar.progress(pbar, index)
         for file in self.files:
             self.pdfTPT.fileProcessing(self.pdfTPT, file)
-            result = txtmanip.arrangeXML(self.pdfTPT)
+            result = txtmanip.arrangeTXT(self.pdfTPT)
             self.manager.writeTXT(self.manager, self.pdfTPT, result)
-        pbar.progress(index, total_index)
+            pbar.progress(pbar, index)
+            index += 1
+        pbar.progress(pbar, index)
