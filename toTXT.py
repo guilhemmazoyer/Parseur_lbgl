@@ -30,7 +30,7 @@ class ToTXT:
     def allPDF(self, numberTotalFiles):
         progressBar = pbar(numberTotalFiles)
         index = 0
-        pbar.progress(index)
+        progressBar.progress(index)
         for file in self.files:
             self.pdfTPT.fileProcessing(file)
             result = txtmanip.arrangeTXT(self.pdfTPT)
