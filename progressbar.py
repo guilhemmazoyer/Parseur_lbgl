@@ -9,18 +9,17 @@ class ProgressBar:
         
     def progress(self, index):
         percent = floor((index/self.total_index)*100)
+        add = 0
+        i = 0
+        iv = 0
 
         # premier cas
         if index == 0:
-            add = 0
-            i = 0
             iv = 20
         
         # dernier cas
         elif index == self.total_index:
-            add = 0
             i = 20
-            iv = 0
         
         # tous les cas intermediaires
         else:

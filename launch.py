@@ -70,6 +70,7 @@ else:
 
     # Calcul de la duree du programme
     interval = time.time() - start_time
+    interval = round(interval, 2)
 
     # Affichage de fin de programme
     print('\n' + "pdfParser execution completed")
