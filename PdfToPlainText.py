@@ -1,8 +1,8 @@
 import re
 import textmanipulation as txtmanip
 from textmanipulation import (
-    REGEX_TITLE, REGEX_CORRECT_TITLE, REGEX_AUTHORS,
-    REGEX_MULTI_AUTHORS, REGEX_ABSTRACT, REGEX_NO_ABSTRACT)
+    REGEX_TITLE, REGEX_CORRECT_TITLE, REGEX_EMAILS,
+    REGEX_MULTI_EMAILS, REGEX_ABSTRACT, REGEX_NO_ABSTRACT)
 
 class PdfToPlainText:
     # variables utiles pour les operations
@@ -33,7 +33,7 @@ class PdfToPlainText:
 
         self.__setFilename(self)
         self.__setTitle(self, metadata, text)
-        self.__setAuthorsAndemails(self, metadata, text)
+        self.__setAuthorsAndEmails(self, metadata, text)
         self.__setAbstract(self, text)
 
         fullText = self.getTextAllPages(self)
@@ -91,44 +91,51 @@ class PdfToPlainText:
 
 
     # Definit les auteurs et leurs emails
-    def __setAuthorsAndemails(self, metadatas, text):
-        authorDisplay = ""
-        author = metadatas["author"]
+    def __setAuthorsAndEmails(self, metadatas, text):
+        meta_author = metadatas["author"]
+        type_email = self.findEmails(self, text)
 
-        if author is None or author == "":
-            if re.search(REGEX_AUTHORS, text) is not None:
-                authorsEmail = re.findall(REGEX_AUTHORS, text)
-                for author in authorsEmail:
-                    email_decompose = author[0:author.find('@')]
+        if meta_author is None or meta_author == "":
+            if type_email == 0:
+                self.authors = "Auteurs non trouvés"
+
+            elif type_email == 1:
+                for email in self.emails:
+                    email_decompose = email[0:email.find('@')]
 
                     if email_decompose.find('.') != -1:
                         nom = email_decompose[0:email_decompose.find('.')]
                         prenom = email_decompose[email_decompose.find('.') + 1:]
-                        authorDisplay += nom + prenom + "; "
+                        self.authors.append(nom + " " + prenom)
+                        
                     else:
-                        authorDisplay += email_decompose + "; "
+                        self.authors.append(email_decompose)
 
             else:
-                if re.search(REGEX_MULTI_AUTHORS, text, re.MULTILINE) is not None:
-                    authorsEmail = re.findall(REGEX_MULTI_AUTHORS, text, re.MULTILINE)
+                for email in self.emails:
+                    email_decompose = email[email.find('{') + 1:email.find('}')]
+                    names = re.findall("[\w]+", email_decompose)
 
-                    for author in authorsEmail:
-                        email_decompose = author[author.find('{') + 1:author.find('}')]
-                        names = re.findall("[\w]+", email_decompose)
-
-                        for name in names:
-                            authorDisplay += name + "; "
-                else:
-                    authorDisplay += "Auteurs non trouvés"
+                    for name in names:
+                        self.authors.append(name)
+    
         else:
-            self.__getEmails(self, text)
-            author = txtmanip.cleanText(author)
-            authorDisplay = author
+            meta_author = txtmanip.cleanText(meta_author)
+            self.authors = meta_author
 
-        return authorDisplay
+    # Trouve les emails et renvoie le type de formulation de celle-ci
+    def findEmails(self, text):
+        if re.search(REGEX_EMAILS, text) is not None:
+            self.emails = re.findall(REGEX_EMAILS, text)
+            return 1
 
-    def __getEmails(self, text):
+        elif re.search(REGEX_MULTI_EMAILS, text, re.MULTILINE) is not None:
+            self.emails = re.search(REGEX_MULTI_EMAILS, text, re.MULTILINE)
+            return 2
         
+        else:
+            self.emails = "Emails introuvables"
+            return 0
 
     # Definit la partie Abstract de l'article
     def __setAbstract(self, text):
