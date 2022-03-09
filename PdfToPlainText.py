@@ -1,8 +1,9 @@
 import re
 import textmanipulation as txtmanip
 from textmanipulation import (
-    REGEX_TITLE, REGEX_CORRECT_TITLE, REGEX_EMAILS,
-    REGEX_MULTI_EMAILS, REGEX_ABSTRACT, REGEX_NO_ABSTRACT)
+    REGEX_TITLE, REGEX_INCORRECT_TITLE, REGEX_EMAILS,
+    REGEX_MULTI_EMAILS, REGEX_ABSTRACT, REGEX_NO_ABSTRACT,
+    REGEX_REFERENCES)
 
 class PdfToPlainText:
     # variables utiles pour les operations
@@ -68,23 +69,14 @@ class PdfToPlainText:
     def __setTitle(self, metadatas, text):
         title = metadatas["title"]
 
-        # Si metadata vide
-        if title is None or title == "":
+        # Si metadata vide ou incorrect
+        if title is None or title == "" or re.search(REGEX_INCORRECT_TITLE, title) is not None:
             # On recupere le titre avec regex (premiere ligne)
             if re.search(REGEX_TITLE, text) is not None:
                 title = re.search(REGEX_TITLE, text).group(0)
                 title = txtmanip.cleanText(title)
-
-        # Si les metadata sont incoherentes
-        elif re.search(REGEX_CORRECT_TITLE, title) is not None:
-            
-            # On recupere le titre avec regex (premiere ligne)
-            if re.search(REGEX_TITLE, text) is not None:
-                title = re.search(REGEX_TITLE, text).group(0)
-                title = txtmanip.cleanText(title)
-                
-        else:
-            title = "Titre non trouvé !"
+            else:
+                title = "Titre non trouvé"
 
         self.title = title
 
@@ -95,7 +87,7 @@ class PdfToPlainText:
 
         if meta_author is None or meta_author == "":
             if type_email == 0:
-                self.authors.append("Auteurs non trouvés")
+                self.authors.append("Auteur non trouvé")
 
             elif type_email == 1:
                 for email in self.emails:
@@ -115,8 +107,10 @@ class PdfToPlainText:
                     names = re.findall("[\w]+", email_decompose)
 
                     for name in names:
-                        self.authors.append(name)
-    
+                            self.authors.append(name)
+            
+            self.authors = txtmanip.authorFormat(self.authors)
+
         else:
             meta_author = txtmanip.cleanText(meta_author)
             self.authors.append(meta_author)
@@ -132,7 +126,7 @@ class PdfToPlainText:
             return 2
         
         else:
-            self.emails = "Emails introuvables"
+            self.emails.append("Email non trouvé")
             return 0
 
     # Definit la partie Abstract de l'article
@@ -149,7 +143,7 @@ class PdfToPlainText:
             abstractDisplay = txtmanip.cleanText(abstract)
             
         else:
-            abstractDisplay = "Abstract non trouvé !"
+            abstractDisplay = "Abstract non trouvé"
 
         return abstractDisplay
 

@@ -1,5 +1,5 @@
 REGEX_TITLE = r"^\A(.*)\n"
-REGEX_CORRECT_TITLE = r"/|\\"
+REGEX_INCORRECT_TITLE = r"/|\\"
 REGEX_EMAILS = r"([\w.\-]+@[\w.\-]+[.][a-zA-Z]{2,4})"
 REGEX_MULTI_EMAILS = r"^{[\w,\s\-]+}@[\w.\-]+[.][a-zA-Z]{2,4}"
 REGEX_ABSTRACT = r"(Abstract(-|.| |\n))\n? ?((.|\n)*)(?=(1(\n| |( \n)|. )Introduction)|(I. INTRODUCTION))"
@@ -20,6 +20,12 @@ def cleanText(text):
     
     return text
 
+def authorFormat(authors):
+    newAuthors = []
+    for author in authors:
+        newAuthors.append(author.title())
+    return newAuthors
+
 def arrangeTXT(pdfTTP):
     mergeAll = pdfTTP.filename + '\n' + pdfTTP.title + '\n'
 
@@ -29,8 +35,9 @@ def arrangeTXT(pdfTTP):
 
     for email in pdfTTP.emails:
         mergeAll += email + '; '
+    mergeAll += '\n'
 
-    mergeAll += '\n' + pdfTTP.abstract
+    mergeAll += pdfTTP.abstract + '\n'
 
     for reference in pdfTTP.references:
         mergeAll += reference + "; "
