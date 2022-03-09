@@ -1,22 +1,39 @@
-from math import floor
+from math import floor, ceil, fmod
 
 class ProgressBar:
     total_index = 0
-    mod = 0
 
     def __init__(self, total_index) -> None:
         self.total_index = total_index
-        self.mod = self.total_index/20
+        self.mod = self.total_index / 20
         
     def progress(self, index):
-        #percent = floor((index/self.total_index)*100)
+        percent = floor((index/self.total_index)*100)
 
-        i = floor(index%self.mod)
-        iv = 20-i
-        add = 1
-
-        if index == 0 or index == self.total_index:
+        # premier cas
+        if index == 0:
             add = 0
+            i = 0
+            iv = 20
+        
+        # dernier cas
+        elif index == self.total_index:
+            add = 0
+            i = 20
+            iv = 0
+        
+        # tous les cas intermediaires
+        else:
+            i = ceil(index / self.mod)
+            iv = 20-i
+            add = 1
+            i -= 1
+        
+        # file%
+        #print('\r' + "Progress : [" + i*"■" + add*"◼" + iv*"-" + "] " + str(percent) + "%", end="")
 
-        #print('\r' + "Progress : [" + (i-1)*"■" + add*"◼" + iv*"-" + "] " + str(percent) + "% (" + str(index) + "/" + str(self.total_index) + ")", end="")
-        print('\r' + "Progress : [" + (i-1)*"■" + add*"◼" + iv*"-" + "] " " (" + str(index) + "/" + str(self.total_index) + ")", end="")
+        # file% (file/total)
+        print('\r' + "Progress : [" + i*"■" + add*"◼" + iv*"-" + "] " + str(percent) + "% (" + str(index) + "/" + str(self.total_index) + ")", end="")
+
+        # (file/total)
+        #print('\r' + "Progress : [" + i*"■" + add*"◼" + iv*"-" + "] (" + str(index) + "/" + str(self.total_index) + ")", end="")
