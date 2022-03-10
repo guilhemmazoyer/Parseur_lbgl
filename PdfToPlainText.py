@@ -63,7 +63,8 @@ class PdfToPlainText:
 
     # Definit le nom du fichier
     def __setFilename(self):
-        self.filename = self.manager.getFileName(self.currentFile)
+        file_basename = self.manager.getFileName(self.currentFile)
+        self.filename = file_basename[0:file_basename.find('.')]
 
     # Definit le titre de l'article
     def __setTitle(self, metadatas, text):
@@ -131,21 +132,18 @@ class PdfToPlainText:
 
     # Definit la partie Abstract de l'article
     def __setAbstract(self, text):
-        patternAbstract = REGEX_ABSTRACT
-        patternWithoutAbstract = REGEX_NO_ABSTRACT
+        if re.search(REGEX_ABSTRACT, text) is not None:
+            abstract = re.search(REGEX_ABSTRACT, text).group(3)
+            abstract = txtmanip.cleanText(abstract)
 
-        if re.search(patternAbstract, text) is not None:
-            abstract = re.search(patternAbstract, text).group(3)
-            abstractDisplay = txtmanip.cleanText(abstract)
-
-        elif re.search(patternWithoutAbstract, text) is not None :
-            abstract = re.search(patternWithoutAbstract, text).group(0)
-            abstractDisplay = txtmanip.cleanText(abstract)
+        elif re.search(REGEX_NO_ABSTRACT, text) is not None :
+            abstract = re.search(REGEX_NO_ABSTRACT, text).group(0)
+            abstract = txtmanip.cleanText(abstract)
             
         else:
-            abstractDisplay = "Abstract non trouvé"
+            abstract = "Abstract non trouvé"
 
-        return abstractDisplay
+        self.abstract = abstract
 
     # Definit les references de l'article
     def __setReferences(self):
