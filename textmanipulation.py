@@ -6,6 +6,7 @@ REGEX_ABSTRACT = r"(Abstract(-|.| |\n))\n? ?((.|\n)*)(?=(1(\n| |( \n)|. )Introdu
 REGEX_NO_ABSTRACT = r"(?<=\n)(.|\n)*(?=(1(\n| |( \n)|. )Introduction)|(I. INTRODUCTION))"
 REGEX_REFERENCES = ""
 
+# Retire les caracteres indesirables d'un String
 def cleanText(text):
     # Pour que le texte soit sur une seule ligne
     text = text.replace('\n', ' ')
@@ -20,51 +21,53 @@ def cleanText(text):
     
     return text
 
+# Passe la première lettre du nom et prenom des auteurs en majuscule
 def authorFormat(authors):
     newAuthors = []
     for author in authors:
         newAuthors.append(author.title())
     return newAuthors
 
-def arrangeTXT(pdfTTP):
-    mergeAll = pdfTTP.filename + '\n' + pdfTTP.title + '\n'
+# Arrange le texte ecris dans le fichier .xml a partir des attributs de pdfTPT
+def arrangeTXT(pdfTPT):
+    mergeAll = pdfTPT.filename + '\n' + pdfTPT.title + '\n'
 
-    for author in pdfTTP.authors:
+    for author in pdfTPT.authors:
         mergeAll += author + '; '
     mergeAll += '\n'
 
-    for email in pdfTTP.emails:
+    for email in pdfTPT.emails:
         mergeAll += email + '; '
     mergeAll += '\n'
 
-    mergeAll += pdfTTP.abstract + '\n'
+    mergeAll += pdfTPT.abstract + '\n'
 
-    for reference in pdfTTP.references:
+    for reference in pdfTPT.references:
         mergeAll += reference + "; "
 
     return mergeAll
 
-def arrangeXML(pdfTTP):
+def arrangeXML(pdfTPT):
     mergeAll = "<article>\n"
-    mergeAll += "\t<preamble> " + pdfTTP.filename + " </preamble>\n"
-    mergeAll += "\t<titre> " + pdfTTP.title + " </title>\n"
+    mergeAll += "\t<preamble> " + pdfTPT.filename + " </preamble>\n"
+    mergeAll += "\t<titre> " + pdfTPT.title + " </title>\n"
     mergeAll += "\t<auteurs>\n"
     
     '''
     i = 0
-    for author in pdfTTP.authors:
+    for author in pdfTPT.authors:
         mergeAll = "\t\t<auteur>\n"
         mergeAll = "\t\t\t<name>\n " + author + " </name>\n"
-        mergeAll = "\t\t\t<mail> " + pdfTTP.emails[i] + " </mail>\n"
+        mergeAll = "\t\t\t<mail> " + pdfTPT.emails[i] + " </mail>\n"
         mergeAll = "\t\t</auteur>\n"
 
         i+=1
     '''
     
     mergeAll += "\t</auteurs>\n"
-    mergeAll += "\t<abstract> " + pdfTTP.abstract + " </abstract>\n"
+    mergeAll += "\t<abstract> " + pdfTPT.abstract + " </abstract>\n"
     mergeAll += "\t<biblios>\n"
-    for reference in pdfTTP.references:
+    for reference in pdfTPT.references:
         mergeAll += "\t\t<biblio> " + reference + " </biblio>\n"
     mergeAll += "\t</biblios>\n"
     mergeAll += "</article>"
