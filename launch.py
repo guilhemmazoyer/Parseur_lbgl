@@ -17,7 +17,7 @@ def helpPDFtoFiles():
 def checkFolderExist():
     return os.path.exists(FOLDER)
 
-# Verification de l'option passée en parametre
+# Verification de l'option passee en parametre
 def checkOption(option):
     if OPTION is not None and OPTION != '-t' and OPTION !='-x':
         return False
