@@ -1,3 +1,5 @@
+# -*- coding : utf-8 -*-
+
 REGEX_TITLE = r"^\A(.*)\n"
 REGEX_INCORRECT_TITLE = r"/|\\"
 REGEX_EMAILS = r"([\w.\-]+@[\w.\-]+[.][a-zA-Z]{2,4})"
