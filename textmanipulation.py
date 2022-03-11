@@ -1,3 +1,5 @@
+# -*- coding : utf-8 -*-
+
 REGEX_TITLE = r"^\A(.*)\n"
 REGEX_INCORRECT_TITLE = r"/|\\"
 REGEX_EMAILS = r"([\w.\-]+@[\w.\-]+[.][a-zA-Z]{2,4})"
@@ -21,7 +23,7 @@ def cleanText(text):
     
     return text
 
-# Passe la première lettre du nom et prenom des auteurs en majuscule
+# Passe la premiere lettre du nom et prenom des auteurs en majuscule
 def authorFormat(authors):
     newAuthors = []
     for author in authors:

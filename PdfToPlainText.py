@@ -1,3 +1,5 @@
+# -*- coding : utf-8 -*-
+
 import re
 import textmanipulation as txtmanip
 from textmanipulation import (

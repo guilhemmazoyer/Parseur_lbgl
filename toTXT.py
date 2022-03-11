@@ -1,3 +1,5 @@
+# -*- coding : utf-8 -*-
+
 import os
 import textmanipulation as txtmanip
 import progressbar as pbar
