@@ -21,7 +21,7 @@ def cleanText(text):
     
     return text
 
-# Passe la première lettre du nom et prenom des auteurs en majuscule
+# Passe la premiere lettre du nom et prenom des auteurs en majuscule
 def authorFormat(authors):
     newAuthors = []
     for author in authors:
