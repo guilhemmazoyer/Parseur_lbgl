@@ -5,7 +5,7 @@ import sys, time, os
 
 # Affichage de l'assistance
 def helpPDFtoFiles():
-    print("\nPython launch.py <Folder path> [Option]")
+    print("\npython3 launch.py <Folder path> [Option]")
     print("\tFolder path:")
     print("\t\tExact or relative path")
     print("\tOption:")
@@ -59,12 +59,12 @@ if FOLDER == '-h' or FOLDER == "help":
 # cas de dossier invalide
 elif checkFolderExist() == False:
     print("The \"" + FOLDER + "\" folder does not exist")
-    print("For more information : Python launch.py -h")
+    print("For more information : python3 launch.py -h")
 
 # cas d'option invalide
 elif checkOption(OPTION) == False:
-    print("Invalid option")
-    print("For more information : Python launch.py -h")
+    print("Invalid option \"" + OPTION + "\"")
+    print("For more information : python3 launch.py -h")
 
 # cas valide
 else:
