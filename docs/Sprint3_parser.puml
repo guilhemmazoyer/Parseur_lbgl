@@ -1,68 +1,84 @@
-@startuml
+@startuml Parser
 
 package Parser {
 	class Launch {
 		helpPDFtoFiles():void
 		checkFolderExist():boolean
-		checkOption():boolean
+		checkOption(String):boolean
 		finishMessage():void
 	}
 
 	class PdfToPlainText {
+		currentFile:String
+		manager:FileManager
+		doc:File
 		filename:String
 		title:String
 		authors:String[]
 		emails:String[]
 		abstract:String
 		references:String[]
+		resetCoreVariables():void
+		getTextFirstPage():void
+		getMetadata():void
+		__setFilename():void
+		__setTitle(HashMap[], String):void
+		__setAuthorsAndEmails(String):void
+		findEmails(String):void
+		__setAbstract(String):void
+		__setReferences(String):void
 		pdfToPlainText()
 		fileProcessing(file):void
 	}
 
 	class FileManager {
 		OS_NAME:boolean
-		toFormat:Class
-		FOLDER:String
-		RESULT_FOLDER:String
-		fileManager(toTXT, FOLDER)
-		fileManager(toXML, FOLDER)
-		checkSystem():boolean
+		folder:String
+		resFolder:String
+		files:String[]
 		createResultFolder():void
+		openFile(String):file
+		getFileName(String):String
 		writeTXT(String):void
 		writeXML(String):void
-		getFiles(FOLDER):String[]
 	}
 
 	package ToFormat {
 		class toTXT{
 			folder:String
 			files:String[]
-			FM:FileManager
-			pdfToPlainText:pdfToPlainText
-			toTXT(FOLDER)
-			allPDF():void
+			manager:FileManager
+			pdfTPT:pdfToPlainText
+			allPDF(int):void
 		}
 	
 		class ToXML{
 			folder:String
 			files:String[]
-			FM:FileManager
-			toXML(FOLDER)
+			manager:FileManager
+			pdfTPT:pdfToPlainText
+			allPDF(int):void
 		}
 	}
 
 	package Utils {
 		enum TEXTMANIPULATION {
 			REGEX_TITLE
-			REGEX_AUTHORS
+			REGEX_INCORRECT_TITLE
 			REGEX_EMAILS
 			REGEX_MULTI_EMAILS
 			REGEX_ABSTRACT
 			REGEX_NO_ABSTRACT
 			REGEX_REFERENCES
 			cleanText(String):String
+			authorFormat():String[]
 			arrangeTXT(PdfToPlainText):String
 			arrangeXML(PdfToPlainText):String
+		}
+
+		class ProgressBar {
+			total_index:int
+			progress(int):void
 		}
 	}
 }

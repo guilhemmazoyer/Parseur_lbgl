@@ -19,10 +19,20 @@ def checkFolderExist():
 
 # Verification de l'option passée en parametre
 def checkOption(option):
-    if OPTION is not None and OPTION != '-t' and OPTION !='-x':
+    if option is not None and option != '-t' and option !='-x':
         return False
     else:
         return True
+
+def finishMessage():
+    # Calcul de la duree du programme
+    interval = time.time() - start_time
+    interval = round(interval, 2)
+
+    # Affichage de fin de programme
+    print('\n' + "pdfParser execution completed")
+    print('\t' + str(numberTotalFiles) + " files processed")
+    print('\t' + "Completed in " + str(interval) + " seconds" + '\n')
 
 # Heure et index initial
 start_time = time.time()
@@ -52,7 +62,7 @@ elif checkFolderExist() == False:
     print("For more information : Python launch.py -h")
 
 # cas d'option invalide
-elif checkOption == False:
+elif checkOption(OPTION) == False:
     print("Invalid option")
     print("For more information : Python launch.py -h")
 
@@ -68,11 +78,4 @@ else:
         numberTotalFiles = len(ToXML.files)
         ToXML.allPDF(ToXML, numberTotalFiles)
 
-    # Calcul de la duree du programme
-    interval = time.time() - start_time
-    interval = round(interval, 2)
-
-    # Affichage de fin de programme
-    print('\n' + "pdfParser execution completed")
-    print('\t' + str(numberTotalFiles) + " files processed")
-    print('\t' + "Completed in " + str(interval) + " seconds" + '\n')
+    finishMessage()
