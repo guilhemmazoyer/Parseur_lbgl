@@ -1,5 +1,7 @@
 # -*- coding : utf-8 -*-
 
+from distutils.debug import DEBUG
+from pickle import TRUE
 import re
 import textmanipulation as txtmanip
 from textmanipulation import (
@@ -12,6 +14,7 @@ class PdfToPlainText:
     currentFile = ""
     manager = None
     doc = []
+    DEBUG = True
 
     # variables a recuperer
     filename = ""
@@ -35,6 +38,8 @@ class PdfToPlainText:
 
         # Recupere la premiere page et les metadonnees
         text = self.getTextFirstPage()
+        if self.DEBUG:
+            print(text + "\n\n")
         metadata = self.getMetadata()
 
         self.__setFilename()
@@ -57,7 +62,7 @@ class PdfToPlainText:
         tp = dl.get_textpage()
         rawText = tp.extractText()
 
-        return txtmanip.cleanText(rawText)
+        return txtmanip.allClean(rawText)
 
     # Recupere la derniere page de l'article
     def getTextLastPage(self):
@@ -67,7 +72,7 @@ class PdfToPlainText:
         tp = dl.get_textpage()
         rawText = tp.extractText()
 
-        return txtmanip.cleanText(rawText)
+        return txtmanip.preCleanText(rawText)
 
     def getTextAnyPage(self, nb):
         # Ouverture de la nb page du fichier .pdf
@@ -77,12 +82,12 @@ class PdfToPlainText:
             tp = dl.get_textpage()
             rawText = tp.extractText()
 
-            return txtmanip.cleanText(rawText)
+            return txtmanip.preCleanText(rawText)
         except IndexError:
             print("erreur de numéro de numéro de page")
 
     
-    # retourn le nombre de page dans le document
+    # Retourne le nombre de page dans le document
     def getNbPages(self):
         return self.doc.page_count
 
@@ -98,6 +103,7 @@ class PdfToPlainText:
 
     # Definit le titre de l'article
     def __setTitle(self, metadatas, text):
+
         title = metadatas["title"]
 
         # Si metadata vide ou incorrect
@@ -105,7 +111,7 @@ class PdfToPlainText:
             # On recupere le titre avec regex (premiere ligne)
             if re.search(REGEX_TITLE, text) is not None:
                 title = re.search(REGEX_TITLE, text).group(0)
-                title = txtmanip.cleanText(title)
+                title = txtmanip.preCleanText(title)
             else:
                 title = "Titre non trouvé"
 
@@ -113,14 +119,15 @@ class PdfToPlainText:
 
     # Definit les auteurs et leurs emails
     def __setAuthorsAndEmails(self, metadatas, text):
+
         meta_author = metadatas["author"]
         type_email = self.findEmails(text)
 
         if meta_author is None or meta_author == "":
-            if type_email == 0:
+            if not type_email:
                 self.authors.append("Auteur non trouvé")
 
-            elif type_email == 1:
+            elif type_email:
                 for email in self.emails:
                     email_decompose = email[0:email.find('@')]
 
@@ -131,49 +138,39 @@ class PdfToPlainText:
                         
                     else:
                         self.authors.append(email_decompose)
-
-            else:
-                for email in self.emails:
-                    email_decompose = email[email.find('{') + 1:email.find('}')]
-                    names = re.findall("[\w]+", email_decompose)
-
-                    for name in names:
-                            self.authors.append(name)
             
             self.authors = txtmanip.authorFormat(self.authors)
 
         else:
-            meta_author = txtmanip.cleanText(meta_author)
+            meta_author = txtmanip.preCleanText(meta_author)
             self.authors.append(meta_author)
 
     # Trouve les emails et renvoie le type de formulation de celle-ci
     def findEmails(self, text):
-        if re.search(REGEX_EMAILS, text) is not None:
+        result = False
+            
+        if re.finditer(REGEX_EMAILS, text, re.MULTILINE) is not None:
             self.emails = re.findall(REGEX_EMAILS, text)
-            return 1
-
-        elif re.search(REGEX_MULTI_EMAILS, text, re.MULTILINE) is not None:
-            self.emails = re.search(REGEX_MULTI_EMAILS, text, re.MULTILINE)
-            return 2
+            result = True
         
         else:
             self.emails.append("Email non trouvé")
-            return 0
+
+        return result
 
     # Definit la partie Abstract de l'article
     def __setAbstract(self, text):
+            
         if re.search(REGEX_ABSTRACT, text) is not None:
             abstract = re.search(REGEX_ABSTRACT, text).group(3)
-            abstract = txtmanip.cleanText(abstract)
 
         elif re.search(REGEX_NO_ABSTRACT, text) is not None :
             abstract = re.search(REGEX_NO_ABSTRACT, text).group(0)
-            abstract = txtmanip.cleanText(abstract)
             
         else:
             abstract = "Abstract non trouvé"
 
-        self.abstract = abstract
+        self.abstract = txtmanip.pasCleanText(abstract)
 
     # Definit les references de l'article
     def __setReferences(self):
@@ -184,7 +181,7 @@ class PdfToPlainText:
             textTest = self.getTextAnyPage(pages)
             if re.search(REGEX_REFERENCES, textTest) is not None: # trouve le mot references
                 text = re.search(REGEX_REFERENCES, textTest).group(1) + ' ' + text + ' ' # on ajoute au début a partir du mot references
-                text = txtmanip.cleanText(text)
+                text = txtmanip.preCleanText(text)
                 if re.search(REGEX_TABREFERENCES, text) is not None: # verification de crochets
                     tab_ref = re.split(REGEX_TABREFERENCES, text)
                     if tab_ref[0] == '':
