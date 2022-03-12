@@ -35,7 +35,7 @@ if len(sys.argv) < 2:
 
 elif len(sys.argv) == 2:
     FOLDER = sys.argv[1]
-    OPTION = '-x'
+    OPTION = '-t'
 
 elif len(sys.argv) == 3:
     FOLDER = sys.argv[1]
