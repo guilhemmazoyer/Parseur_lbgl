@@ -59,6 +59,34 @@ class PdfToPlainText:
 
         return txtmanip.cleanText(rawText)
 
+    # Recupere la derniere page de l'article
+    def getTextLastPage(self):
+        # Ouverture de la premiere page du fichier .pdf
+        page = self.doc.load_page(self.getNbPages()-1)
+        dl = page.get_displaylist()
+        tp = dl.get_textpage()
+        rawText = tp.extractText()
+
+        return txtmanip.cleanText(rawText)
+
+    def getTextAnyPage(self, nb):
+        # Ouverture de la nb page du fichier .pdf
+        try:
+            page = self.doc.load_page(nb)
+            dl = page.get_displaylist()
+            tp = dl.get_textpage()
+            rawText = tp.extractText()
+
+            return txtmanip.cleanText(rawText)
+        except IndexError:
+            print("erreur de numéro de numéro de page")
+
+    
+    # retourn le nombre de page dans le document
+    def getNbPages(self):
+        return self.doc.page_count
+
+
     # Recupere les metadonnees du fichier courant
     def getMetadata(self):
         return self.doc.metadata
@@ -150,4 +178,25 @@ class PdfToPlainText:
     # Definit les references de l'article
     def __setReferences(self):
         # TODO
-        self.references.append("test")
+        REGEX_REFERENCES = r"(?<=References|REFERENCES)+((.|\n)*)"
+        text = ""
+        textTest = ""
+        # On part de la derniere page
+        for pages in range(self.getNbPages()-1, 0, -1):
+            textTest = self.getTextAnyPage(pages)
+            if re.search(REGEX_REFERENCES, textTest) is not None: # trouve le mot references
+                text = re.search(REGEX_REFERENCES, textTest).group(1) + ' ' + text + ' ' # on ajoute au début a partir du mot references
+                text = txtmanip.cleanText(text)
+                regex_crochets = r"\[[0-9|, ]+\]"
+                if re.search(regex_crochets, text) is not None: # verification de crochets
+                    tab_ref = re.split(regex_crochets, text)
+                    if tab_ref[0] == '':
+                        del tab_ref[0]
+                    self.references = tab_ref
+                else: # ajout d'une simple chaine de caractere
+                    self.references.append(text)
+                break # on stop le parcours de pagess
+            else: # mot references non trouve, on ajout le texte au debut
+                text = textTest+' '+text+' '
+        
+

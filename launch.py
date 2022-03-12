@@ -7,7 +7,7 @@ import sys, time, os
 
 # Affichage de l'assistance
 def helpPDFtoFiles():
-    print("\nPython launch.py <Folder path> [Option]")
+    print("\npython3 launch.py <Folder path> [Option]")
     print("\tFolder path:")
     print("\t\tExact or relative path")
     print("\tOption:")
@@ -21,11 +21,51 @@ def checkFolderExist():
 
 # Verification de l'option passee en parametre
 def checkOption(option):
-    if OPTION is not None and OPTION != '-t' and OPTION !='-x':
+    if option is not None and option != '-t' and option !='-x':
         return False
     else:
         return True
 
+def setupOptions():
+    # assistance
+    if FOLDER == '-h' or FOLDER == "help":
+        helpPDFtoFiles()
+
+    # cas de dossier invalide
+    elif checkFolderExist() == False:
+        print("Program cannot find \"" + FOLDER + "\"")
+        print("For more information : python3 launch.py -h")
+
+    # cas d'option invalide
+    elif checkOption(OPTION) == False:
+        print("Invalid option \"" + OPTION + "\"")
+        print("For more information : python3 launch.py -h")
+
+    # cas valide
+    else:
+        # Initialise la class ToFormat
+        if OPTION == '-t':
+            ToTXT.__init__(ToTXT, FOLDER)
+            numberTotalFiles = len(ToTXT.files)
+            ToTXT.allPDF(ToTXT, numberTotalFiles)
+        else:
+            ToXML.__init__(ToXML, FOLDER)
+            numberTotalFiles = len(ToXML.files)
+            ToXML.allPDF(ToXML, numberTotalFiles)
+
+        finishMessage(numberTotalFiles)
+
+def finishMessage(nbrTotalFiles):
+    # Calcul de la duree du programme
+    interval = time.time() - start_time
+    interval = round(interval, 2)
+
+    # Affichage de fin de programme
+    print('\n' + "pdfParser execution completed")
+    print('\t' + str(nbrTotalFiles) + " files processed")
+    print('\t' + "Completed in " + str(interval) + " seconds" + '\n')
+
+# --- Debut du programme ---
 # Heure et index initial
 start_time = time.time()
 
@@ -36,45 +76,12 @@ if len(sys.argv) < 2:
 elif len(sys.argv) == 2:
     FOLDER = sys.argv[1]
     OPTION = '-t'
+    setupOptions()
 
 elif len(sys.argv) == 3:
     FOLDER = sys.argv[1]
     OPTION = sys.argv[2]
+    setupOptions()
 
 else:
     helpPDFtoFiles()
-
-# assistance
-if FOLDER == '-h' or FOLDER == "help":
-    helpPDFtoFiles()
-
-# cas de dossier invalide
-elif checkFolderExist() == False:
-    print("The \"" + FOLDER + "\" folder does not exist")
-    print("For more information : Python launch.py -h")
-
-# cas d'option invalide
-elif checkOption == False:
-    print("Invalid option")
-    print("For more information : Python launch.py -h")
-
-# cas valide
-else:
-    # Initialise la class ToFormat
-    if OPTION == '-t':
-        ToTXT.__init__(ToTXT, FOLDER)
-        numberTotalFiles = len(ToTXT.files)
-        ToTXT.allPDF(ToTXT, numberTotalFiles)
-    else:
-        ToXML.__init__(ToXML, FOLDER)
-        numberTotalFiles = len(ToXML.files)
-        ToXML.allPDF(ToXML, numberTotalFiles)
-
-    # Calcul de la duree du programme
-    interval = time.time() - start_time
-    interval = round(interval, 2)
-
-    # Affichage de fin de programme
-    print('\n' + "pdfParser execution completed")
-    print('\t' + str(numberTotalFiles) + " files processed")
-    print('\t' + "Completed in " + str(interval) + " seconds" + '\n')
