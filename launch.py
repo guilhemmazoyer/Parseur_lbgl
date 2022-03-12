@@ -26,16 +26,46 @@ def checkOption(option):
     else:
         return True
 
-def finishMessage():
+def setupOptions():
+    # assistance
+    if FOLDER == '-h' or FOLDER == "help":
+        helpPDFtoFiles()
+
+    # cas de dossier invalide
+    elif checkFolderExist() == False:
+        print("Program cannot find \"" + FOLDER + "\"")
+        print("For more information : python3 launch.py -h")
+
+    # cas d'option invalide
+    elif checkOption(OPTION) == False:
+        print("Invalid option \"" + OPTION + "\"")
+        print("For more information : python3 launch.py -h")
+
+    # cas valide
+    else:
+        # Initialise la class ToFormat
+        if OPTION == '-t':
+            ToTXT.__init__(ToTXT, FOLDER)
+            numberTotalFiles = len(ToTXT.files)
+            ToTXT.allPDF(ToTXT, numberTotalFiles)
+        else:
+            ToXML.__init__(ToXML, FOLDER)
+            numberTotalFiles = len(ToXML.files)
+            ToXML.allPDF(ToXML, numberTotalFiles)
+
+        finishMessage(numberTotalFiles)
+
+def finishMessage(nbrTotalFiles):
     # Calcul de la duree du programme
     interval = time.time() - start_time
     interval = round(interval, 2)
 
     # Affichage de fin de programme
     print('\n' + "pdfParser execution completed")
-    print('\t' + str(numberTotalFiles) + " files processed")
+    print('\t' + str(nbrTotalFiles) + " files processed")
     print('\t' + "Completed in " + str(interval) + " seconds" + '\n')
 
+# --- Debut du programme ---
 # Heure et index initial
 start_time = time.time()
 
@@ -45,39 +75,13 @@ if len(sys.argv) < 2:
 
 elif len(sys.argv) == 2:
     FOLDER = sys.argv[1]
-    OPTION = '-x'
+    OPTION = '-t'
+    setupOptions()
 
 elif len(sys.argv) == 3:
     FOLDER = sys.argv[1]
     OPTION = sys.argv[2]
+    setupOptions()
 
 else:
     helpPDFtoFiles()
-
-# assistance
-if FOLDER == '-h' or FOLDER == "help":
-    helpPDFtoFiles()
-
-# cas de dossier invalide
-elif checkFolderExist() == False:
-    print("The \"" + FOLDER + "\" folder does not exist")
-    print("For more information : python3 launch.py -h")
-
-# cas d'option invalide
-elif checkOption(OPTION) == False:
-    print("Invalid option \"" + OPTION + "\"")
-    print("For more information : python3 launch.py -h")
-
-# cas valide
-else:
-    # Initialise la class ToFormat
-    if OPTION == '-t':
-        ToTXT.__init__(ToTXT, FOLDER)
-        numberTotalFiles = len(ToTXT.files)
-        ToTXT.allPDF(ToTXT, numberTotalFiles)
-    else:
-        ToXML.__init__(ToXML, FOLDER)
-        numberTotalFiles = len(ToXML.files)
-        ToXML.allPDF(ToXML, numberTotalFiles)
-
-    finishMessage()
