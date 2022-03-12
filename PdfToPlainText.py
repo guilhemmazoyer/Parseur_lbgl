@@ -5,8 +5,9 @@ from pickle import TRUE
 import re
 import textmanipulation as txtmanip
 from textmanipulation import (
-    REGEX_TABREFERENCES, REGEX_TITLE, REGEX_INCORRECT_TITLE, REGEX_EMAILS,
-    REGEX_MULTI_EMAILS, REGEX_ABSTRACT, REGEX_NO_ABSTRACT,
+    REGEX_TABREFERENCES, REGEX_TITLE, 
+    REGEX_INCORRECT_TITLE, REGEX_EMAILS, 
+    REGEX_ABSTRACT, REGEX_NO_ABSTRACT,
     REGEX_REFERENCES)
 
 class PdfToPlainText:
@@ -84,13 +85,11 @@ class PdfToPlainText:
 
             return txtmanip.preCleanText(rawText)
         except IndexError:
-            print("erreur de numéro de numéro de page")
+            print("erreur de numéro de page")
 
-    
     # Retourne le nombre de page dans le document
     def getNbPages(self):
         return self.doc.page_count
-
 
     # Recupere les metadonnees du fichier courant
     def getMetadata(self):
@@ -174,23 +173,30 @@ class PdfToPlainText:
 
     # Definit les references de l'article
     def __setReferences(self):
+
         text = ""
         textTest = ""
+
         # On part de la derniere page
         for pages in range(self.getNbPages()-1, 0, -1):
             textTest = self.getTextAnyPage(pages)
+
             if re.search(REGEX_REFERENCES, textTest) is not None: # trouve le mot references
                 text = re.search(REGEX_REFERENCES, textTest).group(1) + ' ' + text + ' ' # on ajoute au début a partir du mot references
                 text = txtmanip.preCleanText(text)
+
                 if re.search(REGEX_TABREFERENCES, text) is not None: # verification de crochets
                     tab_ref = re.split(REGEX_TABREFERENCES, text)
+
                     if tab_ref[0] == '':
                         del tab_ref[0]
                     self.references = tab_ref
+
                 else: # ajout d'une simple chaine de caractere
                     self.references.append(text)
-                break # on stop le parcours de pagess
-            else: # mot references non trouve, on ajout le texte au debut
+                break # on stop le parcours de pages
+
+            else: # mot references non trouve, on ajoute le texte au debut
                 text = textTest+' '+text+' '
         
 
