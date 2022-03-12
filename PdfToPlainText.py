@@ -5,10 +5,9 @@ from pickle import TRUE
 import re
 import textmanipulation as txtmanip
 from textmanipulation import (
-    REGEX_TABREFERENCES, REGEX_TITLE, 
-    REGEX_INCORRECT_TITLE, REGEX_EMAILS, 
-    REGEX_ABSTRACT, REGEX_NO_ABSTRACT,
-    REGEX_REFERENCES)
+    REGEX_TABREFERENCES, REGEX_TITLE,
+    REGEX_EMAILS, REGEX_ABSTRACT, 
+    REGEX_NO_ABSTRACT, REGEX_REFERENCES)
 
 class PdfToPlainText:
     # variables utiles pour les operations
@@ -108,10 +107,10 @@ class PdfToPlainText:
         title = metadatas["title"]
 
         # Si metadata vide ou incorrect
-        if title is None or title == "" or re.search(REGEX_INCORRECT_TITLE, title) is not None:
+        if title is None:
             # On recupere le titre avec regex (premiere ligne)
             if re.search(REGEX_TITLE, text) is not None:
-                title = re.search(REGEX_TITLE, text).group(0)
+                title = re.findall(REGEX_TITLE, text).group(0)[0]
                 title = txtmanip.pasCleanText(title)
             else:
                 title = "Titre non trouvé"
@@ -185,7 +184,9 @@ class PdfToPlainText:
 
             if re.search(REGEX_REFERENCES, textTest) is not None: # trouve le mot references
                 text = re.search(REGEX_REFERENCES, textTest).group(1) + ' ' + text + ' ' # on ajoute au début a partir du mot references
-                text = txtmanip.allClean(text)
+                text = txtmanip.preCleanText(text)
+                if self.DEBUG:
+                    print("REFERENCES:\n" + text + "\n\n")
 
                 if re.search(REGEX_TABREFERENCES, text) is not None: # verification de crochets
                     tab_ref = re.split(REGEX_TABREFERENCES, text)
@@ -194,8 +195,12 @@ class PdfToPlainText:
                         del tab_ref[0]
                     self.references = tab_ref
 
+                elif re.search(REGEX_TITLE, text, re.MULTILINE) is not None:
+                    for reference in re.split(REGEX_TITLE, text):
+                        self.references.append(reference)
+
                 else: # ajout d'une simple chaine de caractere
-                    self.references.append(text)
+                    self.references.append("Abstract non trouvé !")
                 break # on stop le parcours de pages
 
             else: # mot references non trouve, on ajoute le texte au debut

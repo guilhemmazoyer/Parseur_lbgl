@@ -1,8 +1,7 @@
 # -*- coding : utf-8 -*-
 
 REGEX_TITLE = r"^([A-Z].*)+"
-REGEX_INCORRECT_TITLE = r"/|\\"
-REGEX_EMAILS = r"[\w]+.[\w]+@[\w]+-?[\w]+.[\w]+"
+REGEX_EMAILS = r"[\w-_.]+@[\w-_.]+"
 REGEX_ABSTRACT = r"(Abstract(-|.| |\n))\n? ?((.|\n)*)(?=(1(\n| |( \n)|. )Introduction)|(I. INTRODUCTION))"
 REGEX_NO_ABSTRACT = r"(?<=\n)(.|\n)*(?=(1(\n| |( \n)|. )Introduction)|(I. INTRODUCTION))"
 REGEX_REFERENCES = r"(?<=References|REFERENCES)+((.|\n)*)"
@@ -16,15 +15,15 @@ def preCleanText(text):
     text = text.replace("`e", 'è')
     # é UTF-8
     text = text.replace("´e", 'é')
+    # retour à la ligne mot coupe
+    text = text.replace("- \n", '')
     
     return text
 
 def pasCleanText(text):
     # Pour que le texte soit sur une seule ligne
     text = text.replace('\n', ' ')
-    # retour à la ligne mot coupe
-    text = text.replace("- ", '')
-
+    text = text.replace('\n\n', '\n')
     return text
 
 def allClean(text):
@@ -78,10 +77,9 @@ def arrangeXML(pdfTPT):
     
     mergeAll += "\t</auteurs>\n"
     mergeAll += "\t<abstract> " + pdfTPT.abstract + " </abstract>\n"
-    mergeAll += "\t<biblios>\n"
     for reference in pdfTPT.references:
-        mergeAll += "\t\t<biblio> " + reference + " </biblio>\n"
-    mergeAll += "\t</biblios>\n"
+        if reference != "":
+            mergeAll += "\t\t<biblio> " + reference + " </biblio>\n"
     mergeAll += "</article>"
 
     return mergeAll
