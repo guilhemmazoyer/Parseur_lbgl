@@ -3,7 +3,7 @@
 import re
 import textmanipulation as txtmanip
 from textmanipulation import (
-    REGEX_TITLE, REGEX_INCORRECT_TITLE, REGEX_EMAILS,
+    REGEX_TABREFERENCES, REGEX_TITLE, REGEX_INCORRECT_TITLE, REGEX_EMAILS,
     REGEX_MULTI_EMAILS, REGEX_ABSTRACT, REGEX_NO_ABSTRACT,
     REGEX_REFERENCES)
 
@@ -177,8 +177,6 @@ class PdfToPlainText:
 
     # Definit les references de l'article
     def __setReferences(self):
-        # TODO
-        REGEX_REFERENCES = r"(?<=References|REFERENCES)+((.|\n)*)"
         text = ""
         textTest = ""
         # On part de la derniere page
@@ -187,9 +185,8 @@ class PdfToPlainText:
             if re.search(REGEX_REFERENCES, textTest) is not None: # trouve le mot references
                 text = re.search(REGEX_REFERENCES, textTest).group(1) + ' ' + text + ' ' # on ajoute au début a partir du mot references
                 text = txtmanip.cleanText(text)
-                regex_crochets = r"\[[0-9|, ]+\]"
-                if re.search(regex_crochets, text) is not None: # verification de crochets
-                    tab_ref = re.split(regex_crochets, text)
+                if re.search(REGEX_TABREFERENCES, text) is not None: # verification de crochets
+                    tab_ref = re.split(REGEX_TABREFERENCES, text)
                     if tab_ref[0] == '':
                         del tab_ref[0]
                     self.references = tab_ref
