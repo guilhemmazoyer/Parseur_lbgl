@@ -1,7 +1,5 @@
 # -*- coding : utf-8 -*-
 
-from distutils.debug import DEBUG
-from pickle import TRUE
 import re
 import textmanipulation as txtmanip
 from textmanipulation import (
@@ -111,6 +109,7 @@ class PdfToPlainText:
             # On recupere le titre avec regex (premiere ligne)
             if re.search(REGEX_TITLE, text) is not None:
                 title = re.findall(REGEX_TITLE, text).group(0)[0]
+                print(title)
                 title = txtmanip.pasCleanText(title)
             else:
                 title = "Titre non trouvé"
