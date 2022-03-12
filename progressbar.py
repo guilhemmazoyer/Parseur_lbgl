@@ -16,7 +16,7 @@ class ProgressBar:
         iv = 0
 
         # premier cas
-        if index == 0:
+        if not index:
             iv = 20
         
         # dernier cas

@@ -18,6 +18,7 @@ class PdfToPlainText:
     DEBUG = True
 
     # variables a recuperer
+    metadata = []
     filename = ""
     title = ""
     authors = []
@@ -41,11 +42,12 @@ class PdfToPlainText:
         text = self.getTextFirstPage()
         if self.DEBUG:
             print(text + "\n\n")
-        metadata = self.getMetadata()
+
+        self.metadata = self.getMetadata()
 
         self.__setFilename()
-        self.__setTitle(metadata, text)
-        self.__setAuthorsAndEmails(metadata, text)
+        self.__setTitle(self.metadata, text)
+        self.__setAuthorsAndEmails(self.metadata, text)
         self.__setAbstract(text)
         self.__setReferences()
 
@@ -63,7 +65,7 @@ class PdfToPlainText:
         tp = dl.get_textpage()
         rawText = tp.extractText()
 
-        return txtmanip.allClean(rawText)
+        return txtmanip.preCleanText(rawText)
 
     # Recupere la derniere page de l'article
     def getTextLastPage(self):
@@ -110,7 +112,7 @@ class PdfToPlainText:
             # On recupere le titre avec regex (premiere ligne)
             if re.search(REGEX_TITLE, text) is not None:
                 title = re.search(REGEX_TITLE, text).group(0)
-                title = txtmanip.preCleanText(title)
+                title = txtmanip.pasCleanText(title)
             else:
                 title = "Titre non trouvé"
 
@@ -183,7 +185,7 @@ class PdfToPlainText:
 
             if re.search(REGEX_REFERENCES, textTest) is not None: # trouve le mot references
                 text = re.search(REGEX_REFERENCES, textTest).group(1) + ' ' + text + ' ' # on ajoute au début a partir du mot references
-                text = txtmanip.preCleanText(text)
+                text = txtmanip.allClean(text)
 
                 if re.search(REGEX_TABREFERENCES, text) is not None: # verification de crochets
                     tab_ref = re.split(REGEX_TABREFERENCES, text)

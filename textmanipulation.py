@@ -1,6 +1,6 @@
 # -*- coding : utf-8 -*-
 
-REGEX_TITLE = r"^\A(.*)\n"
+REGEX_TITLE = r"^([A-Z].*)+"
 REGEX_INCORRECT_TITLE = r"/|\\"
 REGEX_EMAILS = r"[\w]+.[\w]+@[\w]+-?[\w]+.[\w]+"
 REGEX_ABSTRACT = r"(Abstract(-|.| |\n))\n? ?((.|\n)*)(?=(1(\n| |( \n)|. )Introduction)|(I. INTRODUCTION))"
