@@ -43,6 +43,9 @@ def authorFormat(authors):
         newAuthors.append(author.title())
     return newAuthors
 
+def cleanAbstract(reference):
+    reference = reference.replace('\n', '')
+
 # Arrange le texte ecris dans le fichier .xml a partir des attributs de pdfTPT
 def arrangeTXT(pdfTPT):
     mergeAll = pdfTPT.filename + '\n' + pdfTPT.title + '\n'

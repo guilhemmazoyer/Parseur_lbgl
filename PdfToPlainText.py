@@ -189,6 +189,8 @@ class PdfToPlainText:
                     print("REFERENCES:\n" + text + "\n\n")
 
                 if re.search(REGEX_TABREFERENCES, text) is not None: # verification de crochets
+                    # on peut nettoyaer completement et supprimer les \n en surplus
+                    text = txtmanip.pasCleanText(text)
                     tab_ref = re.split(REGEX_TABREFERENCES, text)
 
                     if tab_ref[0] == '':
@@ -197,6 +199,7 @@ class PdfToPlainText:
 
                 elif re.search(REGEX_TITLE, text, re.MULTILINE) is not None:
                     for reference in re.split(REGEX_TITLE, text):
+                        print(reference + '\n')
                         self.references.append(txtmanip.pasCleanText(reference))
 
                 else: # ajout d'une simple chaine de caractere
