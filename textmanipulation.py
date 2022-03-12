@@ -54,7 +54,7 @@ def arrangeTXT(pdfTPT):
     mergeAll += pdfTPT.abstract + '\n'
 
     for reference in pdfTPT.references:
-        mergeAll += reference + "; "
+        mergeAll += reference + ";\n"
 
     return mergeAll
 

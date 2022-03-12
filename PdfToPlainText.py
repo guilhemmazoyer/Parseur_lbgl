@@ -1,5 +1,6 @@
 # -*- coding : utf-8 -*-
 
+from curses import meta
 import re
 import textmanipulation as txtmanip
 from textmanipulation import (
@@ -12,7 +13,7 @@ class PdfToPlainText:
     currentFile = ""
     manager = None
     doc = []
-    DEBUG = True
+    DEBUG = False
 
     # variables a recuperer
     metadata = []
@@ -102,25 +103,26 @@ class PdfToPlainText:
     # Definit le titre de l'article
     def __setTitle(self, metadatas, text):
 
-        title = metadatas["title"]
+        metas_title = metadatas["title"]
 
-        # Si metadata vide ou incorrect
-        if title is None:
-            # On recupere le titre avec regex (premiere ligne)
+        if metas_title is None or metas_title == "" or re.search(REGEX_TITLE, metas_title) is None:
+
             if re.search(REGEX_TITLE, text) is not None:
-                title = re.findall(REGEX_TITLE, text).group(0)[0]
-                print(title)
-                title = txtmanip.pasCleanText(title)
-            else:
-                title = "Titre non trouvé"
+                self.title = re.search(REGEX_TITLE, text).group(0)
 
-        self.title = title
+            else:
+                self.title = "Titre non trouvé"
+
+        else:
+            self.title = metas_title
+
+
 
     # Definit les auteurs et leurs emails
     def __setAuthorsAndEmails(self, metadatas, text):
 
         meta_author = metadatas["author"]
-        type_email = self.findEmails(text)
+        type_email = self.__findEmails(text)
 
         if meta_author is None or meta_author == "":
             if not type_email:
@@ -141,11 +143,11 @@ class PdfToPlainText:
             self.authors = txtmanip.authorFormat(self.authors)
 
         else:
-            meta_author = txtmanip.preCleanText(meta_author)
+            meta_author = txtmanip.allClean(meta_author)
             self.authors.append(meta_author)
 
     # Trouve les emails et renvoie le type de formulation de celle-ci
-    def findEmails(self, text):
+    def __findEmails(self, text):
         result = False
             
         if re.finditer(REGEX_EMAILS, text, re.MULTILINE) is not None:
@@ -163,6 +165,7 @@ class PdfToPlainText:
         if re.search(REGEX_ABSTRACT, text) is not None:
             abstract = re.search(REGEX_ABSTRACT, text).group(3)
 
+        # Dans le cas où le mot abstract n'est pas present
         elif re.search(REGEX_NO_ABSTRACT, text) is not None :
             abstract = re.search(REGEX_NO_ABSTRACT, text).group(0)
             
@@ -196,13 +199,13 @@ class PdfToPlainText:
 
                 elif re.search(REGEX_TITLE, text, re.MULTILINE) is not None:
                     for reference in re.split(REGEX_TITLE, text):
-                        self.references.append(reference)
+                        self.references.append(txtmanip.pasCleanText(reference))
 
                 else: # ajout d'une simple chaine de caractere
                     self.references.append("Abstract non trouvé !")
                 break # on stop le parcours de pages
 
-            else: # mot references non trouve, on ajoute le texte au debut
+            else: # mot references non trouve, on ajoute le texte au debut (derniere page du doc ?)
                 text = textTest+' '+text+' '
         
 
