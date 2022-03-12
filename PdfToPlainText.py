@@ -105,7 +105,7 @@ class PdfToPlainText:
 
         metas_title = metadatas["title"]
 
-        if metas_title is None or metas_title == "" or re.search(REGEX_TITLE, metas_title) is None:
+        if not metas_title or metas_title == "" or not re.search(REGEX_TITLE, metas_title):
 
             if re.search(REGEX_TITLE, text) is not None:
                 self.title = re.search(REGEX_TITLE, text).group(0)
@@ -115,8 +115,6 @@ class PdfToPlainText:
 
         else:
             self.title = metas_title
-
-
 
     # Definit les auteurs et leurs emails
     def __setAuthorsAndEmails(self, metadatas, text):
@@ -203,9 +201,10 @@ class PdfToPlainText:
 
                 else: # ajout d'une simple chaine de caractere
                     self.references.append("Abstract non trouvé !")
+                
                 break # on stop le parcours de pages
 
             else: # mot references non trouve, on ajoute le texte au debut (derniere page du doc ?)
-                text = textTest+' '+text+' '
+                text = textTest + ' ' + text + ' '
         
 

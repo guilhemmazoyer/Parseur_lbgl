@@ -17,6 +17,10 @@ def preCleanText(text):
     text = text.replace("´e", 'é')
     # retour à la ligne mot coupe
     text = text.replace("- \n", '')
+    # ç
+    text = text.replace("c¸",'ç')
+    # î
+    text = text.replace("ˆı",'î')
     
     return text
 
