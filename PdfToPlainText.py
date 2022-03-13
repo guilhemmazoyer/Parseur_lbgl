@@ -124,49 +124,6 @@ class PdfToPlainText:
         if self.DEBUG_TITLE:
             print(self.title + "\n\n")
 
-    # Definit les auteurs et leurs emails
-    def __setAuthorsAndEmails(self, metadatas, text):
-
-        meta_author = metadatas["author"]
-        is_not_email = self.__findEmails(text)
-
-        if meta_author is None or meta_author == "":
-            if is_not_email: # pas d'email
-                self.authors.append("Auteur non trouvé")
-            
-            else: # email
-                for email in self.emails:
-                    email_decompose = email[0:email.find('@')]
-                self.emails = txtmanip.cleanEmails(self.emails)
-                names = re.findall("[\w-]+", email_decompose)
-
-                for name in names:
-                    self.authors.append(name)
-            
-            self.authors = txtmanip.authorFormat(self.authors)
-
-        else:
-            # Quand les metadonnees sont incompletes, recuperer les auteurs depuis les adresses emails
-            if len(self.authors)+1 < len(self.emails):
-                self.authors = []
-                
-                for email in self.emails:
-                    email_decompose = email[0:email.find('@')]
-                self.emails = txtmanip.cleanEmails(self.emails)
-                names = re.findall("[\w-]+", email_decompose)
-
-                for name in names:
-                    self.authors.append(name)
-            
-            else:
-                meta_author = txtmanip.allClean(meta_author)
-                self.authors.append(meta_author)
-
-        if self.DEBUG_AUTHOR:
-            for author in self.authors:
-                print(author + "; ")
-            print("\n")
-
     # Trouve les emails et renvoie le type de formulation de celle-ci
     def __findEmails(self, text):          
 
@@ -190,6 +147,46 @@ class PdfToPlainText:
             print("\n")
 
         return result
+
+    # Definit les auteurs et leurs emails
+    def __setAuthorsAndEmails(self, metadatas, text):
+
+        meta_author = metadatas["author"]
+        is_not_email = self.__findEmails(text)
+
+        if meta_author is None or meta_author == "":
+            if is_not_email: # pas d'email
+                self.authors.append("Auteur non trouvé")
+            
+            else: # email
+                self.getAuthorsFromEmails()
+            
+            self.authors = txtmanip.authorFormat(self.authors)
+            print(len(self.emails))
+
+        else:
+            # Quand les metadonnees sont incompletes, recuperer les auteurs depuis les adresses emails
+            if len(self.authors)+1 < len(self.emails):
+                self.authors = []
+                self.getAuthorsFromEmails()
+            
+            else:
+                meta_author = txtmanip.allClean(meta_author)
+                self.authors.append(meta_author)
+
+        if self.DEBUG_AUTHOR:
+            for author in self.authors:
+                print(author + "; ")
+            print("\n")
+
+    def getAuthorsFromEmails(self):
+        for email in self.emails:
+            email_decompose = email[0:email.find('@')]
+        self.emails = txtmanip.cleanEmails(self.emails)
+        names = re.findall("[\w-]+", email_decompose)
+
+        for name in names:
+            self.authors.append(name)
 
     # Definit la partie Abstract de l'article
     def __setAbstract(self, text):
