@@ -1,6 +1,5 @@
 # -*- coding : utf-8 -*-
 
-from lib2to3.pgen2.token import OP
 from toTXT import ToTXT
 from toXML import ToXML
 import sys, time, os
