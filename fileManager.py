@@ -10,9 +10,9 @@ if(platform.system() == "Windows"):
     sys.path.remove(os.path.join(os.path.dirname(__file__), ".\\packages"))
 
 else:
-    sys.path.append(0, os.path.join(os.path.dirname(__file__), "./packages"))
+    sys.path.append(0, os.path.join(os.path.dirname(__file__), "packages"))
     import fitz
-    sys.path.remove(os.path.join(os.path.dirname(__file__), "./packages"))
+    sys.path.remove(os.path.join(os.path.dirname(__file__), "packages"))
 
 class FileManager:
     OS_NAME = False
