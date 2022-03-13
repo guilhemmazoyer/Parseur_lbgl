@@ -3,9 +3,16 @@
 import os, sys, platform
 import shutil
 
-# Informe l'interpreter d'un nouveau chemin vers les packages
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".\\packages"))
-import fitz
+# Informe l'interpreter d'un nouveau chemin vers les packages pour Windows ou autre
+if(platform.system() == "Windows"):
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".\\packages"))
+    import fitz
+    sys.path.remove(os.path.join(os.path.dirname(__file__), ".\\packages"))
+
+else:
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), "./packages"))
+    import fitz
+    sys.path.remove(os.path.join(os.path.dirname(__file__), "./packages"))
 
 class FileManager:
     OS_NAME = False
