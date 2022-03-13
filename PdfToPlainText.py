@@ -1,6 +1,5 @@
 # -*- coding : utf-8 -*-
 
-from curses import meta
 import re
 import textmanipulation as txtmanip
 from textmanipulation import (
