@@ -3,7 +3,7 @@
 import re
 import textmanipulation as txtmanip
 from textmanipulation import (
-    REGEX_TABREFERENCES, REGEX_TITLE, REGEX_EMAILS,
+    REGEX_TABREFERENCES, REGEX_TITLE,
     REGEX_MULTI_EMAILS, REGEX_ABSTRACT, REGEX_NO_ABSTRACT,
     REGEX_REFERENCES)
 
@@ -128,36 +128,20 @@ class PdfToPlainText:
     def __setAuthorsAndEmails(self, metadatas, text):
 
         meta_author = metadatas["author"]
-        type_email = self.__findEmails(text)
+        is_not_email = self.__findEmails(text)
 
         if meta_author is None or meta_author == "":
-            if type_email: # pas d'email
+            if is_not_email: # pas d'email
                 self.authors.append("Auteur non trouvé")
-
-            elif type_email == 1: # email simple
+            
+            else: # email
                 for email in self.emails:
                     email_decompose = email[0:email.find('@')]
+                self.emails = txtmanip.cleanEmails(self.emails)
+                names = re.findall("[\w-]+", email_decompose)
 
-                    if email_decompose.find('.') != -1:
-                        nom = email_decompose[0:email_decompose.find('.')]
-                        prenom = email_decompose[email_decompose.find('.') + 1:]
-                        self.authors.append(nom + " " + prenom)
-                        
-                    else:
-                        self.authors.append(email_decompose)
-            
-            elif type_email == 2: # multi email
-                for email in self.emails:
-                    search = re.search(REGEX_EMAILS, email).group(1)
-                    if search == 'Q':
-                        email = re.sub(search, '@', email)
-
-                self.emails = txtmanip.cleanMultiEmail(self.emails)
-                for email in self.emails:
-                    names = re.findall("[\w-]+", email)
-
-                    for name in names:
-                        self.authors.append(name)
+                for name in names:
+                    self.authors.append(name)
             
             self.authors = txtmanip.authorFormat(self.authors)
 
@@ -171,18 +155,21 @@ class PdfToPlainText:
             print("\n")
 
     # Trouve les emails et renvoie le type de formulation de celle-ci
-    def __findEmails(self, text):            
-        if re.finditer(REGEX_EMAILS, text, re.MULTILINE) is not None:
-            self.emails = re.findall(REGEX_EMAILS, text)
-            result = 1
-        
-        elif re.search(REGEX_MULTI_EMAILS, text) is not None:
-            self.emails = re.findall(REGEX_MULTI_EMAILS, text)
-            result = 2
+    def __findEmails(self, text):          
+
+        if re.findall(REGEX_MULTI_EMAILS, text, re.MULTILINE) != []:
+            # Recupere les adresses emails dans le text
+            emails = re.findall(REGEX_MULTI_EMAILS, text, re.MULTILINE)
+            
+            # Ajout des emails
+            for email in emails:
+                email = re.sub('Q', '@', email)
+                self.emails.append(email)
+            result = False # email trouvee
 
         else:
             self.emails.append("Email non trouvé")
-            result = True
+            result = True # pas d'email
 
         if self.DEBUG_EMAIL:
             for email in self.emails:
@@ -236,14 +223,13 @@ class PdfToPlainText:
 
                 elif re.search(REGEX_TITLE, text, re.MULTILINE) is not None:
                     for reference in re.split(REGEX_TITLE, text):
-                        if self.DEBUG_REFERENCE:
-                            print(reference + '\n')
                         self.references.append(txtmanip.pasCleanText(reference))
 
                 else: # ajout d'une simple chaine de caractere
-                    self.references.append("Abstract non trouvé !")
+                    self.references.append("Référence non trouvé !")
                 
                 break # on stop le parcours de pages
 
-            else: # mot references non trouve, on ajoute le texte au debut (derniere page du doc ?)
+            else: # Enregistrement de la page precendente si le mot "Référence" n'est pas trouve
                 text = textTest + ' ' + text + ' '
+

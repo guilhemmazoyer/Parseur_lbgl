@@ -1,8 +1,7 @@
 # -*- coding : utf-8 -*-
 
 REGEX_TITLE = r"^([A-Z].*)+"
-REGEX_EMAILS = r"[\w\-_.]+(@|Q)[\w\-_.]+"
-REGEX_MULTI_EMAILS = r"{?[\w, ]+}?(@|Q)[\w\-_.]+"
+REGEX_MULTI_EMAILS = r"({?\(?[\w, .-]+[a-z\d]\)?}?\n?[@|Q][\w\-_.]+)"
 REGEX_ABSTRACT = r"(Abstract(-|.| |\n))\n? ?((.|\n)*)(?=(1(\n| |( \n)|. )Introduction)|(I. INTRODUCTION))"
 REGEX_NO_ABSTRACT = r"(?<=\n)(.|\n)*(?=(1(\n| |( \n)|. )Introduction)|(I. INTRODUCTION))"
 REGEX_REFERENCES = r"(?<=References|REFERENCES)+((.|\n)*)"
@@ -45,12 +44,14 @@ def authorFormat(authors):
 
     return newAuthors
 
-def cleanMultiEmail(emails):
+def cleanEmails(emails):
     newEmails = []
     for email in emails:
-        email = email[0:email.find('@')]
         email = email.replace('{', '')
         email = email.replace('}', '')
+        email = email.replace('(', '')
+        email = email.replace(')', '')
+        email = email.replace('\n', '')
         newEmails.append(email)
 
     return newEmails
