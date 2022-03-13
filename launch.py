@@ -4,6 +4,8 @@ from lib2to3.pgen2.token import OP
 from toTXT import ToTXT
 from toXML import ToXML
 import sys, time, os
+import multiprocessing
+from multiprocessing import Pool
 
 # Affichage de l'assistance
 def helpPDFtoFiles():
@@ -47,8 +49,26 @@ def setupOptions():
         if OPTION == '-t':
             ToTXT.__init__(ToTXT, FOLDER)
             numberTotalFiles = len(ToTXT.files)
-            ToTXT.allPDF(ToTXT, numberTotalFiles)
+            nbFiles=20   # nombre de fichiers traités par processus
+            proc = []   # contient tous les processus à lancer
+            index = 0   # index des premiers processus
+            while index+nbFiles < numberTotalFiles:
+                proc.append(multiprocessing.Process(target=ToTXT.allPDF, args=(ToTXT, nbFiles, index,)))
+                index+=nbFiles
+            # si le nombre de fichier de traité par le dernier processus est trop grand par rapport au nombre de fichier actuel / permet d'éviter de vérifer dans la boucle inutilement
+            if index+nbFiles >= numberTotalFiles: 
+                nbLastFiles=numberTotalFiles-index # calcule le nombre des derniers fichiers à insérer
+                proc.append(multiprocessing.Process(target=ToTXT.allPDF, args=(ToTXT, nbLastFiles,index,)))
+                
+            #proc = [multiprocessing.Process(target=ToTXT.allPDF, args=(ToTXT, nbFiles,i,)) for i in range(0,numberTotalFiles, nbFiles)]
+            for t in proc:
+                t.start()
+            for t in proc:
+                t.join()
+            
+            #ToTXT.allPDF(ToTXT, numberTotalFiles)
         else:
+            # TODO implémenter multiprocessing
             ToXML.__init__(ToXML, FOLDER)
             numberTotalFiles = len(ToXML.files)
             ToXML.allPDF(ToXML, numberTotalFiles)

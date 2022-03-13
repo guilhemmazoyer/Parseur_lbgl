@@ -29,12 +29,13 @@ class ToTXT:
         files = filter(lambda f: f.endswith(('.pdf', '.PDF')), files)
         self.files = list(files)
 
-    def allPDF(self, numberTotalFiles):
+    def allPDF(self, numberTotalFiles, i):
+        # TODO adapter barre de progression à tous les fichiers et pas qu'un seul thread
         progressBar = pbar(numberTotalFiles)
         index = 0
         progressBar.progress(index)
-        for file in self.files:
-            self.pdfTPT.fileProcessing(file)
+        for file in range(i, i+numberTotalFiles): # index du début du thread jusqu'au nombre de fichier max du thread
+            self.pdfTPT.fileProcessing(self.files[file])
             result = txtmanip.arrangeTXT(self.pdfTPT)
             self.manager.writeTXT(self.pdfTPT, result)
             progressBar.progress(index)
