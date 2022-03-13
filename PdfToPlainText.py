@@ -153,17 +153,12 @@ class PdfToPlainText:
 
         if re.findall(REGEX_MULTI_EMAILS, text, re.MULTILINE) != []:
             # Recupere les adresses emails dans le text
-            mails = re.findall(REGEX_MULTI_EMAILS, text, re.MULTILINE)
-
-            # Si le @ est remplace par un Q
-            searches = re.search(REGEX_MULTI_EMAILS, email).group(2)
-
-            if searches == 'Q':
-                self.emails.append(re.sub(searches, '@', email, count=0))
+            emails = re.findall(REGEX_MULTI_EMAILS, text, re.MULTILINE)
             
             # Ajout des emails
-            for mail in mails:
-                self.emails.append(mail[0])
+            for email in emails:
+                email = re.sub('Q', '@', email)
+                self.emails.append(email)
             result = False # email trouvee
 
         else:
