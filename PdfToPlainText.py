@@ -12,7 +12,14 @@ class PdfToPlainText:
     currentFile = ""
     manager = None
     doc = []
-    DEBUG = True
+
+    # DEBUG
+    DEBUG_TEXT = True
+    DEBUG_TITLE = False
+    DEBUG_AUTHOR = False
+    DEBUG_EMAIL = False
+    DEBUG_ABSTRACT = False
+    DEBUG_REFERENCE = False
 
     # variables a recuperer
     metadata = []
@@ -37,7 +44,7 @@ class PdfToPlainText:
 
         # Recupere la premiere page et les metadonnees
         text = self.getTextFirstPage()
-        if self.DEBUG:
+        if self.DEBUG_TEXT:
             print(text + "\n\n")
 
         self.metadata = self.getMetadata()
@@ -115,7 +122,7 @@ class PdfToPlainText:
         else:
             self.title = metas_title
 
-        if self.DEBUG:
+        if self.DEBUG_TITLE:
             print(self.title + "\n\n")
 
     # Definit les auteurs et leurs emails
@@ -145,9 +152,10 @@ class PdfToPlainText:
                     search = re.search(REGEX_EMAILS, email).group(1)
                     if search == 'Q':
                         email = re.sub(search, '@', email)
+
                 self.emails = txtmanip.cleanMultiEmail(self.emails)
                 for email in self.emails:
-                    names = re.findall("[\w-]+", email_decompose)
+                    names = re.findall("[\w-]+", email)
 
                     for name in names:
                         self.authors.append(name)
@@ -158,9 +166,10 @@ class PdfToPlainText:
             meta_author = txtmanip.allClean(meta_author)
             self.authors.append(meta_author)
 
-        if self.DEBUG:
+        if self.DEBUG_AUTHOR:
             for author in self.authors:
-                print(author + "\n\n")
+                print(author + "; ")
+            print("\n")
 
     # Trouve les emails et renvoie le type de formulation de celle-ci
     def __findEmails(self, text):            
@@ -176,9 +185,10 @@ class PdfToPlainText:
             self.emails.append("Email non trouvé")
             result = True
 
-        if self.DEBUG:
+        if self.DEBUG_EMAIL:
             for email in self.emails:
-                print(email + "\n\n")
+                print(email + "; ")
+            print("\n")
 
         return result
 
@@ -197,8 +207,8 @@ class PdfToPlainText:
 
         self.abstract = txtmanip.pasCleanText(abstract)
 
-        if self.DEBUG:
-            print(self.abstract + "\n\n")
+        if self.DEBUG_ABSTRACT:
+           print(self.abstract + "\n\n")
         
     # Definit les references de l'article
     def __setReferences(self):
@@ -213,7 +223,7 @@ class PdfToPlainText:
             if re.search(REGEX_REFERENCES, textTest) is not None: # trouve le mot references
                 text = re.search(REGEX_REFERENCES, textTest).group(1) + ' ' + text + ' ' # on ajoute au début a partir du mot references
                 text = txtmanip.preCleanText(text)
-                if self.DEBUG:
+                if self.DEBUG_REFERENCE:
                     print("REFERENCES:\n" + text + "\n\n")
 
                 if re.search(REGEX_TABREFERENCES, text) is not None: # verification de crochets
