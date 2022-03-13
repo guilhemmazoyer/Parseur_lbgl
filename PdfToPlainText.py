@@ -1,6 +1,5 @@
 # -*- coding : utf-8 -*-
 
-#from curses import meta
 import re
 import textmanipulation as txtmanip
 from textmanipulation import (
@@ -238,5 +237,3 @@ class PdfToPlainText:
 
             else: # mot references non trouve, on ajoute le texte au debut (derniere page du doc ?)
                 text = textTest + ' ' + text + ' '
-        
-
