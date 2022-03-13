@@ -14,7 +14,7 @@ class PdfToPlainText:
     doc = []
 
     # DEBUG
-    DEBUG_TEXT = True
+    DEBUG_TEXT = False
     DEBUG_TITLE = False
     DEBUG_AUTHOR = False
     DEBUG_EMAIL = False
@@ -237,7 +237,8 @@ class PdfToPlainText:
 
                 elif re.search(REGEX_TITLE, text, re.MULTILINE) is not None:
                     for reference in re.split(REGEX_TITLE, text):
-                        print(reference + '\n')
+                        if self.DEBUG_REFERENCE:
+                            print(reference + '\n')
                         self.references.append(txtmanip.pasCleanText(reference))
 
                 else: # ajout d'une simple chaine de caractere
