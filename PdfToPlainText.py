@@ -138,7 +138,7 @@ class PdfToPlainText:
             result = False # email trouvee
 
         else:
-            self.emails.append("Email non trouvé")
+            self.emails.append("Email non trouvé ")
             result = True # pas d'email
 
         if self.DEBUG_EMAIL:
@@ -160,12 +160,11 @@ class PdfToPlainText:
             
             else: # email
                 self.getAuthorsFromEmails()
-            
             self.authors = txtmanip.authorFormat(self.authors)
 
         else:
             # Quand les metadonnees sont incompletes, recuperer les auteurs depuis les adresses emails
-            if len(self.authors)+1 < len(self.emails):
+            if len(self.authors) < len(self.emails):
                 self.authors = []
                 self.getAuthorsFromEmails()
             
@@ -181,11 +180,14 @@ class PdfToPlainText:
     def getAuthorsFromEmails(self):
         for email in self.emails:
             email_decompose = email[0:email.find('@')]
-        self.emails = txtmanip.cleanEmails(self.emails)
-        names = re.findall("[\w-]+", email_decompose)
+            self.emails = txtmanip.cleanEmails(self.emails)
+            names = re.findall("[\w-]+", email_decompose)
 
-        for name in names:
-            self.authors.append(name)
+            newName = ""
+            for name in names:
+                newName += name + " "
+            newName = newName[0:len(newName)-1]
+            self.authors.append(newName)
 
     # Definit la partie Abstract de l'article
     def __setAbstract(self, text):
