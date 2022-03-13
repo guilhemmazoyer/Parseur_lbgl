@@ -146,8 +146,21 @@ class PdfToPlainText:
             self.authors = txtmanip.authorFormat(self.authors)
 
         else:
-            meta_author = txtmanip.allClean(meta_author)
-            self.authors.append(meta_author)
+            # Quand les metadonnees sont incompletes, recuperer les auteurs depuis les adresses emails
+            if len(self.authors)+1 < len(self.emails):
+                self.authors = []
+                
+                for email in self.emails:
+                    email_decompose = email[0:email.find('@')]
+                self.emails = txtmanip.cleanEmails(self.emails)
+                names = re.findall("[\w-]+", email_decompose)
+
+                for name in names:
+                    self.authors.append(name)
+            
+            else:
+                meta_author = txtmanip.allClean(meta_author)
+                self.authors.append(meta_author)
 
         if self.DEBUG_AUTHOR:
             for author in self.authors:
