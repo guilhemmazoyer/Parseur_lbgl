@@ -5,12 +5,12 @@ import shutil
 
 # Informe l'interpreter d'un nouveau chemin vers les packages pour Windows ou autre
 if(platform.system() == "Windows"):
-    sys.path.append(0, os.path.join(os.path.dirname(__file__), ".\\packages"))
+    sys.path.append(os.path.join(os.path.dirname(__file__), ".\\packages"))
     import fitz
     sys.path.remove(os.path.join(os.path.dirname(__file__), ".\\packages"))
 
 else:
-    sys.path.append(0, os.path.join(os.path.dirname(__file__), "./packages"))
+    sys.path.append(os.path.join(os.path.dirname(__file__), "./packages"))
     import fitz
     sys.path.remove(os.path.join(os.path.dirname(__file__), "./packages"))
 
