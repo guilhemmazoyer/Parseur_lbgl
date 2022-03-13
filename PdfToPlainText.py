@@ -1,19 +1,19 @@
 # -*- coding : utf-8 -*-
 
-from curses import meta
+#from curses import meta
 import re
 import textmanipulation as txtmanip
 from textmanipulation import (
-    REGEX_TABREFERENCES, REGEX_TITLE,
-    REGEX_EMAILS, REGEX_ABSTRACT, 
-    REGEX_NO_ABSTRACT, REGEX_REFERENCES)
+    REGEX_TABREFERENCES, REGEX_TITLE, REGEX_EMAILS,
+    REGEX_MULTI_EMAILS, REGEX_ABSTRACT, REGEX_NO_ABSTRACT,
+    REGEX_REFERENCES)
 
 class PdfToPlainText:
     # variables utiles pour les operations
     currentFile = ""
     manager = None
     doc = []
-    DEBUG = False
+    DEBUG = True
 
     # variables a recuperer
     metadata = []
@@ -116,6 +116,9 @@ class PdfToPlainText:
         else:
             self.title = metas_title
 
+        if self.DEBUG:
+            print(self.title + "\n\n")
+
     # Definit les auteurs et leurs emails
     def __setAuthorsAndEmails(self, metadatas, text):
 
@@ -123,10 +126,10 @@ class PdfToPlainText:
         type_email = self.__findEmails(text)
 
         if meta_author is None or meta_author == "":
-            if not type_email:
+            if type_email: # pas d'email
                 self.authors.append("Auteur non trouvé")
 
-            elif type_email:
+            elif type_email == 1: # email simple
                 for email in self.emails:
                     email_decompose = email[0:email.find('@')]
 
@@ -138,22 +141,45 @@ class PdfToPlainText:
                     else:
                         self.authors.append(email_decompose)
             
+            elif type_email == 2: # multi email
+                for email in self.emails:
+                    search = re.search(REGEX_EMAILS, email).group(1)
+                    if search == 'Q':
+                        email = re.sub(search, '@', email)
+                self.emails = txtmanip.cleanMultiEmail(self.emails)
+                for email in self.emails:
+                    names = re.findall("[\w-]+", email_decompose)
+
+                    for name in names:
+                        self.authors.append(name)
+            
             self.authors = txtmanip.authorFormat(self.authors)
 
         else:
             meta_author = txtmanip.allClean(meta_author)
             self.authors.append(meta_author)
 
+        if self.DEBUG:
+            for author in self.authors:
+                print(author + "\n\n")
+
     # Trouve les emails et renvoie le type de formulation de celle-ci
-    def __findEmails(self, text):
-        result = False
-            
+    def __findEmails(self, text):            
         if re.finditer(REGEX_EMAILS, text, re.MULTILINE) is not None:
             self.emails = re.findall(REGEX_EMAILS, text)
-            result = True
+            result = 1
         
+        elif re.search(REGEX_MULTI_EMAILS, text) is not None:
+            self.emails = re.findall(REGEX_MULTI_EMAILS, text)
+            result = 2
+
         else:
             self.emails.append("Email non trouvé")
+            result = True
+
+        if self.DEBUG:
+            for email in self.emails:
+                print(email + "\n\n")
 
         return result
 
@@ -172,6 +198,9 @@ class PdfToPlainText:
 
         self.abstract = txtmanip.pasCleanText(abstract)
 
+        if self.DEBUG:
+            print(self.abstract + "\n\n")
+        
     # Definit les references de l'article
     def __setReferences(self):
 
