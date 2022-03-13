@@ -122,25 +122,17 @@ class PdfToPlainText:
     def __setAuthorsAndEmails(self, metadatas, text):
 
         meta_author = metadatas["author"]
-        type_email = self.__findEmails(text)
+        is_not_email = self.__findEmails(text)
 
         if meta_author is None or meta_author == "":
-            if not type_email: # pas d'email
+            if is_not_email: # pas d'email
                 self.authors.append("Auteur non trouvé")
             
-            elif type_email: # email
+            else: # email
                 for email in self.emails:
-
-                    searches = re.search(REGEX_MULTI_EMAILS, email).group(2)
-
-                    print(searches)
-                    if searches == 'Q':
-                        self.emails.append(re.sub(searches, '@', email, count=0))
-
                     email_decompose = email[0:email.find('@')]
-                
-                self.emails = txtmanip.cleanEmails(self.emails)
 
+                self.emails = txtmanip.cleanEmails(self.emails)
                 names = re.findall("[\w-]+", email_decompose)
 
                 for name in names:
@@ -160,14 +152,23 @@ class PdfToPlainText:
     def __findEmails(self, text):          
 
         if re.findall(REGEX_MULTI_EMAILS, text, re.MULTILINE) != []:
+            # Recupere les adresses emails dans le text
             mails = re.findall(REGEX_MULTI_EMAILS, text, re.MULTILINE)
+
+            # Si le @ est remplace par un Q
+            searches = re.search(REGEX_MULTI_EMAILS, email).group(2)
+
+            if searches == 'Q':
+                self.emails.append(re.sub(searches, '@', email, count=0))
+            
+            # Ajout des emails
             for mail in mails:
                 self.emails.append(mail[0])
-            result = 1
+            result = False # email trouvee
 
         else:
             self.emails.append("Email non trouvé")
-            result = True
+            result = True # pas d'email
 
         if self.DEBUG:
             for email in self.emails:
