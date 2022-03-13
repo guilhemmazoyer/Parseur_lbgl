@@ -1,7 +1,11 @@
 # -*- coding : utf-8 -*-
 
+import os, sys, platform
+import shutil
+
+# Informe l'interpreter d'un nouveau chemin vers les packages
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".\\packages"))
 import fitz
-import os, shutil, platform
 
 class FileManager:
     OS_NAME = False
