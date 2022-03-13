@@ -217,9 +217,10 @@ class PdfToPlainText:
                     text = txtmanip.pasCleanText(text)
                     tab_ref = re.split(REGEX_TABREFERENCES, text)
 
-                    if tab_ref[0] == '':
+                    if len(tab_ref[0]) <= 5:
                         del tab_ref[0]
                     self.references = tab_ref
+                    print(tab_ref)
 
                 elif re.search(REGEX_TITLE, text, re.MULTILINE) is not None:
                     for reference in re.split(REGEX_TITLE, text):
