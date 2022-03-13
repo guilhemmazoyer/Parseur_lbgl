@@ -154,7 +154,7 @@ class PdfToPlainText:
         meta_author = metadatas["author"]
         is_not_email = self.__findEmails(text)
 
-        if meta_author is None or meta_author == "":
+        if meta_author is None or meta_author == "" or meta_author == []:
             if is_not_email: # pas d'email
                 self.authors.append("Auteur non trouvé")
             
@@ -162,7 +162,6 @@ class PdfToPlainText:
                 self.getAuthorsFromEmails()
             
             self.authors = txtmanip.authorFormat(self.authors)
-            print(len(self.emails))
 
         else:
             # Quand les metadonnees sont incompletes, recuperer les auteurs depuis les adresses emails
