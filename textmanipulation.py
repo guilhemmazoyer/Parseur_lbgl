@@ -83,28 +83,28 @@ def arrangeXML(pdfTPT):
     mergeAll += "\t<titre>" + pdfTPT.title + "</title>\n"
     mergeAll += "\t<auteurs>\n"
     
-    '''
-    for i in range max(len(pdfTPT.authors), len(pdfTPT.emails)):
-        mergeAll = "\t\t<auteur>\n"
+    for i in range(max(len(pdfTPT.authors), len(pdfTPT.emails))):
+        mergeAll += "\t\t<auteur>\n"
 
-        if pdfTPT.authors[i] is None:
-            mergeAll = "\t\t\t<name></name>\n"
-        else:
-            mergeAll = "\t\t\t<name>\n" + pdfTPT.authors[i] +" </name>\n"
+        try:
+            mergeAll += "\t\t\t<name>" + pdfTPT.authors[i] +"</name>\n"
+        except:
+            mergeAll += "\t\t\t<name></name>\n"
+        try:
+            mergeAll += "\t\t\t<mail>" + pdfTPT.emails[i] + "</mail>\n"
+        except:
+            mergeAll += "\t\t\t<mail></mail>\n"
 
-        if pdfTPT.emails[i] is None:
-            mergeAll = "\t\t\t<mail></mail>\n"
-        else:
-            mergeAll = "\t\t\t<mail>" + pdfTPT.emails[i] + "</mail>\n"
-
-        mergeAll = "\t\t</auteur>\n"
-    '''
+        mergeAll += "\t\t</auteur>\n"
 
     mergeAll += "\t</auteurs>\n"
-    mergeAll += "\t<abstract> " + pdfTPT.abstract + " </abstract>\n"
+    mergeAll += "\t<abstract>" + pdfTPT.abstract + "</abstract>\n"
+
+    mergeAll += "\t<biblios>\n"
     for reference in pdfTPT.references:
         if reference != "":
-            mergeAll += "\t\t<biblio> " + reference + " </biblio>\n"
+            mergeAll += "\t\t<biblio>" + reference + "</biblio>\n"
+    mergeAll += "\t</biblios>\n"
     mergeAll += "</article>"
 
     return mergeAll

@@ -4,6 +4,9 @@ from lib2to3.pgen2.token import OP
 from toTXT import ToTXT
 from toXML import ToXML
 import sys, time, os
+from progressbar import ProgressBar as pbar
+import multiprocessing
+from multiprocessing import Pool
 
 # Affichage de l'assistance
 def helpPDFtoFiles():
@@ -43,17 +46,61 @@ def setupOptions():
 
     # cas valide
     else:
-        # Initialise la class ToFormat
-        if OPTION == '-t':
-            ToTXT.__init__(ToTXT, FOLDER)
-            numberTotalFiles = len(ToTXT.files)
-            ToTXT.allPDF(ToTXT, numberTotalFiles)
-        else:
-            ToXML.__init__(ToXML, FOLDER)
-            numberTotalFiles = len(ToXML.files)
-            ToXML.allPDF(ToXML, numberTotalFiles)
+        # supprime des warning sous Windows
+        if __name__ == '__main__':
+            # Traitement vers fichier .txt
+            if OPTION == '-t':
+                txt = ToTXT(FOLDER)
+                numberTotalFiles = len(txt.files)
+                progressBar = pbar(numberTotalFiles)
 
-        finishMessage(numberTotalFiles)
+                nbFiles=20   # nombre de fichiers traités par processus
+                proc = []   # contient tous les processus à lancer
+                index = 0   # index des premiers processus
+                while index+nbFiles < numberTotalFiles:
+                    proc.append(multiprocessing.Process(target=txt.allPDF, args=(nbFiles, index, progressBar)))
+                    index+=nbFiles
+                # si le nombre de fichiers traités par le dernier processus est trop grand par rapport au nombre de fichier actuel / permet d'éviter de vérifer dans la boucle inutilement
+                if index+nbFiles >= numberTotalFiles: 
+                    nbLastFiles=numberTotalFiles-index # calcule le nombre des derniers fichiers à insérer
+                    proc.append(multiprocessing.Process(target=txt.allPDF, args=(nbLastFiles, index, progressBar)))
+                    
+                # proc = [multiprocessing.Process(target=txt.allPDF, args=(nbFiles,i)) for i in range(0,numberTotalFiles, nbFiles)]
+                for t in proc:
+                    t.start()
+                for t in proc:
+                    t.join()
+                
+                progressBar.progress(numberTotalFiles)
+                # txt.allPDF(numberTotalFiles)
+
+            # Traitement vers fichier .xml
+            else:
+                xml = ToXML(FOLDER)
+                numberTotalFiles = len(xml.files)
+                progressBar = pbar(numberTotalFiles)
+
+                nbFiles=20   # nombre de fichiers traités par processus
+                proc = []   # contient tous les processus à lancer
+                index = 0   # index des premiers processus
+                while index+nbFiles < numberTotalFiles:
+                    proc.append(multiprocessing.Process(target=xml.allPDF, args=(nbFiles, index, progressBar)))
+                    index+=nbFiles
+                # si le nombre de fichiers traités par le dernier processus est trop grand par rapport au nombre de fichier actuel / permet d'éviter de vérifer dans la boucle inutilement
+                if index+nbFiles >= numberTotalFiles: 
+                    nbLastFiles=numberTotalFiles-index # calcule le nombre des derniers fichiers à insérer
+                    proc.append(multiprocessing.Process(target=xml.allPDF, args=(nbLastFiles, index, progressBar)))
+                    
+                # proc = [multiprocessing.Process(target=xml.allPDF, args=(nbFiles,i)) for i in range(0,numberTotalFiles, nbFiles)]
+                for t in proc:
+                    t.start()
+                for t in proc:
+                    t.join()
+                
+                progressBar.progress(numberTotalFiles)
+               # xml.allPDF(numberTotalFiles)
+            
+            finishMessage(numberTotalFiles)
 
 def finishMessage(nbrTotalFiles):
     # Calcul de la duree du programme

@@ -2,10 +2,8 @@
 
 import os
 import textmanipulation as txtmanip
-import progressbar as pbar
 from fileManager import FileManager as fM
 from PdfToPlainText import PdfToPlainText
-from progressbar import ProgressBar as pbar
 
 class ToXML:
     folder = ""
@@ -29,14 +27,9 @@ class ToXML:
         files = filter(lambda f: f.endswith(('.pdf', '.PDF')), files)
         self.files = list(files)
 
-    def allPDF(self, numberTotalFiles):
-        progressBar = pbar(numberTotalFiles)
-        index = 0
-        progressBar.progress(index)
-        for file in self.files:
-            self.pdfTPT.fileProcessing(file)
+    def allPDF(self, numberFiles, i, progressBar):
+        progressBar.progress(i)
+        for file in range(i, i+numberFiles): # index du début du thread jusqu'au nombre de fichier max du thread
+            self.pdfTPT.fileProcessing(self.files[file])
             result = txtmanip.arrangeXML(self.pdfTPT)
             self.manager.writeXML(self.pdfTPT, result)
-            progressBar.progress(index)
-            index += 1
-        progressBar.progress(index)
