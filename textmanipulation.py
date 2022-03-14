@@ -4,7 +4,7 @@ REGEX_TITLE = r"^([A-Z].*)+"
 REGEX_MULTI_EMAILS = r"{?\(?[\w, .-]+[a-z\d]\)?}?\n?[@|Q][\w\-_.]+"
 REGEX_ABSTRACT = r"(Abstract(-|.| |\n))\n? ?((.|\n)*)(?=(1(\n| |( \n)|. )Introduction)|(I. INTRODUCTION))"
 REGEX_NO_ABSTRACT = r"(?<=\n)(.|\n)*(?=(1(\n| |( \n)|. )Introduction)|(I. INTRODUCTION))"
-REGEX_REFERENCES = r"(?<=References|REFERENCES)+((.|\n)*)"
+REGEX_REFERENCES = r"(((?<=References|REFERENCES)|(?<=Bibliographie|BIBLIOGRAPHIE))+((.|\n)*))"
 REGEX_TABREFERENCES = r"\[[0-9|, ]+\]"
 
 # Retire les caracteres indesirables d'un String
