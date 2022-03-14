@@ -3,9 +3,8 @@
 import re
 import textmanipulation as txtmanip
 from textmanipulation import (
-    REGEX_TABREFERENCES, REGEX_TITLE,
-    REGEX_MULTI_EMAILS, REGEX_ABSTRACT, REGEX_NO_ABSTRACT,
-    REGEX_REFERENCES)
+    REGEX_TITLE, REGEX_MULTI_EMAILS, REGEX_ABSTRACT,
+    REGEX_NO_ABSTRACT, REGEX_REFERENCES, REGEX_TABREFERENCES)
 
 class PdfToPlainText:
     # variables utiles pour les operations
@@ -49,6 +48,7 @@ class PdfToPlainText:
 
         self.metadata = self.getMetadata()
 
+        # Recupere tous les attributs souhaites
         self.__setFilename()
         self.__setTitle(self.metadata, text)
         self.__setAuthorsAndEmails(self.metadata, text)
@@ -138,7 +138,7 @@ class PdfToPlainText:
             result = False # email trouvee
 
         else:
-            self.emails.append("Email non trouvé ")
+            self.emails.append("Email non trouvé")
             result = True # pas d'email
 
         if self.DEBUG_EMAIL:
@@ -160,18 +160,17 @@ class PdfToPlainText:
             
             else: # email
                 self.getAuthorsFromEmails()
-            self.authors = txtmanip.authorFormat(self.authors)
+                self.authors = txtmanip.authorFormat(self.authors)
 
         else:
             # Quand les metadonnees sont incompletes, recuperer les auteurs depuis les adresses emails
+            meta_author = txtmanip.allClean(meta_author)
+            self.authors.append(meta_author)
+
             if len(self.authors) < len(self.emails):
                 self.authors = []
                 self.getAuthorsFromEmails()
-            
-            else:
-                meta_author = txtmanip.allClean(meta_author)
-                self.authors.append(meta_author)
-
+        
         if self.DEBUG_AUTHOR:
             for author in self.authors:
                 print(author + "; ")
@@ -238,7 +237,7 @@ class PdfToPlainText:
                         self.references.append(txtmanip.pasCleanText(reference))
 
                 else: # ajout d'une simple chaine de caractere
-                    self.references.append("Référence non trouvé !")
+                    self.references.append("Référence non trouvée")
                 
                 break # on stop le parcours de pages
 
