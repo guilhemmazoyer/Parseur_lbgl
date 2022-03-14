@@ -5,6 +5,7 @@ package Parser {
 		helpPDFtoFiles():void
 		checkFolderExist():boolean
 		checkOption(String):boolean
+		setupOptions():void
 		finishMessage():void
 	}
 
@@ -12,23 +13,34 @@ package Parser {
 		currentFile:String
 		manager:FileManager
 		doc:File
+		---
+		DEBUG_TEXT:boolean
+		DEBUG_TITLE:boolean
+		DEBUG_AUTHOR:boolean
+		DEBUG_EMAIL:boolean
+		DEBUG_ABSTRACT:boolean
+		DEBUG_REFERENCE:boolean
+		---
 		filename:String
 		title:String
 		authors:String[]
 		emails:String[]
 		abstract:String
 		references:String[]
+		fileProcessing(String):void
 		resetCoreVariables():void
-		getTextFirstPage():void
+		getTextFirstPage():String
+		getTextLastPage():String
+		getTextAnyPage(int):String
+		getNbPages():int
 		getMetadata():void
 		__setFilename():void
 		__setTitle(HashMap[], String):void
+		__findEmails(String):boolean
 		__setAuthorsAndEmails(String):void
-		findEmails(String):void
+		getAuthorsFromEmails():void
 		__setAbstract(String):void
 		__setReferences(String):void
-		pdfToPlainText()
-		fileProcessing(file):void
 	}
 
 	class FileManager {
@@ -62,16 +74,18 @@ package Parser {
 	}
 
 	package Utils {
-		enum TEXTMANIPULATION {
+		enum textmanipulation {
 			REGEX_TITLE
-			REGEX_INCORRECT_TITLE
-			REGEX_EMAILS
 			REGEX_MULTI_EMAILS
 			REGEX_ABSTRACT
 			REGEX_NO_ABSTRACT
 			REGEX_REFERENCES
-			cleanText(String):String
+			REGEX_TABREFERENCES
+			preCleanText(String):String
+			pasCleanText(String):String
+			allClean(String):String
 			authorFormat():String[]
+			cleanEmails(String[]):String[]
 			arrangeTXT(PdfToPlainText):String
 			arrangeXML(PdfToPlainText):String
 		}
@@ -86,9 +100,9 @@ package Parser {
 Launch .> ToFormat : FOLDER
 ToXML .> FileManager : FOLDER
 ToXML.> PdfToPlainText : file
-ToXML .> TEXTMANIPULATION : PdfToPlainText
+ToXML .> textmanipulation : PdfToPlainText
 FileManager .> ToXML : files[]
-PdfToPlainText .> TEXTMANIPULATION : String
+PdfToPlainText .> textmanipulation : String
 
 hide Launch circle
 

@@ -28,6 +28,7 @@ def pasCleanText(text):
     # Pour que le texte soit sur une seule ligne
     text = text.replace('\n', ' ')
     text = text.replace('\n\n', '\n')
+
     return text
 
 def allClean(text):
@@ -56,9 +57,6 @@ def cleanEmails(emails):
 
     return newEmails
 
-def cleanAbstract(reference):
-    reference = reference.replace('\n', '')
-
 # Arrange le texte ecris dans le fichier .xml a partir des attributs de pdfTPT
 def arrangeTXT(pdfTPT):
     mergeAll = pdfTPT.filename + '\n' + pdfTPT.title + '\n'
@@ -80,21 +78,21 @@ def arrangeTXT(pdfTPT):
 
 def arrangeXML(pdfTPT):
     mergeAll = "<article>\n"
-    mergeAll += "\t<preamble>" + pdfTPT.filename + "</preamble>\n"
-    mergeAll += "\t<titre>" + pdfTPT.title + "</title>\n"
+    mergeAll += "\t<preambule>" + pdfTPT.filename + "</preambule>\n"
+    mergeAll += "\t<titre>" + pdfTPT.title + "</titre>\n"
     mergeAll += "\t<auteurs>\n"
     
     for i in range(max(len(pdfTPT.authors), len(pdfTPT.emails))):
         mergeAll += "\t\t<auteur>\n"
 
         try:
-            mergeAll += "\t\t\t<name>" + pdfTPT.authors[i] +"</name>\n"
+            mergeAll += "\t\t\t<nom>" + pdfTPT.authors[i] +"</nom>\n"
         except:
-            mergeAll += "\t\t\t<name></name>\n"
+            mergeAll += "\t\t\t<nom></nom>\n"
         try:
-            mergeAll += "\t\t\t<mail>" + pdfTPT.emails[i] + "</mail>\n"
+            mergeAll += "\t\t\t<email>" + pdfTPT.emails[i] + "</email>\n"
         except:
-            mergeAll += "\t\t\t<mail></mail>\n"
+            mergeAll += "\t\t\t<email></email>\n"
 
         mergeAll += "\t\t</auteur>\n"
 
