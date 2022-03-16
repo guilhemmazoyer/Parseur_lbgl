@@ -3,8 +3,9 @@
 import re
 import textmanipulation as txtmanip
 from textmanipulation import (
-    REGEX_TITLE, REGEX_MULTI_EMAILS, REGEX_ABSTRACT,
-    REGEX_NO_ABSTRACT, REGEX_REFERENCES, REGEX_TABREFERENCES)
+    REGEX_TITLE, REGEX_ALL_EMAILS, REGEX_MULTI_EMAILS,
+    REGEX_ABSTRACT, REGEX_NO_ABSTRACT, REGEX_REFERENCES,
+    REGEX_TABREFERENCES)
 
 class PdfToPlainText:
     # variables utiles pour les operations
@@ -127,19 +128,22 @@ class PdfToPlainText:
     # Trouve les emails et renvoie le type de formulation de celle-ci
     def __findEmails(self, text):          
 
-        if re.findall(REGEX_MULTI_EMAILS, text, re.MULTILINE) != []:
+        if re.findall(REGEX_ALL_EMAILS, text, re.MULTILINE) != []:
             # Recupere les adresses emails dans le text
-            emails = re.findall(REGEX_MULTI_EMAILS, text, re.MULTILINE)
+            emails = re.findall(REGEX_ALL_EMAILS, text, re.MULTILINE)
             
+            result = 1 # email trouvee
+
             # Ajout des emails
             for email in emails:
                 email = re.sub('Q', '@', email)
                 self.emails.append(email)
-            result = False # email trouvee
+                if re.search(REGEX_MULTI_EMAILS, email):
+                    result = 2
 
         else:
             self.emails.append("Email non trouvé")
-            result = True # pas d'email
+            result = False # pas d'email
 
         if self.DEBUG_EMAIL:
             for email in self.emails:
@@ -152,14 +156,18 @@ class PdfToPlainText:
     def __setAuthorsAndEmails(self, metadatas, text):
 
         meta_author = metadatas["author"]
-        is_not_email = self.__findEmails(text)
+        email_type = self.__findEmails(text)
 
         if meta_author is None or meta_author == "" or meta_author == []:
-            if is_not_email: # pas d'email
+            if not email_type: # pas d'email
                 self.authors.append("Auteur non trouvé")
             
-            else: # email
+            elif email_type == 1: # email simple
                 self.getAuthorsFromEmails()
+                self.authors = txtmanip.authorFormat(self.authors)
+            
+            elif email_type == 2: # email multiple
+                self.getAuthorsFromMultiEmails()
                 self.authors = txtmanip.authorFormat(self.authors)
 
         else:
@@ -186,6 +194,11 @@ class PdfToPlainText:
                 newName += name + " "
             newName = newName[0:len(newName)-1]
             self.authors.append(newName)
+    
+    def getAuthorsFromMultiEmails(self):
+        for email in self.emails:
+            email_decompose = email[0:email.find('@')]
+            # TODO suite de la decomposition
 
     # Definit la partie Abstract de l'article
     def __setAbstract(self, text):

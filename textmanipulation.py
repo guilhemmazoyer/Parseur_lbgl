@@ -1,7 +1,8 @@
 # -*- coding : utf-8 -*-
 
 REGEX_TITLE = r"^([A-Z].*)+"
-REGEX_MULTI_EMAILS = r"{?\(?\b[\w, .-]+[a-z\d]\)?}?\n?[@|Q][\w\-_.]+"
+REGEX_ALL_EMAILS = r"{?\(?\b[\w, .-]+[a-z\d]\)?}?\n?[@|Q][\w\-_.]+"
+REGEX_MULTI_EMAILS = r"{|}|\(|\)"
 REGEX_ABSTRACT = r"(Abstract(-|.| |\n))\n? ?((.|\n)*)(?=(1(\n| |( \n)|. )Introduction)|(I. INTRODUCTION))"
 REGEX_NO_ABSTRACT = r"(?<=\n)(.|\n)*(?=(1(\n| |( \n)|. )Introduction)|(I. INTRODUCTION))"
 REGEX_REFERENCES = r"(((?<=References|REFERENCES)|(?<=Bibliographie|BIBLIOGRAPHIE))+((.|\n)*))"
@@ -46,6 +47,14 @@ def authorFormat(authors):
     return newAuthors
 
 def cleanEmails(emails):
+    newEmails = []
+    for email in emails:
+        email = email.replace('\n', '')
+        newEmails.append(email)
+
+    return newEmails
+
+def cleanMultiEmails(emails):
     newEmails = []
     for email in emails:
         email = email.replace('{', '')
