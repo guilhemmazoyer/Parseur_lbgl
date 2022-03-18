@@ -2,7 +2,8 @@
 
 REGEX_TITLE = r"^([A-Z].*)+"
 REGEX_ALL_EMAILS = r"{?\(?\b[\w, .-]+[a-z\d]\)?}?\n?[@|Q][\w\-_.]+"
-REGEX_MULTI_EMAILS = r"{|}|\(|\)"
+REGEX_MULTI_EMAILS = r"{|}|\(|\)|\,"
+REGEX_MULTI_EMAILS_NAME = r"[\w]+"
 REGEX_ABSTRACT = r"(Abstract(-|.| |\n))\n? ?((.|\n)*)(?=(1(\n| |( \n)|. )Introduction)|(I. INTRODUCTION))"
 REGEX_NO_ABSTRACT = r"(?<=\n)(.|\n)*(?=(1(\n| |( \n)|. )Introduction)|(I. INTRODUCTION))"
 REGEX_REFERENCES = r"(((?<=References|REFERENCES)|(?<=Bibliographie|BIBLIOGRAPHIE))+((.|\n)*))"
