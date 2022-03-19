@@ -1,13 +1,17 @@
 # -*- coding : utf-8 -*-
 
+import re
+
 REGEX_TITLE = r"^([A-Z].*)+"
 REGEX_ALL_EMAILS = r"{?\(?\b[\w, .-]+[a-z\d]\)?}?\n?[@|Q][\w\-_.]+"
 REGEX_MULTI_EMAILS = r"{|}|\(|\)|\,"
-REGEX_MULTI_EMAILS_NAME = r"[\w]+"
+REGEX_MULTI_EMAILS_NAME = r"[\w.]+"
 REGEX_ABSTRACT = r"(Abstract(-|.| |\n))\n? ?((.|\n)*)(?=(1(\n| |( \n)|. )Introduction)|(I. INTRODUCTION))"
 REGEX_NO_ABSTRACT = r"(?<=\n)(.|\n)*(?=(1(\n| |( \n)|. )Introduction)|(I. INTRODUCTION))"
 REGEX_REFERENCES = r"(((?<=References|REFERENCES)|(?<=Bibliographie|BIBLIOGRAPHIE))+((.|\n)*))"
 REGEX_TABREFERENCES = r"\[[0-9|, ]+\]"
+
+REGEX_RETOUR_TIRET = r"(?<=[A-z])-\n"
 
 # Retire les caracteres indesirables d'un String
 def preCleanText(text):
@@ -19,6 +23,8 @@ def preCleanText(text):
     text = text.replace("´e", 'é')
     # retour à la ligne mot coupe
     text = text.replace("- \n", '')
+    # retour à la ligne mot coupe bizarrement
+    text = re.sub(REGEX_RETOUR_TIRET, '', text)
     # ç
     text = text.replace("c¸",'ç')
     # î
