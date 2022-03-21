@@ -13,7 +13,7 @@ def launch():
 fileFrame = LabelFrame(root, text="Files selection", padx=3, pady=3)
 fileFrame.grid(row=0, column=0, padx=10, pady=10, sticky=NW)
 
-butSelectAll = Button(fileFrame, text="Select all")
+butSelectAll = Button(fileFrame, text="Select all", bg="white")
 butSelectAll.grid(row=0, column=0, padx=3, pady=5)
 
 butUnselectAll = Button(fileFrame, text="Unselect all", bg="white")
@@ -79,7 +79,7 @@ valueCheckXmlOrTxt = IntVar()
 Radiobutton(launchFrame, text="Format XML", variable=valueCheckXmlOrTxt, value=0).grid(row=0, column=0)
 Radiobutton(launchFrame, text="Format TXT", variable=valueCheckXmlOrTxt, value=1).grid(row=0, column=1)
 
-butLaunch = Button(launchFrame, text="Start parsing", command=launch)
+butLaunch = Button(launchFrame, text="Start parsing", command=launch, bg="white")
 butLaunch.grid(row=0, column=2)
 
 
