@@ -3,8 +3,9 @@
 import re
 import textmanipulation as txtmanip
 from textmanipulation import (
-    REGEX_TITLE, REGEX_MULTI_EMAILS, REGEX_ABSTRACT,
-    REGEX_NO_ABSTRACT, REGEX_REFERENCES, REGEX_TABREFERENCES)
+    REGEX_TITLE, REGEX_MULTI_EMAILS, REGEX_POST_TITLE_PRE_ABSTRACT, 
+    REGEX_ABSTRACT, REGEX_NO_ABSTRACT, REGEX_REFERENCES,
+    REGEX_TABREFERENCES)
 
 class PdfToPlainText:
     # variables utiles pour les operations
@@ -18,7 +19,7 @@ class PdfToPlainText:
     DEBUG_TITLE = False
     DEBUG_AUTHOR = False
     DEBUG_EMAIL = False
-    DEBUG_AFFILIATION = False
+    DEBUG_AFFILIATION = True
     DEBUG_ABSTRACT = False
     DEBUG_REFERENCE = False
 
@@ -28,6 +29,7 @@ class PdfToPlainText:
     title = ""
     authors = []
     emails = []
+    affiliations = []
     abstract = ""
     references = []
 
@@ -55,14 +57,16 @@ class PdfToPlainText:
         self.__setTitle(self.metadata, text)
         self.__setEmails(text)
         self.__setAuthors()
-        self.__setAffiliation(text)
+        self.__setAffiliations(text)
         self.__setAbstract(text)
         self.__setReferences()
 
+    # Reinitialise certaines variables
     def resetCoreVariables(self):
         self.doc = []
         self.authors = []
         self.emails = []
+        self.affiliations = []
         self.references = []
 
     # Recupere la page de garde de l'article
@@ -85,6 +89,7 @@ class PdfToPlainText:
 
         return txtmanip.preCleanText(rawText)
 
+    # Recupere la page desiree de l'article
     def getTextAnyPage(self, nb):
         # Ouverture de la nb page du fichier .pdf
         try:
@@ -111,7 +116,6 @@ class PdfToPlainText:
 
     # Definit le titre de l'article
     def __setTitle(self, metadatas, text):
-
         metas_title = metadatas["title"]
 
         if not metas_title or metas_title == "" or not re.search(REGEX_TITLE, metas_title):
@@ -172,13 +176,19 @@ class PdfToPlainText:
             newName = newName[0:len(newName)-1]
             self.authors.append(newName)
 
-    def __setAffiliation(self, text):
+    def __setAffiliations(self, text):
+        preCoupage = re.search(REGEX_POST_TITLE_PRE_ABSTRACT, text).group(0)
 
-        print("", end="")
+        for nom in self.authors:
+            self.affiliations.append(preCoupage)
+
+        if self.DEBUG_AFFILIATION:
+            for affiliation in self.affiliations:
+                print(affiliation + "; ")
+            print("\n")
 
     # Definit la partie Abstract de l'article
     def __setAbstract(self, text):
-            
         if re.search(REGEX_ABSTRACT, text) is not None:
             abstract = re.search(REGEX_ABSTRACT, text).group(3)
 
@@ -196,7 +206,6 @@ class PdfToPlainText:
         
     # Definit les references de l'article
     def __setReferences(self):
-
         text = ""
         textTest = ""
 

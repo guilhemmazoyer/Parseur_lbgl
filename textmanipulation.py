@@ -1,12 +1,12 @@
 # -*- coding : utf-8 -*-
 
 REGEX_TITLE = r"^([A-Z].*)+"
-REGEX_MULTI_EMAILS = r"{?\(?\b[\w, .-]*[a-z\d]\)?}?\n?[@|Q][\w\-_.]+"
+REGEX_MULTI_EMAILS = r"{?\(?\b[\w][\w, .-]*[a-z\d]\)?}?\n?[@|Q][\w\-_.\n]+"
+REGEX_POST_TITLE_PRE_ABSTRACT = r"(?<=\n)(.|\n)+(?=(Abstract))"
 REGEX_ABSTRACT = r"(Abstract(-|.| |\n))\n? ?((.|\n)*)(?=(1(\n| |( \n)|. )Introduction)|(I. INTRODUCTION))"
 REGEX_NO_ABSTRACT = r"(?<=\n)(.|\n)*(?=(1(\n| |( \n)|. )Introduction)|(I. INTRODUCTION))"
 REGEX_REFERENCES = r"(((?<=References|REFERENCES)|(?<=Bibliographie|BIBLIOGRAPHIE))+((.|\n)*))"
 REGEX_TABREFERENCES = r"\[[0-9|, ]+\]"
-REGEX_TEST = r"(?<=\n)(.|\n)+(?=(Abstract))"
 
 # Retire les caracteres indesirables d'un String
 def preCleanText(text):
@@ -70,6 +70,10 @@ def arrangeTXT(pdfTPT):
         mergeAll += email + '; '
     mergeAll += '\n'
 
+    for affiliation in pdfTPT.affiliations:
+        mergeAll += affiliation + '; '
+    mergeAll += '\n'
+
     mergeAll += pdfTPT.abstract + '\n'
 
     for reference in pdfTPT.references:
@@ -83,7 +87,9 @@ def arrangeXML(pdfTPT):
     mergeAll += "\t<titre>" + pdfTPT.title + "</titre>\n"
     mergeAll += "\t<auteurs>\n"
     
-    for i in range(max(len(pdfTPT.authors), len(pdfTPT.emails))):
+    maxIndex = max(max(len(pdfTPT.authors), len(pdfTPT.emails)), len(pdfTPT.affiliations))
+
+    for i in range(maxIndex):
         mergeAll += "\t\t<auteur>\n"
 
         try:
@@ -94,6 +100,10 @@ def arrangeXML(pdfTPT):
             mergeAll += "\t\t\t<email>" + pdfTPT.emails[i] + "</email>\n"
         except:
             mergeAll += "\t\t\t<email></email>\n"
+        try:
+            mergeAll += "\t\t\t<affiliation>" + pdfTPT.affiliations[i] + "</affiliation>\n"
+        except:
+            mergeAll += "\t\t\t<affiliation></affiliation>\n"
 
         mergeAll += "\t\t</auteur>\n"
 
