@@ -11,12 +11,14 @@ class PdfToPlainText:
     currentFile = ""
     manager = None
     doc = []
+    emailFindingResult = True
 
     # DEBUG
     DEBUG_TEXT = False
     DEBUG_TITLE = False
     DEBUG_AUTHOR = False
     DEBUG_EMAIL = False
+    DEBUG_AFFILIATION = False
     DEBUG_ABSTRACT = False
     DEBUG_REFERENCE = False
 
@@ -51,7 +53,9 @@ class PdfToPlainText:
         # Recupere tous les attributs souhaites
         self.__setFilename()
         self.__setTitle(self.metadata, text)
-        self.__setAuthorsAndEmails(self.metadata, text)
+        self.__setEmails(text)
+        self.__setAuthors()
+        self.__setAffiliation(text)
         self.__setAbstract(text)
         self.__setReferences()
 
@@ -111,22 +115,18 @@ class PdfToPlainText:
         metas_title = metadatas["title"]
 
         if not metas_title or metas_title == "" or not re.search(REGEX_TITLE, metas_title):
-
             if re.search(REGEX_TITLE, text) is not None:
                 self.title = re.search(REGEX_TITLE, text).group(0)
-
             else:
                 self.title = "Titre non trouvé"
-
         else:
             self.title = metas_title
 
         if self.DEBUG_TITLE:
             print(self.title + "\n\n")
 
-    # Trouve les emails et renvoie le type de formulation de celle-ci
-    def __findEmails(self, text):          
-
+    # Trouve les emails
+    def __setEmails(self, text):   
         if re.findall(REGEX_MULTI_EMAILS, text, re.MULTILINE) != []:
             # Recupere les adresses emails dans le text
             emails = re.findall(REGEX_MULTI_EMAILS, text, re.MULTILINE)
@@ -135,41 +135,25 @@ class PdfToPlainText:
             for email in emails:
                 email = re.sub('Q', '@', email)
                 self.emails.append(email)
-            result = False # email trouvee
+            self.emailFindingResult = False # email trouvee
 
         else:
             self.emails.append("Email non trouvé")
-            result = True # pas d'email
+            self.emailFindingResult = True # pas d'email
 
         if self.DEBUG_EMAIL:
             for email in self.emails:
                 print(email + "; ")
             print("\n")
 
-        return result
-
     # Definit les auteurs et leurs emails
-    def __setAuthorsAndEmails(self, metadatas, text):
-
-        meta_author = metadatas["author"]
-        is_not_email = self.__findEmails(text)
-
-        if meta_author is None or meta_author == "" or meta_author == []:
-            if is_not_email: # pas d'email
-                self.authors.append("Auteur non trouvé")
-            
-            else: # email
-                self.getAuthorsFromEmails()
-                self.authors = txtmanip.authorFormat(self.authors)
-
-        else:
-            # Quand les metadonnees sont incompletes, recuperer les auteurs depuis les adresses emails
-            meta_author = txtmanip.allClean(meta_author)
-            self.authors.append(meta_author)
-
-            if len(self.authors) < len(self.emails):
-                self.authors = []
-                self.getAuthorsFromEmails()
+    def __setAuthors(self):
+        if self.emailFindingResult: # pas d'email
+            self.authors.append("Auteur non trouvé")
+        
+        else: # email
+            self.getAuthorsFromEmails()
+            self.authors = txtmanip.authorFormat(self.authors)
         
         if self.DEBUG_AUTHOR:
             for author in self.authors:
@@ -180,13 +164,17 @@ class PdfToPlainText:
         for email in self.emails:
             email_decompose = email[0:email.find('@')]
             self.emails = txtmanip.cleanEmails(self.emails)
-            names = re.findall("[\w-]+", email_decompose)
+            names = re.findall(r"[\w-]+", email_decompose)
 
             newName = ""
             for name in names:
                 newName += name + " "
             newName = newName[0:len(newName)-1]
             self.authors.append(newName)
+
+    def __setAffiliation(self, text):
+
+        print("", end="")
 
     # Definit la partie Abstract de l'article
     def __setAbstract(self, text):
@@ -243,4 +231,3 @@ class PdfToPlainText:
 
             else: # Enregistrement de la page precendente si le mot "Référence" n'est pas trouve
                 text = textTest + ' ' + text + ' '
-

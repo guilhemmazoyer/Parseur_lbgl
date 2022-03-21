@@ -6,6 +6,7 @@ REGEX_ABSTRACT = r"(Abstract(-|.| |\n))\n? ?((.|\n)*)(?=(1(\n| |( \n)|. )Introdu
 REGEX_NO_ABSTRACT = r"(?<=\n)(.|\n)*(?=(1(\n| |( \n)|. )Introduction)|(I. INTRODUCTION))"
 REGEX_REFERENCES = r"(((?<=References|REFERENCES)|(?<=Bibliographie|BIBLIOGRAPHIE))+((.|\n)*))"
 REGEX_TABREFERENCES = r"\[[0-9|, ]+\]"
+REGEX_TEST = r"(?<=\n)(.|\n)+(?=(Abstract))"
 
 # Retire les caracteres indesirables d'un String
 def preCleanText(text):
