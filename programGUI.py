@@ -1,6 +1,9 @@
 from tkinter import *
+from tkinter.filedialog import askdirectory
 
 root = Tk()
+root.title("PDF Parser")
+root.resizable(width=True, height=True)
 
     ## Actions des bouttons de l'interface ##
 # Lance le parser selon les parametres definis par l'utilisateur
@@ -8,17 +11,59 @@ def launch():
     # TODO launch
     print("")
 
+def askDirectoryToParse():
+    parseFolder = askdirectory()
+    butOpenFolder.destroy()
+    # TODO creer l'affichage des fichiers pdf du dossier selectionne
+    print(parseFolder)
+
+def resetGUIPreset():
+    # Parse preset
+    checkFilename.select()
+    checkTitle.select()
+    checkAuthor.select()
+    checkAbstract.select()
+    checkIntroduction.select()
+    checkCorps.select()
+    checkConclusion.select()
+    checkDiscussion.select()
+    checkBiblio.select()
+
+    # Output preset
+    valueCheckXmlOrTxt.set(0)
+
+
+    ## Menu avec choix de langue et de dossier ##
+menubar = Menu(root)
+filemenu = Menu(menubar, tearoff=0)
+filemenu.add_command(label="Open Folder...", accelerator='ctrl+o', command=askDirectoryToParse)
+filemenu.add_command(label="Set Default Preset", command=resetGUIPreset)
+filemenu.add_separator()
+filemenu.add_command(label="Exit", command=root.quit)
+
+menubar.add_cascade(label="Window", menu=filemenu)
+
+langmenu = Menu(menubar, tearoff=0)
+langmenu.add_command(label="Français", command=launch)
+langmenu.add_command(label="English", command=resetGUIPreset)
+
+menubar.add_cascade(label="Language", menu=langmenu)
 
     ## Frame constituee des fichiers pdf ##
 fileFrame = LabelFrame(root, text="Files selection", padx=3, pady=3)
 fileFrame.grid(row=0, column=0, padx=10, pady=10, sticky=NW)
 
-butSelectAll = Button(fileFrame, text="Select all", bg="white")
+butSelectAll = Button(fileFrame, text="Select all")
 butSelectAll.grid(row=0, column=0, padx=3, pady=5)
 
-butUnselectAll = Button(fileFrame, text="Unselect all", bg="white")
+butUnselectAll = Button(fileFrame, text="Unselect all")
 butUnselectAll.grid(row=0, column=1, padx=3, pady=5)
 
+space = Label(fileFrame, text="")
+space.grid(row=1, column=2, padx=3, pady=5)
+
+butOpenFolder = Button(fileFrame, text="Open Folder...", command=askDirectoryToParse, bg="#FFF4E5", activebackground='green', activeforeground='white', font=1, borderwidth=2, relief="groove")
+butOpenFolder.grid(row=2, column=1, padx=3, pady=5)
 
     ## Frame constituee des presets pour le parser ##
 presetFrame = LabelFrame(root, text="Presets selection", padx=5, pady=5)
@@ -79,7 +124,7 @@ valueCheckXmlOrTxt = IntVar()
 Radiobutton(launchFrame, text="Format XML", variable=valueCheckXmlOrTxt, value=0).grid(row=0, column=0)
 Radiobutton(launchFrame, text="Format TXT", variable=valueCheckXmlOrTxt, value=1).grid(row=0, column=1)
 
-butLaunch = Button(launchFrame, text="Start parsing", command=launch, bg="white")
+butLaunch = Button(launchFrame, text="Start parsing", command=launch)
 butLaunch.grid(row=0, column=2)
 
 
@@ -88,4 +133,5 @@ labError = Label(root, text="")
 labError.grid(row=1, column=1, sticky=SE)
 
 
+root.config(menu=menubar)
 root.mainloop()
