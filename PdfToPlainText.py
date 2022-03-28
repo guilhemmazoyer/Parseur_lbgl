@@ -1,6 +1,7 @@
 # -*- coding : utf-8 -*-
 
 import re
+import difflib
 import textmanipulation as txtmanip
 from textmanipulation import (
     REGEX_TITLE, REGEX_MULTI_EMAILS, REGEX_POST_TITLE_PRE_ABSTRACT, 
@@ -19,7 +20,7 @@ class PdfToPlainText:
     DEBUG_TITLE = False
     DEBUG_AUTHOR = False
     DEBUG_EMAIL = False
-    DEBUG_AFFILIATION = True
+    DEBUG_AFFILIATION = False
     DEBUG_ABSTRACT = False
     DEBUG_REFERENCE = False
 
@@ -150,7 +151,7 @@ class PdfToPlainText:
                 print(email + "; ")
             print("\n")
 
-    # Definit les auteurs et leurs emails
+    # Definit les auteurs
     def __setAuthors(self):
         if self.emailFindingResult: # pas d'email
             self.authors.append("Auteur non trouvé")
@@ -164,6 +165,7 @@ class PdfToPlainText:
                 print(author + "; ")
             print("\n")
 
+    # Recupere la partie Auteurs de la partie email
     def getAuthorsFromEmails(self):
         for email in self.emails:
             email_decompose = email[0:email.find('@')]
@@ -176,10 +178,16 @@ class PdfToPlainText:
             newName = newName[0:len(newName)-1]
             self.authors.append(newName)
 
+    # Definit la partie Affiliation de l'article
     def __setAffiliations(self, text):
         preCoupage = re.search(REGEX_POST_TITLE_PRE_ABSTRACT, text).group(0)
+        # Nettoyage de preCoupage
 
-        for nom in self.authors:
+        listWordForAffiliation = []
+        # Split de preCoupage dans listWordForAffiliation
+
+        # Verification de la proximité entre deux mots et utiliser le mot trouvé pour faire la borne du regex avec l'email
+        for i in range(len(self.authors)):
             self.affiliations.append(preCoupage)
 
         if self.DEBUG_AFFILIATION:
