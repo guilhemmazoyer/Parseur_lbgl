@@ -5,7 +5,7 @@ from toXML import ToXML
 import sys, time, os
 from progressbar import ProgressBar as pbar
 import multiprocessing
-from multiprocessing import Pool
+from menu import Menu
 
 # Affichage de l'assistance
 def helpPDFtoFiles():
@@ -50,10 +50,12 @@ def setupOptions():
             nbFiles = 30   # nombre de fichiers traités par processus
             proc = []   # contient tous les processus à lancer
             index = 0   # index des premiers processus
-
+            menu = Menu(FOLDER)
+            files = menu.listPdf  # TODO files est la liste des fichiers pdf choisis par l'utilisateur, à récupérer depuis menu
+            menu.lsPdf()
             # Traitement vers fichier .txt
             if OPTION == '-t':
-                txt = ToTXT(FOLDER)
+                txt = ToTXT(FOLDER, files)
                 numberTotalFiles = len(txt.files)
                 progressBar = pbar(numberTotalFiles)
 
@@ -70,7 +72,7 @@ def setupOptions():
 
             # Traitement vers fichier .xml
             else:
-                xml = ToXML(FOLDER)
+                xml = ToXML(FOLDER, files)
                 numberTotalFiles = len(xml.files)
                 progressBar = pbar(numberTotalFiles)
 
