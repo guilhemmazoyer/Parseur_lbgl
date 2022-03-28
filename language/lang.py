@@ -34,7 +34,7 @@ CHECK_REFERENCES = ["Reference", "Bibliographie", "書誌情報"]
     ## Others UI Elements
 RADIO_XML_FORMAT = ["XML Format", "Format XML", "XML フォーマット"]
 RADIO_TXT_FORMAT = ["TXT Format", "Format TXT", "TXT フォーマット"]
-BUTTON_LAUNCH_PARSING = ["Start parsing", "Lancement du parsing", "パース開始"]
+BUTTON_LAUNCH_PARSING = ["Start parsing", "Lancement de l'analyse", "パース開始"]
 
 class lang:
 
