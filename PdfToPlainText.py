@@ -111,11 +111,11 @@ class PdfToPlainText:
     def getMetadata(self):
         return self.doc.metadata
 
-    # Definit le nom du fichier
+    # Defini le nom du fichier
     def __setFilename(self):
         self.filename = self.manager.getFileName(self.currentFile)
 
-    # Definit le titre de l'article
+    # Defini le titre de l'article
     def __setTitle(self, metadatas, text):
         metas_title = metadatas["title"]
 
@@ -151,7 +151,7 @@ class PdfToPlainText:
                 print(email + "; ")
             print("\n")
 
-    # Definit les auteurs
+    # Defini les auteurs
     def __setAuthors(self):
         if self.emailFindingResult: # pas d'email
             self.authors.append("Auteur non trouvé")
@@ -178,24 +178,30 @@ class PdfToPlainText:
             newName = newName[0:len(newName)-1]
             self.authors.append(newName)
 
-    # Definit la partie Affiliation de l'article
+    # Defini la partie Affiliation de l'article
     def __setAffiliations(self, text):
+        if self.emailFindingResult: # si pas d'email et d'auteur
+            return
+
         preCoupage = re.search(REGEX_POST_TITLE_PRE_ABSTRACT, text).group(0)
-        # Nettoyage de preCoupage
+        preCoupage = txtmanip.allClean(preCoupage)
 
         listWordForAffiliation = []
-        # Split de preCoupage dans listWordForAffiliation
+        listWordForAffiliation = preCoupage.split(sep=" ")
 
         # Verification de la proximité entre deux mots et utiliser le mot trouvé pour faire la borne du regex avec l'email
         for i in range(len(self.authors)):
-            self.affiliations.append(preCoupage)
+            wordCloseToAuthor = difflib.get_close_matches(self.authors[i],listWordForAffiliation)
+            regex_affiliation = r"(?<=" + wordCloseToAuthor + ")(.|\n)+(?=(" + self.emails[i] + "))"
+            resultAffiliation = re.search(regex_affiliation, preCoupage).group(0)
+            self.affiliations.append(resultAffiliation)
 
         if self.DEBUG_AFFILIATION:
             for affiliation in self.affiliations:
                 print(affiliation + "; ")
             print("\n")
 
-    # Definit la partie Abstract de l'article
+    # Defini la partie Abstract de l'article
     def __setAbstract(self, text):
         if re.search(REGEX_ABSTRACT, text) is not None:
             abstract = re.search(REGEX_ABSTRACT, text).group(3)
@@ -212,7 +218,7 @@ class PdfToPlainText:
         if self.DEBUG_ABSTRACT:
            print(self.abstract + "\n\n")
         
-    # Definit les references de l'article
+    # Defini les references de l'article
     def __setReferences(self):
         text = ""
         textTest = ""
