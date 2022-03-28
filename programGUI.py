@@ -1,10 +1,11 @@
-from faulthandler import disable
 from tkinter import *
 from tkinter.filedialog import askdirectory
+
+root = Tk()
+
 from language.lang import lang
 from language.lang import *
 
-root = Tk()
 root.title("PDF Parser")
 root.resizable(width=True, height=True)
 
@@ -14,7 +15,7 @@ def launch():
     # TODO launch
     print("")
 
-def askDirectoryToParse():
+def askUserDirectoryToParse():
     parseFolder = askdirectory()
     if parseFolder != "":
         butOpenFolder.destroy()
@@ -67,18 +68,25 @@ def updateLanguageDisplay():
     radTXTFormat.config(text=RADIO_TXT_FORMAT[lang.LANG])
     butLaunch.config(text=BUTTON_LAUNCH_PARSING[lang.LANG])
 
-def changeToEnglish():
+def changeGUILangToEnglish():
     lang.LANG = 0
+    langOption.set(0)
     updateLanguageDisplay()
 
-def changeToFrench():
+def changeGUILangToFrench():
     lang.LANG = 1
+    langOption.set(1)
+    updateLanguageDisplay()
+
+def changeGUILangToJapanese():
+    lang.LANG = 2
+    langOption.set(2)
     updateLanguageDisplay()
 
     ## Menu avec choix de langue et de dossier ##
 menubar = Menu(root)
 filemenu = Menu(menubar, tearoff=0)
-filemenu.add_command(accelerator='ctrl+o', command=askDirectoryToParse)
+filemenu.add_command(accelerator='Ctrl+O', command=askUserDirectoryToParse)
 filemenu.add_command(command=resetGUIPreset)
 filemenu.add_separator()
 filemenu.add_command(command=root.quit)
@@ -86,8 +94,10 @@ filemenu.add_command(command=root.quit)
 menubar.add_cascade(menu=filemenu)
 
 langmenu = Menu(menubar, tearoff=0)
-langmenu.add_command(label="English", command=changeToEnglish)
-langmenu.add_command(label="Français", command=changeToFrench)
+
+langmenu.add_radiobutton(accelerator='Alt+E', variable=langOption, value=0, label="English", command=changeGUILangToEnglish)
+langmenu.add_radiobutton(accelerator='Alt+F', variable=langOption, value=1, label="Français", command=changeGUILangToFrench)
+langmenu.add_radiobutton(accelerator='Alt+J', variable=langOption, value=2, label="日本語", command=changeGUILangToJapanese)
 
 menubar.add_cascade(menu=langmenu)
 
@@ -104,7 +114,7 @@ butUnselectAll.grid(row=0, column=1, padx=3, pady=5)
 space = Label(fileFrame, text="")
 space.grid(row=1, column=2, padx=3, pady=5)
 
-butOpenFolder = Button(fileFrame, command=askDirectoryToParse, bg="#FFF4E5", activebackground='green', activeforeground='white', font=1, borderwidth=2, relief="groove")
+butOpenFolder = Button(fileFrame, command=askUserDirectoryToParse, bg="#FFF4E5", activebackground='green', activeforeground='white', font=1, borderwidth=2, relief="groove")
 butOpenFolder.grid(row=2, column=1, padx=3, pady=5)
 
     ## Frame constituee des presets pour le parser ##
@@ -176,9 +186,18 @@ butLaunch.grid(row=0, column=2)
 labError = Label(root, text="")
 labError.grid(row=1, column=1, sticky=SE)
 
-
 root.config(menu=menubar)
 
 updateLanguageDisplay();
+
+    ## Accelerators ##
+root.bind_all('<Alt-f>', lambda event: changeGUILangToFrench())
+root.bind_all('<Alt-F>', lambda event: changeGUILangToFrench())
+root.bind_all("<Alt-e>", lambda event: changeGUILangToEnglish())
+root.bind_all("<Alt-E>", lambda event: changeGUILangToEnglish())
+root.bind_all("<Alt-j>", lambda event: changeGUILangToJapanese())
+root.bind_all("<Alt-J>", lambda event: changeGUILangToJapanese())
+root.bind_all("<Control-o>", lambda event: askUserDirectoryToParse())
+root.bind_all("<Control-O>", lambda event: askUserDirectoryToParse())
 
 root.mainloop()
