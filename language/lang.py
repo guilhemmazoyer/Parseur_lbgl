@@ -2,7 +2,7 @@ from tkinter import *
 
 # Ce fichier contient tous les noms et les traductions des éléments du GUI
 # Les noms sont écris sous la forme :
-# varname = ["english", "french", "japanese"]
+# varname = ["english", "français", "日本語"]
 
     ## Accelerators
 MENU_FILES_OPEN_FOLDER_A = "Ctrl+O"
