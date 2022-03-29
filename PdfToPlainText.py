@@ -141,7 +141,6 @@ class PdfToPlainText:
                 email = re.sub('Q', '@', email)
                 if re.search(REGEX_TYPE_MULTI_EMAILS, email) is not None: # multi email
                     # recuperation de l'email
-                    email = re.search(REGEX_TYPE_MULTI_EMAILS, email).group(0)
                     email = txtmanip.cleanEmail(email)
 
                     # recuperation des noms dans l'adresse
@@ -152,6 +151,7 @@ class PdfToPlainText:
                         email = name + adresse_post_name
                         self.emails.append(email)
                 else:
+                    email = txtmanip.cleanEmail(email)
                     self.emails.append(email)
 
             self.emailFindingResult = False # email trouvee
@@ -183,12 +183,13 @@ class PdfToPlainText:
     def getAuthorsFromEmails(self):
         for email in self.emails:
             email_decompose = email[0:email.find('@')]
+            email_decompose = email_decompose.replace('.', ' ')
             self.authors.append(email_decompose)
 
     # Defini la partie Affiliation de l'article
     def __setAffiliations(self, text):
         if self.emailFindingResult: # si pas d'email et d'auteur
-            for i in range(len(self.authors)):
+            for i in range(len(self.authors)-1):
                 self.affiliations.append("Affiliation non trouvée")
 
         if re.search(REGEX_POST_TITLE_PRE_ABSTRACT, text) is not None:
