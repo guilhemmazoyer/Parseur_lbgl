@@ -4,9 +4,9 @@ import re
 import difflib
 import textmanipulation as txtmanip
 from textmanipulation import (
-    REGEX_TITLE, REGEX_MULTI_EMAILS, REGEX_POST_TITLE_PRE_ABSTRACT, 
-    REGEX_POST_TITLE_PRE_NO_ABSTRACT, REGEX_ABSTRACT, REGEX_NO_ABSTRACT,
-    REGEX_REFERENCES, REGEX_TABREFERENCES)
+    REGEX_TITLE, REGEX_ALL_EMAILS, REGEX_TYPE_MULTI_EMAILS,
+    REGEX_POST_TITLE_PRE_ABSTRACT, REGEX_POST_TITLE_PRE_NO_ABSTRACT, REGEX_ABSTRACT,
+    REGEX_NO_ABSTRACT, REGEX_REFERENCES, REGEX_TABREFERENCES)
 
 class PdfToPlainText:
     # variables utiles pour les operations
@@ -132,14 +132,28 @@ class PdfToPlainText:
 
     # Trouve les emails
     def __setEmails(self, text):   
-        if re.findall(REGEX_MULTI_EMAILS, text, re.MULTILINE) != []:
+        if re.search(REGEX_ALL_EMAILS, text) is not None:
             # Recupere les adresses emails dans le text
-            emails = re.findall(REGEX_MULTI_EMAILS, text, re.MULTILINE)
+            emails = re.findall(REGEX_ALL_EMAILS, text, re.MULTILINE)
             
-            # Ajout des emails
+            # Ajout des emails et verification des formats peu frequents
             for email in emails:
                 email = re.sub('Q', '@', email)
-                self.emails.append(email)
+                if re.search(REGEX_TYPE_MULTI_EMAILS, email) is not None: # multi email
+                    # recuperation de l'email
+                    email = re.search(REGEX_TYPE_MULTI_EMAILS, email).group(0)
+                    email = txtmanip.cleanEmail(email)
+
+                    # recuperation des noms dans l'adresse
+                    names_pre_adresse = email[0:email.find('@')]
+                    adresse_post_name = email[email.find('@'):]
+                    names = re.findall(r"[\w.-]+", names_pre_adresse)
+                    for name in names:
+                        email = name + adresse_post_name
+                        self.emails.append(email)
+                else:
+                    self.emails.append(email)
+
             self.emailFindingResult = False # email trouvee
 
         else:
@@ -169,14 +183,7 @@ class PdfToPlainText:
     def getAuthorsFromEmails(self):
         for email in self.emails:
             email_decompose = email[0:email.find('@')]
-            self.emails = txtmanip.cleanEmails(self.emails)
-            names = re.findall(r"[\w-]+", email_decompose)
-
-            newName = ""
-            for name in names:
-                newName += name + " "
-            newName = newName[0:len(newName)-1]
-            self.authors.append(newName)
+            self.authors.append(email_decompose)
 
     # Defini la partie Affiliation de l'article
     def __setAffiliations(self, text):
@@ -184,7 +191,7 @@ class PdfToPlainText:
             for i in range(len(self.authors)):
                 self.affiliations.append("Affiliation non trouvée")
 
-        if(re.search(REGEX_POST_TITLE_PRE_ABSTRACT, text) is not None):
+        if re.search(REGEX_POST_TITLE_PRE_ABSTRACT, text) is not None:
             preCoupage = re.search(REGEX_POST_TITLE_PRE_ABSTRACT, text).group(0)
             preCoupage = txtmanip.allClean(preCoupage)
         else:
@@ -207,7 +214,7 @@ class PdfToPlainText:
                 wordCloseToEmail += word
 
             regex_affiliation = r"(?<=" + wordCloseToAuthor + ")(.|\n)+(?=(" + wordCloseToEmail + "))"
-            if(re.search(regex_affiliation, preCoupage) is not None):
+            if re.search(regex_affiliation, preCoupage) is not None:
                 resultAffiliation = re.search(regex_affiliation, preCoupage).group(0)
                 self.affiliations.append(resultAffiliation)
             else:
