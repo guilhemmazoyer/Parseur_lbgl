@@ -5,8 +5,8 @@ import difflib
 import textmanipulation as txtmanip
 from textmanipulation import (
     REGEX_TITLE, REGEX_MULTI_EMAILS, REGEX_POST_TITLE_PRE_ABSTRACT, 
-    REGEX_ABSTRACT, REGEX_NO_ABSTRACT, REGEX_REFERENCES,
-    REGEX_TABREFERENCES)
+    REGEX_POST_TITLE_PRE_NO_ABSTRACT, REGEX_ABSTRACT, REGEX_NO_ABSTRACT,
+    REGEX_REFERENCES, REGEX_TABREFERENCES)
 
 class PdfToPlainText:
     # variables utiles pour les operations
@@ -181,20 +181,37 @@ class PdfToPlainText:
     # Defini la partie Affiliation de l'article
     def __setAffiliations(self, text):
         if self.emailFindingResult: # si pas d'email et d'auteur
-            return
+            for i in range(len(self.authors)):
+                self.affiliations.append("Affiliation non trouvée")
 
-        preCoupage = re.search(REGEX_POST_TITLE_PRE_ABSTRACT, text).group(0)
-        preCoupage = txtmanip.allClean(preCoupage)
+        if(re.search(REGEX_POST_TITLE_PRE_ABSTRACT, text) is not None):
+            preCoupage = re.search(REGEX_POST_TITLE_PRE_ABSTRACT, text).group(0)
+            preCoupage = txtmanip.allClean(preCoupage)
+        else:
+            preCoupage = re.search(REGEX_POST_TITLE_PRE_NO_ABSTRACT, text).group(0)
+            preCoupage = txtmanip.allClean(preCoupage)
 
         listWordForAffiliation = []
         listWordForAffiliation = preCoupage.split(sep=" ")
 
         # Verification de la proximité entre deux mots et utiliser le mot trouvé pour faire la borne du regex avec l'email
         for i in range(len(self.authors)):
-            wordCloseToAuthor = difflib.get_close_matches(self.authors[i],listWordForAffiliation)
-            regex_affiliation = r"(?<=" + wordCloseToAuthor + ")(.|\n)+(?=(" + self.emails[i] + "))"
-            resultAffiliation = re.search(regex_affiliation, preCoupage).group(0)
-            self.affiliations.append(resultAffiliation)
+            wordsCloseToAuthor = difflib.get_close_matches(self.authors[i],listWordForAffiliation)
+            wordCloseToAuthor = ""
+            for word in wordsCloseToAuthor:
+                wordCloseToAuthor += word
+
+            wordsCloseToEmail = difflib.get_close_matches(self.emails[i],listWordForAffiliation)
+            wordCloseToEmail = ""
+            for word in wordsCloseToEmail:
+                wordCloseToEmail += word
+
+            regex_affiliation = r"(?<=" + wordCloseToAuthor + ")(.|\n)+(?=(" + wordCloseToEmail + "))"
+            if(re.search(regex_affiliation, preCoupage) is not None):
+                resultAffiliation = re.search(regex_affiliation, preCoupage).group(0)
+                self.affiliations.append(resultAffiliation)
+            else:
+                self.affiliations.append("Affiliation non trouvée")
 
         if self.DEBUG_AFFILIATION:
             for affiliation in self.affiliations:
