@@ -23,18 +23,14 @@ def checkFolderExist():
 
 # Verification de l'option passee en parametre
 def checkOption(option):
-    if option is not None and option != '-t' and option !='-x':
+    if option is not None and option != 't' and option !='x':
         return False
     else:
         return True
 
 def setupOptions():
-    # assistance
-    if FOLDER == '-h' or FOLDER == "help":
-        helpPDFtoFiles()
-
     # cas de dossier invalide
-    elif checkFolderExist() == False:
+    if checkFolderExist() == False:
         print("Program cannot find \"" + FOLDER + "\"")
         print("For more information : python3 launch.py -h")
 
@@ -108,21 +104,23 @@ def finishMessage(nbrTotalFiles):
 
 # --- Debut du programme ---
 # Heure et index initial
-start_time = time.time()
 
 # Verification du nombre de variables et initialisation des variables en parametre
-if len(sys.argv) < 2:
+if len(sys.argv) > 1:
     helpPDFtoFiles()
-
-elif len(sys.argv) == 2:
-    FOLDER = sys.argv[1]
-    OPTION = '-t'
-    setupOptions()
-
-elif len(sys.argv) == 3:
-    FOLDER = sys.argv[1]
-    OPTION = sys.argv[2]
-    setupOptions()
-
 else:
-    helpPDFtoFiles()
+    OPTION = input("Saisir le type de sortie (x : xml / t : txt / h : aide): ")
+    while OPTION != "t" and OPTION != "x" and OPTION != "h":
+        print("Veuillez saisir une option valide")
+        OPTION = input("Saisir le type de sortie (x : xml / t : txt / h : aide): ")
+    if OPTION == "h":
+        helpPDFtoFiles()
+    else:
+        FOLDER = input("Saisir le nom du dossier à parser : ")
+        while not checkFolderExist():
+            print("Nom de dossier invalide")
+            FOLDER = input("Saisir le nom du dossier à parser : ")
+        start_time = time.time()
+        setupOptions()
+
+
