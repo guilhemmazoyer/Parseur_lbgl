@@ -46,12 +46,11 @@ def setupOptions():
             nbFiles = 30   # nombre de fichiers traités par processus
             proc = []   # contient tous les processus à lancer
             index = 0   # index des premiers processus
-            menu = Menu(FOLDER)
-            files = menu.listPdf  # TODO files est la liste des fichiers pdf choisis par l'utilisateur, à récupérer depuis menu
-            menu.lsPdf()
+
+
             # Traitement vers fichier .txt
             if OPTION == '-t':
-                txt = ToTXT(FOLDER, files)
+                txt = ToTXT(FOLDER, FILES)
                 numberTotalFiles = len(txt.files)
                 progressBar = pbar(numberTotalFiles)
 
@@ -68,7 +67,7 @@ def setupOptions():
 
             # Traitement vers fichier .xml
             else:
-                xml = ToXML(FOLDER, files)
+                xml = ToXML(FOLDER, FILES)
                 numberTotalFiles = len(xml.files)
                 progressBar = pbar(numberTotalFiles)
 
@@ -120,7 +119,13 @@ else:
         while not checkFolderExist():
             print("Nom de dossier invalide")
             FOLDER = input("Saisir le nom du dossier à parser : ")
+        menu = Menu(FOLDER)
+        menu.lsPdf()
+        numbers = input("Saisir les numéros de fichiers : ")
+        FILES = menu.makeListChosen(numbers)  # TODO files est la liste des fichiers pdf choisis par l'utilisateur, à récupérer depuis menu
+
         start_time = time.time()
+        
         setupOptions()
 
 

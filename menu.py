@@ -1,15 +1,34 @@
-import os
+# -*- coding : utf-8 -*-
+
+import os, re
 
 class Menu:
 
     # constructeur
     def __init__(self, path):
-        self.listPdf = self.makeList(path)
+        self.listPdf = self.makeListAll(path)
 
     
     # créer la liste des pdf
-    def makeList(self, path):
+    def makeListAll(self, path):
         return sorted([_ for _ in os.listdir(path) if _.endswith(r".pdf")])
+
+    # retourne la liste des pfd choisis par l'utilisateur
+    def makeListChosen(self, numbers):
+        print(numbers)
+        listeIndex = numbers.split()
+        liste = []
+        for i in listeIndex:
+            if re.match(r"\d+-\d+", i):
+                #split
+                values = i.split("-")
+                l = list(self.listPdf[int(values[0])-1:int(values[1])])
+                for f in l:
+                    liste.append(f)
+            elif is_integer(i):
+                liste.append(self.listPdf[int(i)-1])
+        print(liste)
+        return liste
         
 
     # affiche la liste de tous les pdf
@@ -26,3 +45,5 @@ class Menu:
     def printPdf(self, number, nameFile):
         return str(number)+". "+nameFile
 
+def is_integer(n):
+    return int(n)
