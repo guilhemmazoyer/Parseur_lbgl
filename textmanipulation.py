@@ -40,14 +40,6 @@ def allClean(text):
 
     return text
 
-# Passe la premiere lettre du nom et prenom des auteurs en majuscule
-def authorFormat(authors):
-    newAuthors = []
-    for author in authors:
-        newAuthors.append(author.title())
-
-    return newAuthors
-
 def cleanEmail(email):
     email = email.replace('{', '')
     email = email.replace('}', '')
@@ -106,10 +98,12 @@ def arrangeXML(pdfTPT):
             mergeAll += "\t\t\t<nom>" + pdfTPT.authors[i] +"</nom>\n"
         except:
             mergeAll += "\t\t\t<nom></nom>\n"
+            
         try:
             mergeAll += "\t\t\t<email>" + pdfTPT.emails[i] + "</email>\n"
         except:
             mergeAll += "\t\t\t<email></email>\n"
+
         try:
             mergeAll += "\t\t\t<affiliation>" + pdfTPT.affiliations[i] + "</affiliation>\n"
         except:
