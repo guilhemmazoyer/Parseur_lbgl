@@ -1,9 +1,10 @@
 # -*- coding : utf-8 -*-
 
+from distutils.debug import DEBUG
 import re
 import textmanipulation as txtmanip
 from textmanipulation import (
-    REGEX_TITLE, REGEX_MULTI_EMAILS, REGEX_ABSTRACT,
+    REGEX_INTRODUCTION, REGEX_TITLE, REGEX_MULTI_EMAILS, REGEX_ABSTRACT,
     REGEX_NO_ABSTRACT, REGEX_REFERENCES, REGEX_TABREFERENCES)
 
 class PdfToPlainText:
@@ -18,6 +19,7 @@ class PdfToPlainText:
     DEBUG_AUTHOR = False
     DEBUG_EMAIL = False
     DEBUG_ABSTRACT = False
+    DEBUG_INTRODUCTION = False
     DEBUG_REFERENCE = False
 
     # variables a recuperer
@@ -27,6 +29,7 @@ class PdfToPlainText:
     authors = []
     emails = []
     abstract = ""
+    introduction = ""
     references = []
 
     # Initialise le manager passe en parametre
@@ -53,6 +56,7 @@ class PdfToPlainText:
         self.__setTitle(self.metadata, text)
         self.__setAuthorsAndEmails(self.metadata, text)
         self.__setAbstract(text)
+        self.__setIntroduction()
         self.__setReferences()
 
     def resetCoreVariables(self):
@@ -205,6 +209,17 @@ class PdfToPlainText:
 
         if self.DEBUG_ABSTRACT:
            print(self.abstract + "\n\n")
+
+    # Definit la partie introduction
+    def __setIntroduction(self):
+        text = self.getTextAnyPage(0) + self.getTextAnyPage(1) + self.getTextAnyPage(2)
+        introduction = "Introduction non trouvé"
+        if re.search(REGEX_INTRODUCTION, text).group(2) is not None:
+            introduction = re.search(REGEX_INTRODUCTION, text).group(2)
+        if self.DEBUG_INTRODUCTION:
+            print(introduction + "\n\n")
+        self.introduction = txtmanip.pasCleanText(introduction)
+
         
     # Definit les references de l'article
     def __setReferences(self):
