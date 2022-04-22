@@ -61,8 +61,7 @@ class PdfToPlainText:
         else:
             preCoupage = re.search(REGEX_POST_TITLE_PRE_NO_ABSTRACT, text).group(0)
         self.preCoupage = txtmanip.allClean(preCoupage)
-
-        self.listWordForAffiliation = preCoupage.split(sep=" ")
+        self.listWordForAffiliation = re.split("\n| ", preCoupage)
 
         # Recupere tous les attributs souhaites
         self.__setFilename()
@@ -193,22 +192,23 @@ class PdfToPlainText:
     def getAuthorsFromEmails(self):
         for email in self.emails:
             email_decompose = email[0:email.find('@')]
-            email_decompose = email_decompose.replace('.', ' ')
-            '''
-            tab_names_from_email = email_decompose.split(sep=" ")
-            tab_new_names_from_email = []
-            print(tab_names_from_email)
-            
-            for name in tab_names_from_email:
-                if difflib.get_close_matches(name, self.listWordForAffiliation) != []:
-                    temp = difflib.get_close_matches(name, self.listWordForAffiliation)
-                    tab_new_names_from_email.append(temp[0])
+            tab_email_decompose = email_decompose.split('.')
+            result_author = ''
+            for i in range(len(tab_email_decompose)):
+                textName = difflib.get_close_matches(tab_email_decompose[i],self.listWordForAffiliation)
+                if i == 0:
+                    if textName != []:
+                        result_author += textName[0]
+                    else:
+                        result_author += tab_email_decompose[i]
                 else:
-                    tab_new_names_from_email.append(name.title())
-
-            print(tab_new_names_from_email)
-            '''
-            self.authors.append(email_decompose)
+                    if textName != []:
+                        result_author += " " + textName[0]
+                    else:
+                        result_author += " " + tab_email_decompose[i]
+            
+            result_author = txtmanip.authorClean(result_author)
+            self.authors.append(result_author)
 
     # Defini la partie Affiliation de l'article
     def __setAffiliations(self, text):
@@ -216,8 +216,6 @@ class PdfToPlainText:
             for i in range(len(self.authors)-1):
                 self.affiliations.append("Affiliation non trouvée")
             return None # Saute toute l'execution qui suit
-
-       
 
         # Verification de la proximité entre deux mots et utiliser le mot trouvé pour faire la borne du regex avec l'email
         for i in range(len(self.authors)):
@@ -229,7 +227,7 @@ class PdfToPlainText:
                 authorLastName = self.authors[i]
             else:
                 authorLastName = splitedAuthors[len(splitedAuthors)-1]
-
+            
             # Trouve le mot le plus proche du nom de l'auteur dans le texte
             wordsCloseToAuthor = difflib.get_close_matches(authorLastName,self.listWordForAffiliation)
 
@@ -238,6 +236,7 @@ class PdfToPlainText:
             else:
                 wordCloseToAuthor = wordsCloseToAuthor[len(wordsCloseToAuthor)-1]
 
+            # Recupere l'email associee
             emailToUse = self.emails[i]
             emailTruePart = emailToUse[0:emailToUse.find('@')]
 
@@ -246,18 +245,22 @@ class PdfToPlainText:
             for word in wordsCloseToEmail:
                 wordCloseToEmail += word
 
-            # print('\n' + self.emails[i] + " #")
-            # print(emailTruePart + " ##")
-            # print(wordsCloseToEmail, " ###")
-            # print(wordCloseToEmail + " ####")
+            '''
+            print('\n' + self.emails[i] + " #")
+            print(emailTruePart + " ##")
+            print(wordsCloseToAuthor, " ###")
+            print(wordCloseToAuthor + " ####")
+            print(wordsCloseToEmail, " #####")
+            print(wordCloseToEmail + " ######")
+            '''
 
-            regex_affiliation = r"(?<=" + wordCloseToAuthor + ")(.|\n)+(?=(" + wordCloseToEmail + "))"
+            regex_affiliation = r"(?<=" + wordCloseToAuthor + ")(.|\n)+(?=(" + self.emails[i] + "))"
             if re.search(regex_affiliation, self.preCoupage) is not None:
                 resultAffiliation = re.search(regex_affiliation, self.preCoupage).group(0)
                 self.affiliations.append(resultAffiliation)
             else:
                 self.affiliations.append("Affiliation non trouvée")
-
+        
         if self.DEBUG_AFFILIATION:
             for affiliation in self.affiliations:
                 print(affiliation + "; ")

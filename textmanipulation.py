@@ -1,5 +1,7 @@
 # -*- coding : utf-8 -*-
 
+import re
+
 REGEX_TITLE = r"^([A-Z].*)+"
 REGEX_ALL_EMAILS = r"{?\(?\b[\w][\w, .-]*[a-z\d]\)?}?\n?[@|Q][\w\-_.]+"
 REGEX_TYPE_MULTI_EMAILS = r"({|\()?([\w.\- ]+,[\w.\- ]+)+(\)|})?\n?@[\w\-_.]+"
@@ -14,16 +16,27 @@ REGEX_TABREFERENCES = r"\[[0-9|, ]+\]"
 def preCleanText(text):
     # 2 espaces -> 1
     text = text.replace("  ", ' ')
+    # á UTF-8
+    text = text.replace("´a", 'á')
+    # à UTF-8
+    text = text.replace("`a", 'à')
+    # À UTF-8
+    text = text.replace("`A", 'À')
     # è UTF-8
     text = text.replace("`e", 'è')
     # é UTF-8
     text = text.replace("´e", 'é')
+    # É UTF-8
+    text = text.replace("´E", 'É')
+    # ç UTF-8
+    text = text.replace("c¸",'ç')
+    # î UTF-8
+    text = text.replace("ˆı",'î')
     # retour à la ligne mot coupe
     text = text.replace("- \n", '')
-    # ç
-    text = text.replace("c¸",'ç')
-    # î
-    text = text.replace("ˆı",'î')
+    # caractères spéciaux
+    text = text.replace("♮", '')
+    text = text.replace("♭", '')
     
     return text
 
@@ -39,6 +52,23 @@ def allClean(text):
     text = pasCleanText(text)
 
     return text
+
+# Passe la premiere lettre du nom et prenom des auteurs en majuscule
+def authorFormat(authors):
+    newAuthors = []
+    for author in authors:
+        newAuthors.append(author.title())
+
+    return newAuthors
+
+def authorClean(name):
+    name = name.replace('*', '')
+    name = name.replace(',', '')
+    name = name.replace('{', '')
+    name = name.replace('}', '')
+    name = name.title()
+    
+    return name
 
 def cleanEmail(email):
     email = email.replace('{', '')
