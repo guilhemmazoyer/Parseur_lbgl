@@ -5,12 +5,13 @@ REGEX_MULTI_EMAILS = r"{?\(?\b[\w, .-]*[a-z\d]\)?}?\n?[@|Q][\w\-_.]+"
 REGEX_ABSTRACT = r"(Abstract(-|.| |\n))\n? ?((.|\n)*)(?=(1(\n| |( \n)|. )Introduction)|(I. INTRODUCTION))"
 REGEX_NO_ABSTRACT = r"(?<=\n)(.|\n)*(?=(1(\n| |( \n)|. )Introduction)|(I. INTRODUCTION))"
 REGEX_INTRODUCTION = r"(INTRODUCTION|Introduction)\n* *((.|\n)*)(?=(\n2.? ?\n?|\nII.? ))"
+REGEX_CONCLUSION = r"(.*Conclusions?.*)(.|\n)*(?=References|acknowledgments?|Follow-Up Work|Appendix)"
 REGEX_REFERENCES = r"(((?<=References|REFERENCES)|(?<=Bibliographie|BIBLIOGRAPHIE))+((.|\n)*))"
 REGEX_TABREFERENCES = r"\[[0-9|, ]+\]"
 
 # Retire les caracteres indesirables d'un String
 def preCleanText(text):
-    # 2 espaces -> 1
+    # 2 espaces -> 1    
     text = text.replace("  ", ' ')
     # è UTF-8
     text = text.replace("`e", 'è')
@@ -61,7 +62,7 @@ def cleanEmails(emails):
 # Arrange le texte ecris dans le fichier .xml a partir des attributs de pdfTPT
 def arrangeTXT(pdfTPT):
     mergeAll = pdfTPT.filename + '\n' + pdfTPT.title + '\n'
-    """
+    '''
     for author in pdfTPT.authors:
         mergeAll += author + '; '
     mergeAll += '\n'
@@ -71,12 +72,13 @@ def arrangeTXT(pdfTPT):
     mergeAll += '\n'
 
     mergeAll += pdfTPT.abstract + '\n'
-    """
     mergeAll += pdfTPT.introduction + '\n'
-    """
+    '''
+    mergeAll += pdfTPT.conclusion + '\n'
+    '''
     for reference in pdfTPT.references:
         mergeAll += reference + ";\n"
-    """
+    '''
     return mergeAll
 
 def arrangeXML(pdfTPT):
@@ -102,7 +104,7 @@ def arrangeXML(pdfTPT):
     mergeAll += "\t</auteurs>\n"
     mergeAll += "\t<abstract>" + pdfTPT.abstract + "</abstract>\n"
     mergeAll += "\t<introduction>" + pdfTPT.introduction + "<introduction>\n"
-
+    mergeAll += "\t<conclusion>" + pdfTPT.conclusion + "<conclusion>\n"
     mergeAll += "\t<biblios>\n"
     for reference in pdfTPT.references:
         if reference != "":

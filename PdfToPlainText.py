@@ -4,7 +4,7 @@ from distutils.debug import DEBUG
 import re
 import textmanipulation as txtmanip
 from textmanipulation import (
-    REGEX_INTRODUCTION, REGEX_TITLE, REGEX_MULTI_EMAILS, REGEX_ABSTRACT,
+    REGEX_CONCLUSION, REGEX_INTRODUCTION, REGEX_TITLE, REGEX_MULTI_EMAILS, REGEX_ABSTRACT,
     REGEX_NO_ABSTRACT, REGEX_REFERENCES, REGEX_TABREFERENCES)
 
 class PdfToPlainText:
@@ -30,6 +30,7 @@ class PdfToPlainText:
     emails = []
     abstract = ""
     introduction = ""
+    conclusion = ""
     references = []
 
     # Initialise le manager passe en parametre
@@ -57,6 +58,7 @@ class PdfToPlainText:
         self.__setAuthorsAndEmails(self.metadata, text)
         self.__setAbstract(text)
         self.__setIntroduction()
+        self.__setConclusion()
         self.__setReferences()
 
     def resetCoreVariables(self):
@@ -220,7 +222,30 @@ class PdfToPlainText:
             print(introduction + "\n\n")
         self.introduction = txtmanip.pasCleanText(introduction)
 
+    # Definit la partie conclusion
+    def __setConclusion(self):
         
+        text = ""
+        conclusion = "Conclusion non trouvé"
+        page = 0
+
+        # On recupere la partie conclusion
+        for page in range(self.getNbPages()-1, 0, -1):
+            text = self.getTextAnyPage(page)
+
+            # Si on trouve le mot conclusion
+            if re.search("Conclusion", text, re.IGNORECASE):
+                if page <= self.getNbPages() - 3:
+                    text += self.getTextAnyPage(page + 1)
+                    text += self.getTextAnyPage(page + 2)
+                break
+        
+        if re.search(REGEX_CONCLUSION, text, re.IGNORECASE):
+            if re.search(REGEX_CONCLUSION, text, re.IGNORECASE).group(0):
+                conclusion = re.search(REGEX_CONCLUSION, text, re.IGNORECASE).group(0)
+    
+        self.conclusion = txtmanip.pasCleanText(conclusion)
+
     # Definit les references de l'article
     def __setReferences(self):
 
