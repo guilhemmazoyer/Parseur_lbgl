@@ -14,21 +14,46 @@ class Menu:
         return sorted([_ for _ in os.listdir(path) if _.endswith(r".pdf")])
 
     # retourne la liste des pfd choisis par l'utilisateur
-    def makeListChosen(self, numbers):
-        print(numbers)
-        listeIndex = numbers.split()
-        liste = []
+    # IL N'Y A PAS DE VERIFICATION (a utiliser après la méthode checkInputList)
+    def makeListChosen(self, filesNumbers):
+        if filesNumbers == "*": # tous les fichiers
+            return self.listPdf
+        listeIndex = filesNumbers.split()
+        liste = [] # liste des fichiers selectionnés
         for i in listeIndex:
-            if re.match(r"\d+-\d+", i):
-                #split
+            if re.match(r"\d+-\d+", i): # on trouve un tiret (bornes)
                 values = i.split("-")
-                l = list(self.listPdf[int(values[0])-1:int(values[1])])
-                for f in l:
-                    liste.append(f)
-            elif is_integer(i):
+                v0, v1 = int(values[0]), int(values[1])
+                temp = list(self.listPdf[v0-1:v1])
+                for file in temp:
+                    liste.append(file)
+            else: # on trouve un simple numéro
                 liste.append(self.listPdf[int(i)-1])
-        print(liste)
-        return liste
+        # suppression de doublon
+        return list(set(liste)) # suppression de doublons eventuels
+
+    # vérifie la validité de l'input de l'utilisateur
+    def checkInputList(self, filesNumbers):
+        if filesNumbers == "*": # tous les fichiers
+            return True
+        listeIndex = filesNumbers.split()
+        for i in listeIndex:
+            if re.match(r"\d+-\d+", i): # on trouve un tiret (bornes)
+                values = i.split("-")
+                try:
+                    v0, v1 = int(values[0]), int(values[1]) # verification conversion
+                    if v0 > v1: # verification ordre
+                        return False
+                except ValueError:
+                    return False
+            else: # on trouve un simple numéro
+                try:
+                    i = int(i)
+                    if i < 0 or i > len(self.listPdf): # verification validité de l'index
+                        return False
+                except ValueError:
+                    return False
+        return True
         
 
     # affiche la liste de tous les pdf
@@ -45,5 +70,3 @@ class Menu:
     def printPdf(self, number, nameFile):
         return str(number)+". "+nameFile
 
-def is_integer(n):
-    return int(n)

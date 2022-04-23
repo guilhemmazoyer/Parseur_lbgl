@@ -29,15 +29,32 @@ pip install PyMuPDF
 ## Utilisation
 
 ```
-python ./launch.py <folder> [Option]
+python ./launch.py
 ```
-### Folder
+### Menu
 
-- Le programme nécessite en paramètre le dossier dans lequel sont rangés les fichiers au format PDF à extraire. 
-- Le dossier de résultat sera créé à cette emplacement donné en paramètre et rassemblera les fichiers résultats générés à partir des fichiers au format PDF.
+1- Choix de l'option:
+    - x : fichiers résultats en format xml (.xml)
+    - t : fichiers résultats en format texte (.txt)
+    - h : affichage de l'aide
 
-### Options
+2- Choix du dossier contenant les fichiers pdf à extraire et dans lequel sera généré un dossier contenant les fichiers résultats:
+    indiquez le chemin absolu ou le chemin relatif du dossier
 
-- -x : Le fichier résultat sera un .xml
-- -t : Le fichier résultat sera un .txt
+3- Affichage des fichiers pdf numérotés
+
+4- Saisie des fichiers à parser sur une ligne et séparés d'un espace par sélection:
+    - pour sélectionner un seul fichier : 
+        saisir un numéro correspondant à un fichier pdf
+    - pour sélectionner plusieurs fichiers :
+        saisir deux numéros qui seront séparés par un tiret ("-")
+        le premier numéro doit être plus petit que le second
+        les deux numéros de fichiers sont inclus dans la sélection
+    - pour sélectionner tous les fichiers :
+        saisir UNIQUEMENT le symbole d'étoile ("*")
+
+Exemples de saisie valide de fichiers dans un dossier contenant 20 fichiers pdf:
+    "2 5 3 10-15" : sélection des fichiers 2 5 3 10 11 12 13 14 15
+    "*" : sélection des 20 fichiers
+
 

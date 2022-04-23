@@ -9,13 +9,23 @@ from menu import Menu
 
 # Affichage de l'assistance
 def helpPDFtoFiles():
-    print("\npython3 launch.py <Folder path> [Option]")
+    print("\npython3 launch.py")
+    print("\tChoice of option:")
+    print("\t\tx Parser from .pdf to .xml files")
+    print("\t\tt Parser from .pdf to .txt files")
+    print("\t\th for help")
     print("\tFolder path:")
     print("\t\tExact or relative path")
-    print("\tOption:")
-    print("\t\tIf this parameter is leave blank, the option by default is -x")
-    print("\t\t-x Parser from .pdf to .xml files")
-    print("\t\t-t Parser from .pdf to .txt files")
+    print("\tInput file numbers:")
+    print("\t\tOne file:")
+    print("\t\t\tEnter a number matching with a pdf file")
+    print("\t\tSeveral files:")
+    print("\t\t\tEnter two numbers separate by a dash ('-')")    
+    print("\t\t\tThe two numbers are include in the selection")
+    print("\t\tAll files:")
+    print("\t\t\tEnter ONLY '*'")
+
+
 
 # Verification de l'existence du dossier rentre en parametre
 def checkFolderExist():
@@ -102,28 +112,34 @@ def finishMessage(nbrTotalFiles):
     print('\t' + "Completed in " + str(interval) + " seconds" + '\n')
 
 # --- Debut du programme ---
-# Heure et index initial
 
 # Verification du nombre de variables et initialisation des variables en parametre
-if len(sys.argv) > 1:
+OPTION = ""
+FOLDER = ""
+FILES = []
+if len(sys.argv) != 1:
     helpPDFtoFiles()
 else:
-    OPTION = input("Saisir le type de sortie (x : xml / t : txt / h : aide): ")
+    OPTION = input("Output type / Option (x : xml / t : txt / h : help): ")
     while OPTION != "t" and OPTION != "x" and OPTION != "h":
-        print("Veuillez saisir une option valide")
-        OPTION = input("Saisir le type de sortie (x : xml / t : txt / h : aide): ")
+        print("Wrong option")
+        OPTION = input("Output type / Option (x : xml / t : txt / h : help): ")
     if OPTION == "h":
         helpPDFtoFiles()
     else:
-        FOLDER = input("Saisir le nom du dossier à parser : ")
+        FOLDER = input("Path that contains the folder to parse: ")
         while not checkFolderExist():
-            print("Nom de dossier invalide")
-            FOLDER = input("Saisir le nom du dossier à parser : ")
+            print("Pathname not valid")
+            FOLDER = input("Path that contains the folder to parse: ")
         menu = Menu(FOLDER)
         menu.lsPdf()
-        numbers = input("Saisir les numéros de fichiers : ")
-        FILES = menu.makeListChosen(numbers)  # TODO files est la liste des fichiers pdf choisis par l'utilisateur, à récupérer depuis menu
-
+        numbers = input("Enter the file numbers: ")
+        while not menu.checkInputList(numbers):
+            print("File numbers not valid")
+            numbers = input("Enter the file numbers: ")
+        FILES = menu.makeListChosen(numbers)
+        print(FILES)
+        # Heure et index initial
         start_time = time.time()
         
         setupOptions()
