@@ -1,10 +1,11 @@
 # -*- coding : utf-8 -*-
 
+from dis import dis
 from distutils.debug import DEBUG
 import re
 import textmanipulation as txtmanip
 from textmanipulation import (
-    REGEX_CONCLUSION, REGEX_INTRODUCTION, REGEX_TITLE, REGEX_MULTI_EMAILS, REGEX_ABSTRACT,
+    REGEX_CONCLUSION, REGEX_DISCUSSION, REGEX_INTRODUCTION, REGEX_TITLE, REGEX_MULTI_EMAILS, REGEX_ABSTRACT,
     REGEX_NO_ABSTRACT, REGEX_REFERENCES, REGEX_TABREFERENCES)
 
 class PdfToPlainText:
@@ -30,6 +31,7 @@ class PdfToPlainText:
     emails = []
     abstract = ""
     introduction = ""
+    discussion = ""
     conclusion = ""
     references = []
 
@@ -58,6 +60,7 @@ class PdfToPlainText:
         self.__setAuthorsAndEmails(self.metadata, text)
         self.__setAbstract(text)
         self.__setIntroduction()
+        self.__setDiscussion()
         self.__setConclusion()
         self.__setReferences()
 
@@ -222,6 +225,29 @@ class PdfToPlainText:
             print(introduction + "\n\n")
         self.introduction = txtmanip.pasCleanText(introduction)
 
+
+    # Definit la partie discussion
+    def __setDiscussion(self):
+        text = ""
+        discussion = "Discussion non trouvé"
+        page = 0
+
+        # On recupere la partie discussion
+        for page in range(self.getNbPages()-1, 0, -1):
+            text = self.getTextAnyPage(page)
+
+            # Si on trouve le mot discussion
+            if re.search("discussion", text, re.IGNORECASE):
+                if page <= self.getNbPages() - 3:
+                    text += self.getTextAnyPage(page + 1)
+                    text += self.getTextAnyPage(page + 2)
+                break
+        
+        if re.search(REGEX_DISCUSSION, text, re.IGNORECASE):
+            discussion = re.search(REGEX_DISCUSSION, text, re.IGNORECASE).group(0)
+    
+        self.discussion = txtmanip.pasCleanText(discussion)
+
     # Definit la partie conclusion
     def __setConclusion(self):
         
@@ -241,7 +267,6 @@ class PdfToPlainText:
                 break
         
         if re.search(REGEX_CONCLUSION, text, re.IGNORECASE):
-            if re.search(REGEX_CONCLUSION, text, re.IGNORECASE).group(0):
                 conclusion = re.search(REGEX_CONCLUSION, text, re.IGNORECASE).group(0)
     
         self.conclusion = txtmanip.pasCleanText(conclusion)
