@@ -3,9 +3,12 @@
 from dis import dis
 from distutils.debug import DEBUG
 import re
+import difflib
 import textmanipulation as txtmanip
 from textmanipulation import (
-    REGEX_CONCLUSION, REGEX_CORPS, REGEX_DISCUSSION, REGEX_INTRODUCTION, REGEX_TITLE, REGEX_MULTI_EMAILS, REGEX_ABSTRACT,
+    REGEX_CONCLUSION, REGEX_CORPS, REGEX_DISCUSSION, REGEX_INTRODUCTION, REGEX_TITLE, REGEX_ABSTRACT,
+    REGEX_TITLE, REGEX_ALL_EMAILS, REGEX_TYPE_MULTI_EMAILS,
+    REGEX_POST_TITLE_PRE_ABSTRACT, REGEX_POST_TITLE_PRE_NO_ABSTRACT, REGEX_ABSTRACT,
     REGEX_NO_ABSTRACT, REGEX_REFERENCES, REGEX_TABREFERENCES)
 
 class PdfToPlainText:
@@ -13,12 +16,16 @@ class PdfToPlainText:
     currentFile = ""
     manager = None
     doc = []
+    emailFindingResult = True
+    preCoupage = ""
+    listWordForAffiliation = []
 
     # DEBUG
     DEBUG_TEXT = False
     DEBUG_TITLE = False
     DEBUG_AUTHOR = False
     DEBUG_EMAIL = False
+    DEBUG_AFFILIATION = False
     DEBUG_ABSTRACT = False
     DEBUG_INTRODUCTION = False
     DEBUG_REFERENCE = False
@@ -29,6 +36,7 @@ class PdfToPlainText:
     title = ""
     authors = []
     emails = []
+    affiliations = []
     abstract = ""
     introduction = ""
     corps = ""
@@ -55,10 +63,20 @@ class PdfToPlainText:
 
         self.metadata = self.getMetadata()
 
+        # Creer le text permettant de faire des verifications avec difflib
+        if re.search(REGEX_POST_TITLE_PRE_ABSTRACT, text) is not None:
+            preCoupage = re.search(REGEX_POST_TITLE_PRE_ABSTRACT, text).group(0)
+        else:
+            preCoupage = re.search(REGEX_POST_TITLE_PRE_NO_ABSTRACT, text).group(0)
+        self.preCoupage = txtmanip.allClean(preCoupage)
+        self.listWordForAffiliation = re.split("\n| ", preCoupage)
+
         # Recupere tous les attributs souhaites
         self.__setFilename()
         self.__setTitle(self.metadata, text)
-        self.__setAuthorsAndEmails(self.metadata, text)
+        self.__setEmails(text)
+        self.__setAuthors()
+        self.__setAffiliations(text)
         self.__setAbstract(text)
         self.__setIntroduction()
         self.__setCorps()
@@ -66,10 +84,12 @@ class PdfToPlainText:
         self.__setConclusion()
         self.__setReferences()
 
+    # Reinitialise certaines variables
     def resetCoreVariables(self):
         self.doc = []
         self.authors = []
         self.emails = []
+        self.affiliations = []
         self.references = []
 
     # Recupere la page de garde de l'article
@@ -102,6 +122,7 @@ class PdfToPlainText:
         return text
         
 
+    # Recupere la page desiree de l'article
     def getTextAnyPage(self, nb):
         # Ouverture de la nb page du fichier .pdf
         try:
@@ -122,96 +143,153 @@ class PdfToPlainText:
     def getMetadata(self):
         return self.doc.metadata
 
-    # Definit le nom du fichier
+    # Defini le nom du fichier
     def __setFilename(self):
         self.filename = self.manager.getFileName(self.currentFile)
 
-    # Definit le titre de l'article
+    # Defini le titre de l'article
     def __setTitle(self, metadatas, text):
-
         metas_title = metadatas["title"]
 
         if not metas_title or metas_title == "" or not re.search(REGEX_TITLE, metas_title):
-
             if re.search(REGEX_TITLE, text) is not None:
                 self.title = re.search(REGEX_TITLE, text).group(0)
-
             else:
                 self.title = "Titre non trouvé"
-
         else:
             self.title = metas_title
 
         if self.DEBUG_TITLE:
             print(self.title + "\n\n")
 
-    # Trouve les emails et renvoie le type de formulation de celle-ci
-    def __findEmails(self, text):          
-
-        if re.findall(REGEX_MULTI_EMAILS, text, re.MULTILINE) != []:
+    # Trouve les emails
+    def __setEmails(self, text):   
+        if re.search(REGEX_ALL_EMAILS, text) is not None:
             # Recupere les adresses emails dans le text
-            emails = re.findall(REGEX_MULTI_EMAILS, text, re.MULTILINE)
+            emails = re.findall(REGEX_ALL_EMAILS, text, re.MULTILINE)
             
-            # Ajout des emails
+            # Ajout des emails et verification des formats peu frequents
             for email in emails:
                 email = re.sub('Q', '@', email)
-                self.emails.append(email)
-            result = False # email trouvee
+                if re.search(REGEX_TYPE_MULTI_EMAILS, email) is not None: # multi email
+                    # recuperation de l'email
+                    email = txtmanip.cleanEmail(email)
+
+                    # recuperation des noms dans l'adresse
+                    names_pre_adresse = email[0:email.find('@')]
+                    adresse_post_name = email[email.find('@'):]
+                    names = re.findall(r"[\w.-]+", names_pre_adresse)
+                    for name in names:
+                        email = name + adresse_post_name
+                        self.emails.append(email)
+                else:
+                    email = txtmanip.cleanEmail(email)
+                    self.emails.append(email)
+
+            self.emailFindingResult = False # email trouvee
 
         else:
             self.emails.append("Email non trouvé")
-            result = True # pas d'email
+            self.emailFindingResult = True # pas d'email
 
         if self.DEBUG_EMAIL:
             for email in self.emails:
                 print(email + "; ")
             print("\n")
 
-        return result
-
-    # Definit les auteurs et leurs emails
-    def __setAuthorsAndEmails(self, metadatas, text):
-
-        meta_author = metadatas["author"]
-        is_not_email = self.__findEmails(text)
-
-        if meta_author is None or meta_author == "" or meta_author == []:
-            if is_not_email: # pas d'email
-                self.authors.append("Auteur non trouvé")
-            
-            else: # email
-                self.getAuthorsFromEmails()
-                self.authors = txtmanip.authorFormat(self.authors)
-
-        else:
-            # Quand les metadonnees sont incompletes, recuperer les auteurs depuis les adresses emails
-            meta_author = txtmanip.allClean(meta_author)
-            self.authors.append(meta_author)
-
-            if len(self.authors) < len(self.emails):
-                self.authors = []
-                self.getAuthorsFromEmails()
+    # Defini les auteurs
+    def __setAuthors(self):
+        if self.emailFindingResult: # pas d'email
+            self.authors.append("Auteur non trouvé")
+        
+        else: # email
+            self.getAuthorsFromEmails()
         
         if self.DEBUG_AUTHOR:
             for author in self.authors:
                 print(author + "; ")
             print("\n")
 
+    # Recupere la partie Auteurs de la partie email
     def getAuthorsFromEmails(self):
         for email in self.emails:
             email_decompose = email[0:email.find('@')]
-            self.emails = txtmanip.cleanEmails(self.emails)
-            names = re.findall("[\w-]+", email_decompose)
-
-            newName = ""
-            for name in names:
-                newName += name + " "
-            newName = newName[0:len(newName)-1]
-            self.authors.append(newName)
-
-    # Definit la partie Abstract de l'article
-    def __setAbstract(self, text):
+            tab_email_decompose = email_decompose.split('.')
+            result_author = ''
+            for i in range(len(tab_email_decompose)):
+                textName = difflib.get_close_matches(tab_email_decompose[i],self.listWordForAffiliation)
+                if i == 0:
+                    if textName != []:
+                        result_author += textName[0]
+                    else:
+                        result_author += tab_email_decompose[i]
+                else:
+                    if textName != []:
+                        result_author += " " + textName[0]
+                    else:
+                        result_author += " " + tab_email_decompose[i]
             
+            result_author = txtmanip.authorClean(result_author)
+            self.authors.append(result_author)
+
+    # Defini la partie Affiliation de l'article
+    def __setAffiliations(self, text):
+        if self.emailFindingResult: # si pas d'email et d'auteur
+            for i in range(len(self.authors)-1):
+                self.affiliations.append("Affiliation non trouvée")
+            return None # Saute toute l'execution qui suit
+
+        # Verification de la proximité entre deux mots et utiliser le mot trouvé pour faire la borne du regex avec l'email
+        for i in range(len(self.authors)):
+            wordCloseToAuthor = ""
+
+            # Recupere le nom de l'auteur
+            splitedAuthors = self.authors[i].split(sep=" ")
+            if len(splitedAuthors) < 1:
+                authorLastName = self.authors[i]
+            else:
+                authorLastName = splitedAuthors[len(splitedAuthors)-1]
+            
+            # Trouve le mot le plus proche du nom de l'auteur dans le texte
+            wordsCloseToAuthor = difflib.get_close_matches(authorLastName,self.listWordForAffiliation)
+
+            if len(wordsCloseToAuthor) < 1: # Si aucun mot ne correspond au nom de l'auteur donne
+                wordCloseToAuthor = ""
+            else:
+                wordCloseToAuthor = wordsCloseToAuthor[len(wordsCloseToAuthor)-1]
+
+            # Recupere l'email associee
+            emailToUse = self.emails[i]
+            emailTruePart = emailToUse[0:emailToUse.find('@')]
+
+            wordsCloseToEmail = difflib.get_close_matches(emailTruePart,self.listWordForAffiliation)
+            wordCloseToEmail = ""
+            for word in wordsCloseToEmail:
+                wordCloseToEmail += word
+
+            '''
+            print('\n' + self.emails[i] + " #")
+            print(emailTruePart + " ##")
+            print(wordsCloseToAuthor, " ###")
+            print(wordCloseToAuthor + " ####")
+            print(wordsCloseToEmail, " #####")
+            print(wordCloseToEmail + " ######")
+            '''
+
+            regex_affiliation = r"(?<=" + wordCloseToAuthor + ")(.|\n)+(?=(" + self.emails[i] + "))"
+            if re.search(regex_affiliation, self.preCoupage) is not None:
+                resultAffiliation = re.search(regex_affiliation, self.preCoupage).group(0)
+                self.affiliations.append(resultAffiliation)
+            else:
+                self.affiliations.append("Affiliation non trouvée")
+        
+        if self.DEBUG_AFFILIATION:
+            for affiliation in self.affiliations:
+                print(affiliation + "; ")
+            print("\n")
+
+    # Defini la partie Abstract de l'article
+    def __setAbstract(self, text):
         if re.search(REGEX_ABSTRACT, text) is not None:
             abstract = re.search(REGEX_ABSTRACT, text).group(3)
 
@@ -292,8 +370,8 @@ class PdfToPlainText:
         self.conclusion = txtmanip.pasCleanText(conclusion)
 
     # Definit les references de l'article
+    # Defini les references de l'article
     def __setReferences(self):
-
         text = ""
         textTest = ""
 
@@ -328,4 +406,3 @@ class PdfToPlainText:
 
             else: # Enregistrement de la page precendente si le mot "Référence" n'est pas trouve
                 text = textTest + ' ' + text + ' '
-
