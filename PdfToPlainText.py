@@ -5,7 +5,7 @@ from distutils.debug import DEBUG
 import re
 import textmanipulation as txtmanip
 from textmanipulation import (
-    REGEX_CONCLUSION, REGEX_DISCUSSION, REGEX_INTRODUCTION, REGEX_TITLE, REGEX_MULTI_EMAILS, REGEX_ABSTRACT,
+    REGEX_CONCLUSION, REGEX_CORPS, REGEX_DISCUSSION, REGEX_INTRODUCTION, REGEX_TITLE, REGEX_MULTI_EMAILS, REGEX_ABSTRACT,
     REGEX_NO_ABSTRACT, REGEX_REFERENCES, REGEX_TABREFERENCES)
 
 class PdfToPlainText:
@@ -31,6 +31,7 @@ class PdfToPlainText:
     emails = []
     abstract = ""
     introduction = ""
+    corps = ""
     discussion = ""
     conclusion = ""
     references = []
@@ -60,6 +61,7 @@ class PdfToPlainText:
         self.__setAuthorsAndEmails(self.metadata, text)
         self.__setAbstract(text)
         self.__setIntroduction()
+        self.__setCorps()
         self.__setDiscussion()
         self.__setConclusion()
         self.__setReferences()
@@ -89,6 +91,16 @@ class PdfToPlainText:
         rawText = tp.extractText()
 
         return txtmanip.preCleanText(rawText)
+
+    def getTextAllPage(self):
+        nbPage = self.getNbPages()
+        text = ""
+
+        for page in range(0, nbPage - 1, 1):
+            text += self.getTextAnyPage(page)
+        
+        return text
+        
 
     def getTextAnyPage(self, nb):
         # Ouverture de la nb page du fichier .pdf
@@ -219,11 +231,19 @@ class PdfToPlainText:
     def __setIntroduction(self):
         text = self.getTextAnyPage(0) + self.getTextAnyPage(1) + self.getTextAnyPage(2)
         introduction = "Introduction non trouvé"
-        if re.search(REGEX_INTRODUCTION, text).group(2) is not None:
+        if re.search(REGEX_INTRODUCTION, text) is not None:
             introduction = re.search(REGEX_INTRODUCTION, text).group(2)
         if self.DEBUG_INTRODUCTION:
             print(introduction + "\n\n")
         self.introduction = txtmanip.pasCleanText(introduction)
+
+    # Definit la partie corps
+    def __setCorps(self):
+        text = self.getTextAllPage()
+        corps = "Corps non trouvé"
+        if re.search(REGEX_CORPS, text, re.IGNORECASE):
+            corps = re.search(REGEX_CORPS, text, re.IGNORECASE).group(2)
+        self.corps = txtmanip.pasCleanText(corps)
 
 
     # Definit la partie discussion
