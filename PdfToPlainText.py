@@ -1,9 +1,12 @@
 # -*- coding : utf-8 -*-
 
+from dis import dis
+from distutils.debug import DEBUG
 import re
 import difflib
 import textmanipulation as txtmanip
 from textmanipulation import (
+    REGEX_CONCLUSION, REGEX_CORPS, REGEX_DISCUSSION, REGEX_INTRODUCTION, REGEX_TITLE, REGEX_ABSTRACT,
     REGEX_TITLE, REGEX_ALL_EMAILS, REGEX_TYPE_MULTI_EMAILS,
     REGEX_POST_TITLE_PRE_ABSTRACT, REGEX_POST_TITLE_PRE_NO_ABSTRACT, REGEX_ABSTRACT,
     REGEX_NO_ABSTRACT, REGEX_REFERENCES, REGEX_TABREFERENCES)
@@ -24,6 +27,7 @@ class PdfToPlainText:
     DEBUG_EMAIL = False
     DEBUG_AFFILIATION = False
     DEBUG_ABSTRACT = False
+    DEBUG_INTRODUCTION = False
     DEBUG_REFERENCE = False
 
     # variables a recuperer
@@ -34,6 +38,10 @@ class PdfToPlainText:
     emails = []
     affiliations = []
     abstract = ""
+    introduction = ""
+    corps = ""
+    discussion = ""
+    conclusion = ""
     references = []
 
     # Initialise le manager passe en parametre
@@ -70,6 +78,10 @@ class PdfToPlainText:
         self.__setAuthors()
         self.__setAffiliations(text)
         self.__setAbstract(text)
+        self.__setIntroduction()
+        self.__setCorps()
+        self.__setDiscussion()
+        self.__setConclusion()
         self.__setReferences()
 
     # Reinitialise certaines variables
@@ -99,6 +111,16 @@ class PdfToPlainText:
         rawText = tp.extractText()
 
         return txtmanip.preCleanText(rawText)
+
+    def getTextAllPage(self):
+        nbPage = self.getNbPages()
+        text = ""
+
+        for page in range(0, nbPage - 1, 1):
+            text += self.getTextAnyPage(page)
+        
+        return text
+        
 
     # Recupere la page desiree de l'article
     def getTextAnyPage(self, nb):
@@ -282,7 +304,72 @@ class PdfToPlainText:
 
         if self.DEBUG_ABSTRACT:
            print(self.abstract + "\n\n")
+
+    # Definit la partie introduction
+    def __setIntroduction(self):
+        text = self.getTextAnyPage(0) + self.getTextAnyPage(1) + self.getTextAnyPage(2)
+        introduction = "Introduction non trouvé"
+        if re.search(REGEX_INTRODUCTION, text) is not None:
+            introduction = re.search(REGEX_INTRODUCTION, text).group(2)
+        if self.DEBUG_INTRODUCTION:
+            print(introduction + "\n\n")
+        self.introduction = txtmanip.pasCleanText(introduction)
+
+    # Definit la partie corps
+    def __setCorps(self):
+        text = self.getTextAllPage()
+        corps = "Corps non trouvé"
+        if re.search(REGEX_CORPS, text, re.IGNORECASE):
+            corps = re.search(REGEX_CORPS, text, re.IGNORECASE).group(2)
+        self.corps = txtmanip.pasCleanText(corps)
+
+
+    # Definit la partie discussion
+    def __setDiscussion(self):
+        text = ""
+        discussion = "Discussion non trouvé"
+        page = 0
+
+        # On recupere la partie discussion
+        for page in range(self.getNbPages()-1, 0, -1):
+            text = self.getTextAnyPage(page)
+
+            # Si on trouve le mot discussion
+            if re.search("discussion", text, re.IGNORECASE):
+                if page <= self.getNbPages() - 3:
+                    text += self.getTextAnyPage(page + 1)
+                    text += self.getTextAnyPage(page + 2)
+                break
         
+        if re.search(REGEX_DISCUSSION, text, re.IGNORECASE):
+            discussion = re.search(REGEX_DISCUSSION, text, re.IGNORECASE).group(0)
+    
+        self.discussion = txtmanip.pasCleanText(discussion)
+
+    # Definit la partie conclusion
+    def __setConclusion(self):
+        
+        text = ""
+        conclusion = "Conclusion non trouvé"
+        page = 0
+
+        # On recupere la partie conclusion
+        for page in range(self.getNbPages()-1, 0, -1):
+            text = self.getTextAnyPage(page)
+
+            # Si on trouve le mot conclusion
+            if re.search("Conclusion", text, re.IGNORECASE):
+                if page <= self.getNbPages() - 3:
+                    text += self.getTextAnyPage(page + 1)
+                    text += self.getTextAnyPage(page + 2)
+                break
+        
+        if re.search(REGEX_CONCLUSION, text, re.IGNORECASE):
+                conclusion = re.search(REGEX_CONCLUSION, text, re.IGNORECASE).group(0)
+    
+        self.conclusion = txtmanip.pasCleanText(conclusion)
+
+    # Definit les references de l'article
     # Defini les references de l'article
     def __setReferences(self):
         text = ""
