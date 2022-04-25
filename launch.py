@@ -128,7 +128,7 @@ else:
         helpPDFtoFiles()
     else:
         FOLDER = input("Path that contains the folder to parse: ")
-        while not checkFolderExist():
+        while not checkFolderExist() or sorted([_ for _ in os.listdir(FOLDER) if _.endswith(r".pdf")]) == []:
             print("Pathname not valid")
             FOLDER = input("Path that contains the folder to parse: ")
         menu = Menu(FOLDER)
@@ -138,6 +138,7 @@ else:
             print("File numbers not valid")
             numbers = input("Enter the file numbers: ")
         FILES = menu.makeListChosen(numbers)
+        print(FILES)
         # Heure et index initial
         start_time = time.time()
         

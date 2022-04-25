@@ -42,14 +42,14 @@ class Menu:
                 values = i.split("-")
                 try:
                     v0, v1 = int(values[0]), int(values[1]) # verification conversion
-                    if v0 > v1: # verification ordre
+                    if v0 > v1 or v0 <= 0 or v1 > len(self.listPdf): # verification ordre
                         return False
                 except ValueError:
                     return False
             else: # on trouve un simple numéro
                 try:
                     i = int(i)
-                    if i < 0 or i > len(self.listPdf): # verification validité de l'index
+                    if i <= 0 or i > len(self.listPdf): # verification validité de l'index
                         return False
                 except ValueError:
                     return False
@@ -65,7 +65,7 @@ class Menu:
                 print( "{:<40}".format(self.printPdf(i+1, self.listPdf[i])), end="")
                 cptLine+=1
                 if i == len(self.listPdf)-1:
-                    print("\n")
+                    print()
             else:
                 print( "{:<40}".format(self.printPdf(i+1, self.listPdf[i])))
                 cptLine = 1
