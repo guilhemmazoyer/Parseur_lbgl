@@ -138,7 +138,6 @@ else:
             print("File numbers not valid")
             numbers = input("Enter the file numbers: ")
         FILES = menu.makeListChosen(numbers)
-        print(FILES)
         # Heure et index initial
         start_time = time.time()
         
