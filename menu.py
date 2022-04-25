@@ -58,13 +58,21 @@ class Menu:
 
     # affiche la liste de tous les pdf
     def lsPdf(self):
-        length = len(max(self.listPdf, key=len))
-        if length < 35:
-            for i in range(0, len(self.listPdf), 3):
-                print( "{:<40} {:<40}".format(self.printPdf(i+1, self.listPdf[i]), self.printPdf(i+2, self.listPdf[i+1])), self.printPdf(i+3, self.listPdf[i+2]) )
-        else :
-            for i in range(0, len(self.listPdf), 2):
-                print( "{:<60} {:<60}".format(self.printPdf(i+1, self.listPdf[i]), self.printPdf(i+2, self.listPdf[i+1])) )
+        #length = len(max(self.listPdf, key=len))
+        cptLine = 1
+        for i in range(len(self.listPdf)):
+            if cptLine < 3:
+                print( "{:<40}".format(self.printPdf(i+1, self.listPdf[i])), end="")
+                cptLine+=1
+                if i == len(self.listPdf)-1:
+                    print("\n")
+            else:
+                print( "{:<40}".format(self.printPdf(i+1, self.listPdf[i])))
+                cptLine = 1
+                
+
+
+
         
     # affiche un seul pdf avec son indice
     def printPdf(self, number, nameFile):
