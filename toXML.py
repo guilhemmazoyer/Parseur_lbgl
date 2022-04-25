@@ -11,7 +11,7 @@ class ToXML:
     manager = None
     pdfTPT = None
 
-    def __init__(self,folder):
+    def __init__(self,folder, files):
         # Variable instanciee a partir des parametres
         self.folder = folder
 
@@ -23,9 +23,7 @@ class ToXML:
         self.manager.createResultFolder()
 
         # Recuperation des fichiers
-        files = os.listdir(self.folder)
-        files = filter(lambda f: f.endswith(('.pdf', '.PDF')), files)
-        self.files = list(files)
+        self.files = files
 
     def allPDF(self, numberFiles, i, progressBar):
         progressBar.progress(i)
