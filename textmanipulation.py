@@ -127,12 +127,18 @@ def arrangeTXT(pdfTPT):
     return mergeAll
 
 def arrangeXML(pdfTPT):
+
+    pdfTPT.abstract = cleanToXMLFormat(pdfTPT.abstract)
+    pdfTPT.affiliations = cleanToXMLFormat(pdfTPT.affiliations)
+    pdfTPT.conclusion = cleanToXMLFormat(pdfTPT.conclusion)
+    pdfTPT.corps = cleanToXMLFormat(pdfTPT.corps)
+    pdfTPT.references = cleanToXMLFormat(pdfTPT.references)
+    pdfTPT.discussion = cleanToXMLFormat(pdfTPT.discussion)
+
     mergeAll = "<article>\n"
     mergeAll += "\t<preambule>" + pdfTPT.filename + "</preambule>\n"
     mergeAll += "\t<titre>" + pdfTPT.title + "</titre>\n"
     mergeAll += "\t<auteurs>\n"
-    
-    mergeAll = cleanToXMLFormat(mergeAll)
 
     maxIndex = max(max(len(pdfTPT.authors), len(pdfTPT.emails)), len(pdfTPT.affiliations))
 
