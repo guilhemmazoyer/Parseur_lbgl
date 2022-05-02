@@ -129,7 +129,6 @@ def arrangeTXT(pdfTPT):
 def arrangeXML(pdfTPT):
 
     pdfTPT.abstract = cleanToXMLFormat(pdfTPT.abstract)
-    pdfTPT.affiliations = cleanToXMLFormat(pdfTPT.affiliations)
     pdfTPT.conclusion = cleanToXMLFormat(pdfTPT.conclusion)
     pdfTPT.corps = cleanToXMLFormat(pdfTPT.corps)
     pdfTPT.discussion = cleanToXMLFormat(pdfTPT.discussion)
