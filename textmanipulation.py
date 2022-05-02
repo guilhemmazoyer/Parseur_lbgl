@@ -94,6 +94,13 @@ def cleanAllEmails(emails):
 
     return newEmails
 
+def cleanToXMLFormat(text):
+    text = text.replace('&','&amp')
+    text = text.replace('>','&gt')
+    text = text.replace('<','&lt')
+
+    return text
+
 # Arrange le texte ecris dans le fichier .xml a partir des attributs de pdfTPT
 def arrangeTXT(pdfTPT):
     mergeAll = pdfTPT.filename + '\n' + pdfTPT.title + '\n'
