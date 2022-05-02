@@ -34,6 +34,8 @@ class Menu:
 
     # vérifie la validité de l'input de l'utilisateur
     def checkInputList(self, filesNumbers):
+        if not filesNumbers or filesNumbers.isspace():
+            return False
         if filesNumbers == "*": # tous les fichiers
             return True
         listeIndex = filesNumbers.split()
