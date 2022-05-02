@@ -145,7 +145,7 @@ class PdfToPlainText:
 
     # Defini le nom du fichier
     def __setFilename(self):
-        self.filename = self.manager.getFileName(self.currentFile)
+        self.filename = self.manager.getFileName(self.currentFile + ".pdf")
 
     # Defini le titre de l'article
     def __setTitle(self, metadatas, text):
