@@ -155,7 +155,7 @@ class PdfToPlainText:
             if re.search(REGEX_TITLE, text) is not None:
                 self.title = re.search(REGEX_TITLE, text).group(0)
             else:
-                self.title = "Titre non trouvé"
+                self.title = "N/A"
         else:
             self.title = metas_title
 
@@ -189,7 +189,7 @@ class PdfToPlainText:
             self.emailFindingResult = False # email trouvee
 
         else:
-            self.emails.append("Email non trouvé")
+            self.emails.append("N/A")
             self.emailFindingResult = True # pas d'email
 
         if self.DEBUG_EMAIL:
@@ -200,7 +200,7 @@ class PdfToPlainText:
     # Defini les auteurs
     def __setAuthors(self):
         if self.emailFindingResult: # pas d'email
-            self.authors.append("Auteur non trouvé")
+            self.authors.append("N/A")
         
         else: # email
             self.getAuthorsFromEmails()
@@ -236,7 +236,7 @@ class PdfToPlainText:
     def __setAffiliations(self, text):
         if self.emailFindingResult: # si pas d'email et d'auteur
             for i in range(len(self.authors)-1):
-                self.affiliations.append("Affiliation non trouvée")
+                self.affiliations.append("N/A")
             return None # Saute toute l'execution qui suit
 
         # Verification de la proximité entre deux mots et utiliser le mot trouvé pour faire la borne du regex avec l'email
@@ -281,7 +281,7 @@ class PdfToPlainText:
                 resultAffiliation = re.search(regex_affiliation, self.preCoupage).group(0)
                 self.affiliations.append(resultAffiliation)
             else:
-                self.affiliations.append("Affiliation non trouvée")
+                self.affiliations.append("N/A")
         
         if self.DEBUG_AFFILIATION:
             for affiliation in self.affiliations:
@@ -298,7 +298,7 @@ class PdfToPlainText:
             abstract = re.search(REGEX_NO_ABSTRACT, text).group(0)
             
         else:
-            abstract = "Abstract non trouvé"
+            abstract = "N/A"
 
         self.abstract = txtmanip.pasCleanText(abstract)
 
@@ -308,7 +308,7 @@ class PdfToPlainText:
     # Definit la partie introduction
     def __setIntroduction(self):
         text = self.getTextAnyPage(0) + self.getTextAnyPage(1) + self.getTextAnyPage(2)
-        introduction = "Introduction non trouvé"
+        introduction = "N/A"
         if re.search(REGEX_INTRODUCTION, text) is not None:
             introduction = re.search(REGEX_INTRODUCTION, text).group(2)
         if self.DEBUG_INTRODUCTION:
@@ -318,7 +318,7 @@ class PdfToPlainText:
     # Definit la partie corps
     def __setCorps(self):
         text = self.getTextAllPage()
-        corps = "Corps non trouvé"
+        corps = "N/A"
         if re.search(REGEX_CORPS, text, re.IGNORECASE):
             corps = re.search(REGEX_CORPS, text, re.IGNORECASE).group(2)
         self.corps = txtmanip.pasCleanText(corps)
@@ -327,7 +327,7 @@ class PdfToPlainText:
     # Definit la partie discussion
     def __setDiscussion(self):
         text = ""
-        discussion = "Discussion non trouvé"
+        discussion = "N/A"
         page = 0
 
         # On recupere la partie discussion
@@ -350,7 +350,7 @@ class PdfToPlainText:
     def __setConclusion(self):
         
         text = ""
-        conclusion = "Conclusion non trouvé"
+        conclusion = "N/A"
         page = 0
 
         # On recupere la partie conclusion
@@ -400,7 +400,7 @@ class PdfToPlainText:
                         self.references.append(txtmanip.pasCleanText(reference))
 
                 else: # ajout d'une simple chaine de caractere
-                    self.references.append("Référence non trouvée")
+                    self.references.append("N/A")
                 
                 break # on stop le parcours de pages
 
