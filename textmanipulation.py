@@ -132,7 +132,6 @@ def arrangeXML(pdfTPT):
     pdfTPT.affiliations = cleanToXMLFormat(pdfTPT.affiliations)
     pdfTPT.conclusion = cleanToXMLFormat(pdfTPT.conclusion)
     pdfTPT.corps = cleanToXMLFormat(pdfTPT.corps)
-    pdfTPT.references = cleanToXMLFormat(pdfTPT.references)
     pdfTPT.discussion = cleanToXMLFormat(pdfTPT.discussion)
 
     mergeAll = "<article>\n"
