@@ -132,6 +132,8 @@ def arrangeXML(pdfTPT):
     mergeAll += "\t<titre>" + pdfTPT.title + "</titre>\n"
     mergeAll += "\t<auteurs>\n"
     
+    mergeAll = cleanToXMLFormat(mergeAll)
+
     maxIndex = max(max(len(pdfTPT.authors), len(pdfTPT.emails)), len(pdfTPT.affiliations))
 
     for i in range(maxIndex):
