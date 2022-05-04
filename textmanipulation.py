@@ -10,7 +10,6 @@ REGEX_POST_TITLE_PRE_NO_ABSTRACT = r"(?<=\n)(.|\n)+(?=(1(\n| |( \n)|. )Introduct
 REGEX_ABSTRACT = r"(Abstract(-|.| |\n))\n? ?((.|\n)*)(?=(1(\n| |( \n)|. )Introduction)|(I. INTRODUCTION))"
 REGEX_NO_ABSTRACT = r"(?<=\n)(.|\n)*(?=(1(\n| |( \n)|. )Introduction)|(I. INTRODUCTION))"
 REGEX_INTRODUCTION = r"(INTRODUCTION|Introduction)\n* *((.|\n)*)(?=(\n2.? ?\n?|\nII.? ))"
-REGEX_CORPS = r"\n(2|II)\.? ?.*\n((.|\n)*)(?=conclusion|discussion)"
 REGEX_CONCLUSION = r"(.*Conclusions?.*)(.|\n)*(?=References|acknowledgments?|Follow-Up Work|Appendix)"
 REGEX_DISCUSSION = r".*discussion.*(.|\n)*(?=appendix|conclusions?|\n\d)"
 REGEX_REFERENCES = r"(((?<=References|REFERENCES)|(?<=Bibliographie|BIBLIOGRAPHIE))+((.|\n)*))"
@@ -118,7 +117,6 @@ def arrangeTXT(pdfTPT):
 
     mergeAll += pdfTPT.abstract + '\n'
     mergeAll += pdfTPT.introduction + '\n'
-    mergeAll += pdfTPT.corps + '\n'
     mergeAll += pdfTPT.discussion + '\n'
     mergeAll += pdfTPT.conclusion + '\n'
     for reference in pdfTPT.references:
@@ -130,7 +128,6 @@ def arrangeXML(pdfTPT):
 
     pdfTPT.abstract = cleanToXMLFormat(pdfTPT.abstract)
     pdfTPT.conclusion = cleanToXMLFormat(pdfTPT.conclusion)
-    pdfTPT.corps = cleanToXMLFormat(pdfTPT.corps)
     pdfTPT.discussion = cleanToXMLFormat(pdfTPT.discussion)
 
     mergeAll = "<article>\n"
@@ -163,7 +160,6 @@ def arrangeXML(pdfTPT):
     mergeAll += "\t</auteurs>\n"
     mergeAll += "\t<abstract>" + pdfTPT.abstract + "</abstract>\n"
     mergeAll += "\t<introduction>" + pdfTPT.introduction + "</introduction>\n"
-    mergeAll += "\t<corps>" + pdfTPT.corps + "</corps>\n"
     mergeAll += "\t<discussion>" + pdfTPT.discussion + "</discussion>\n"
     mergeAll += "\t<conclusion>" + pdfTPT.conclusion + "</conclusion>\n"
     mergeAll += "\t<biblios>\n"

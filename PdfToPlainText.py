@@ -6,7 +6,7 @@ import re
 import difflib
 import textmanipulation as txtmanip
 from textmanipulation import (
-    REGEX_CONCLUSION, REGEX_CORPS, REGEX_DISCUSSION, REGEX_INTRODUCTION, REGEX_TITLE, REGEX_ABSTRACT,
+    REGEX_CONCLUSION, REGEX_DISCUSSION, REGEX_INTRODUCTION, REGEX_TITLE, REGEX_ABSTRACT,
     REGEX_TITLE, REGEX_ALL_EMAILS, REGEX_TYPE_MULTI_EMAILS,
     REGEX_POST_TITLE_PRE_ABSTRACT, REGEX_POST_TITLE_PRE_NO_ABSTRACT, REGEX_ABSTRACT,
     REGEX_NO_ABSTRACT, REGEX_REFERENCES, REGEX_TABREFERENCES)
@@ -39,7 +39,6 @@ class PdfToPlainText:
     affiliations = []
     abstract = ""
     introduction = ""
-    corps = ""
     discussion = ""
     conclusion = ""
     references = []
@@ -79,7 +78,6 @@ class PdfToPlainText:
         self.__setAffiliations(text)
         self.__setAbstract(text)
         self.__setIntroduction()
-        self.__setCorps()
         self.__setDiscussion()
         self.__setConclusion()
         self.__setReferences()
@@ -314,14 +312,6 @@ class PdfToPlainText:
         if self.DEBUG_INTRODUCTION:
             print(introduction + "\n\n")
         self.introduction = txtmanip.pasCleanText(introduction)
-
-    # Definit la partie corps
-    def __setCorps(self):
-        text = self.getTextAllPage()
-        corps = "N/A"
-        if re.search(REGEX_CORPS, text, re.IGNORECASE):
-            corps = re.search(REGEX_CORPS, text, re.IGNORECASE).group(2)
-        self.corps = txtmanip.pasCleanText(corps)
 
 
     # Definit la partie discussion
