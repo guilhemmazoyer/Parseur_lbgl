@@ -1,6 +1,10 @@
 # -*- coding : utf-8 -*-
 
 import re
+import xml.etree.cElementTree as ET
+import xml.dom.minidom
+
+m_encoding = 'UTF-8'
 
 REGEX_TITLE = r"^([A-Z].*)+"
 REGEX_ALL_EMAILS = r"{?\(?\b[\w][\w, .-]*[a-z\d]\)?}?\n?[@|Q][\w\-_.]+"
@@ -36,6 +40,8 @@ def preCleanText(text):
     text = text.replace("c¸",'ç')
     # î UTF-8
     text = text.replace("ˆı",'î')
+    # mot coupe
+    text = text.replace("- ", '')
     # retour à la ligne mot coupe
     text = text.replace("- \n", '')
     # caractères spéciaux
@@ -103,7 +109,9 @@ def cleanToXMLFormat(text):
 
 # Arrange le texte ecris dans le fichier .xml a partir des attributs de pdfTPT
 def arrangeTXT(pdfTPT):
-    mergeAll = pdfTPT.filename + '\n' + pdfTPT.title + '\n'
+
+    mergeAll = "<?xml version=" + '"'+ "1.0" + '"' + " ?>"
+    mergeAll += pdfTPT.filename + '\n' + pdfTPT.title + '\n'
     for author in pdfTPT.authors:
         mergeAll += author + '; '
     mergeAll += '\n'
@@ -127,43 +135,29 @@ def arrangeTXT(pdfTPT):
 
 def arrangeXML(pdfTPT):
 
-    pdfTPT.abstract = cleanToXMLFormat(pdfTPT.abstract)
-    pdfTPT.conclusion = cleanToXMLFormat(pdfTPT.conclusion)
-    pdfTPT.discussion = cleanToXMLFormat(pdfTPT.discussion)
+    root = ET.Element("article")
 
-    mergeAll = "<article>\n"
-    mergeAll += "\t<preambule>" + pdfTPT.filename + "</preambule>\n"
-    mergeAll += "\t<titre>" + pdfTPT.title + "</titre>\n"
-    mergeAll += "\t<auteurs>\n"
+    ET.SubElement(root, "preamble").text = pdfTPT.filename
+    ET.SubElement(root, "titre").text = pdfTPT.title
 
+    auteurs = ET.SubElement(root, "auteurs")
     maxIndex = max(max(len(pdfTPT.authors), len(pdfTPT.emails)), len(pdfTPT.affiliations))
 
     for i in range(maxIndex):
-        mergeAll += "\t\t<auteur>\n"
-
+        auteur = ET.SubElement(auteurs, "auteur")
+        ET.SubElement(auteur, "nom").text = pdfTPT.authors[i]
+        ET.SubElement(auteur, "email").text = pdfTPT.emails[i]
         try:
-            mergeAll += "\t\t\t<nom>" + pdfTPT.authors[i] +"</nom>\n"
+            ET.SubElement(auteur, "affiliation").text = pdfTPT.affiliations[i]
         except:
-            mergeAll += "\t\t\t<nom></nom>\n"
-            
-        try:
-            mergeAll += "\t\t\t<email>" + pdfTPT.emails[i] + "</email>\n"
-        except:
-            mergeAll += "\t\t\t<email></email>\n"
+            ET.SubElement(auteur, "affiliation").text = "N/A"
 
-        try:
-            mergeAll += "\t\t\t<affiliation>" + pdfTPT.affiliations[i] + "</affiliation>\n"
-        except:
-            mergeAll += "\t\t\t<affiliation></affiliation>\n"
+    ET.SubElement(root, "abstract").text = pdfTPT.abstract
+    ET.SubElement(root, "introduction").text = pdfTPT.introduction
+    ET.SubElement(root, "discussion").text = pdfTPT.discussion
+    ET.SubElement(root, "conclusion").text = pdfTPT.conclusion
 
-        mergeAll += "\t\t</auteur>\n"
-
-    mergeAll += "\t</auteurs>\n"
-    mergeAll += "\t<abstract>" + pdfTPT.abstract + "</abstract>\n"
-    mergeAll += "\t<introduction>" + pdfTPT.introduction + "</introduction>\n"
-    mergeAll += "\t<discussion>" + pdfTPT.discussion + "</discussion>\n"
-    mergeAll += "\t<conclusion>" + pdfTPT.conclusion + "</conclusion>\n"
-
-    mergeAll += "</article>"
-
-    return mergeAll
+    dom = xml.dom.minidom.parseString(ET.tostring(root))
+    xml_string = dom.toprettyxml()
+    
+    return xml_string
