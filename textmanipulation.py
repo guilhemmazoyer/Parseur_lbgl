@@ -110,8 +110,7 @@ def cleanToXMLFormat(text):
 # Arrange le texte ecris dans le fichier .xml a partir des attributs de pdfTPT
 def arrangeTXT(pdfTPT):
 
-    mergeAll = "<?xml version=" + '"'+ "1.0" + '"' + " ?>"
-    mergeAll += pdfTPT.filename + '\n' + pdfTPT.title + '\n'
+    mergeAll = pdfTPT.filename + '\n' + pdfTPT.title + '\n'
     for author in pdfTPT.authors:
         mergeAll += author + '; '
     mergeAll += '\n'
@@ -159,5 +158,5 @@ def arrangeXML(pdfTPT):
 
     dom = xml.dom.minidom.parseString(ET.tostring(root))
     xml_string = dom.toprettyxml()
-    
+
     return xml_string
