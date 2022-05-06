@@ -66,7 +66,11 @@ class PdfToPlainText:
         if re.search(REGEX_POST_TITLE_PRE_ABSTRACT, text) is not None:
             preCoupage = re.search(REGEX_POST_TITLE_PRE_ABSTRACT, text).group(0)
         else:
-            preCoupage = re.search(REGEX_POST_TITLE_PRE_NO_ABSTRACT, text).group(0)
+            if re.search(REGEX_POST_TITLE_PRE_NO_ABSTRACT, text) is not None:
+                preCoupage = re.search(REGEX_POST_TITLE_PRE_NO_ABSTRACT, text).group(0)
+            else:
+                preCoupage = "N/A"
+                
         self.preCoupage = txtmanip.allClean(preCoupage)
         self.listWordForAffiliation = re.split("\n| ", preCoupage)
 
@@ -329,10 +333,9 @@ class PdfToPlainText:
                 if page <= self.getNbPages() - 3:
                     text += self.getTextAnyPage(page + 1)
                     text += self.getTextAnyPage(page + 2)
-                break
         
-        if re.search(REGEX_DISCUSSION, text, re.IGNORECASE):
-            discussion = re.search(REGEX_DISCUSSION, text, re.IGNORECASE).group(0)
+                if re.search(REGEX_DISCUSSION, text, re.IGNORECASE):
+                    discussion = re.search(REGEX_DISCUSSION, text, re.IGNORECASE).group(0)
     
         self.discussion = txtmanip.pasCleanText(discussion)
 

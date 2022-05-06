@@ -11,7 +11,8 @@ REGEX_ABSTRACT = r"(Abstract(-|.| |\n))\n? ?((.|\n)*)(?=(1(\n| |( \n)|. )Introdu
 REGEX_NO_ABSTRACT = r"(?<=\n)(.|\n)*(?=(1(\n| |( \n)|. )Introduction)|(I. INTRODUCTION))"
 REGEX_INTRODUCTION = r"(INTRODUCTION|Introduction)\n* *((.|\n)*)(?=(\n2.? ?\n?|\nII.? ))"
 REGEX_CONCLUSION = r"(.*Conclusions?.*)(.|\n)*(?=References|acknowledgments?|Follow-Up Work|Appendix)"
-REGEX_DISCUSSION = r".*discussion.*(.|\n)*(?=appendix|conclusions?|\n\d)"
+REGEX_DISCUSSION = r".*discussion.*(.|\n)*(?=appendix|conclusions?|Acknowledgments|\d)"
+#r"(\d Discussion.*)(.|\n)*(?=appendix|conclusions?Acknowledgments|\n\d)"
 REGEX_REFERENCES = r"(((?<=References|REFERENCES)|(?<=Bibliographie|BIBLIOGRAPHIE))+((.|\n)*))"
 REGEX_TABREFERENCES = r"\[[0-9|, ]+\]"
 
@@ -162,13 +163,7 @@ def arrangeXML(pdfTPT):
     mergeAll += "\t<introduction>" + pdfTPT.introduction + "</introduction>\n"
     mergeAll += "\t<discussion>" + pdfTPT.discussion + "</discussion>\n"
     mergeAll += "\t<conclusion>" + pdfTPT.conclusion + "</conclusion>\n"
-    mergeAll += "\t<biblios>\n"
 
-    for reference in pdfTPT.references:
-        if reference != "":
-            mergeAll += "\t\t<biblio>" + reference + "</biblio>\n"
-
-    mergeAll += "\t</biblios>\n"
     mergeAll += "</article>"
 
     return mergeAll
