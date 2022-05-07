@@ -144,12 +144,12 @@ def arrangeXML(pdfTPT):
 
     for i in range(maxIndex):
         auteur = ET.SubElement(auteurs, "auteur")
-        ET.SubElement(auteur, "nom").text = pdfTPT.authors[i]
-        ET.SubElement(auteur, "email").text = pdfTPT.emails[i]
+        ET.SubElement(auteur, "name").text = pdfTPT.authors[i]
+        ET.SubElement(auteur, "mail").text = pdfTPT.emails[i]
         try:
             ET.SubElement(auteur, "affiliation").text = pdfTPT.affiliations[i]
         except:
-            ET.SubElement(auteur, "affiliation").text = "N/A"
+            ET.SubElement(auteur, "affiliation").text = ""
 
     ET.SubElement(root, "abstract").text = pdfTPT.abstract
     ET.SubElement(root, "introduction").text = pdfTPT.introduction

@@ -310,7 +310,7 @@ class PdfToPlainText:
     # Definit la partie introduction
     def __setIntroduction(self):
         text = self.getTextAnyPage(0) + self.getTextAnyPage(1) + self.getTextAnyPage(2)
-        introduction = "N/A"
+        introduction = ""
         if re.search(REGEX_INTRODUCTION, text) is not None:
             introduction = re.search(REGEX_INTRODUCTION, text).group(2)
         if self.DEBUG_INTRODUCTION:
@@ -321,7 +321,7 @@ class PdfToPlainText:
     # Definit la partie discussion
     def __setDiscussion(self):
         text = ""
-        discussion = "N/A"
+        discussion = ""
         page = 0
 
         # On recupere la partie discussion
