@@ -136,7 +136,7 @@ def arrangeXML(pdfTPT):
 
     root = ET.Element("article")
 
-    ET.SubElement(root, "preamble").text = pdfTPT.filename
+    ET.SubElement(root, "preamble").text = pdfTPT.currentFile
     ET.SubElement(root, "titre").text = pdfTPT.title
 
     auteurs = ET.SubElement(root, "auteurs")

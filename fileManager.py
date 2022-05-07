@@ -50,7 +50,6 @@ class FileManager:
             file_basename = os.path.basename(self.folder + "\\" + file)
         else:
             file_basename = os.path.basename(self.folder + "/" + file)
-        
         return file_basename[0:file_basename.find('.')]
 
     #
