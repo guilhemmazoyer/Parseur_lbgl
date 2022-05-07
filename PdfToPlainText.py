@@ -70,7 +70,7 @@ class PdfToPlainText:
                 preCoupage = re.search(REGEX_POST_TITLE_PRE_NO_ABSTRACT, text).group(0)
             else:
                 preCoupage = "N/A"
-                
+
         self.preCoupage = txtmanip.allClean(preCoupage)
         self.listWordForAffiliation = re.split("\n| ", preCoupage)
 
@@ -292,8 +292,8 @@ class PdfToPlainText:
 
     # Defini la partie Abstract de l'article
     def __setAbstract(self, text):
-        if re.search(REGEX_ABSTRACT, text) is not None:
-            abstract = re.search(REGEX_ABSTRACT, text).group(3)
+        if re.search(REGEX_ABSTRACT, text, re.IGNORECASE) is not None:
+            abstract = re.search(REGEX_ABSTRACT, text, re.IGNORECASE).group(3)
 
         # Dans le cas où le mot abstract n'est pas present
         elif re.search(REGEX_NO_ABSTRACT, text) is not None :
