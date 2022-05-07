@@ -6,7 +6,7 @@ import re
 import difflib
 import textmanipulation as txtmanip
 from textmanipulation import (
-    REGEX_CONCLUSION, REGEX_DISCUSSION, REGEX_INTRODUCTION, REGEX_TITLE, REGEX_ABSTRACT,
+    REGEX_ABSTRACT_NO_INTRO, REGEX_CONCLUSION, REGEX_DISCUSSION, REGEX_INTRODUCTION, REGEX_TITLE, REGEX_ABSTRACT,
     REGEX_TITLE, REGEX_ALL_EMAILS, REGEX_TYPE_MULTI_EMAILS,
     REGEX_POST_TITLE_PRE_ABSTRACT, REGEX_POST_TITLE_PRE_NO_ABSTRACT, REGEX_ABSTRACT,
     REGEX_NO_ABSTRACT, REGEX_REFERENCES, REGEX_TABREFERENCES)
@@ -292,7 +292,8 @@ class PdfToPlainText:
 
     # Defini la partie Abstract de l'article
     def __setAbstract(self):
-        text = self.getTextAnyPage(0) + self.getTextAnyPage(1)
+        text = self.getTextAnyPage(0) + self.getTextAnyPage(1)  
+        print(self.getTextAnyPage(0))
 
         try:
             abstract = re.search(REGEX_ABSTRACT, text, re.IGNORECASE).group(3)
@@ -300,7 +301,10 @@ class PdfToPlainText:
             try:
                 abstract = re.search(REGEX_NO_ABSTRACT, text).group(0)
             except:
-                abstract = "N/A"
+                try:
+                  abstract = re.search(REGEX_ABSTRACT_NO_INTRO, text, re.IGNORECASE).group(3)  
+                except:
+                    abstract = "N/A"
             
         self.abstract = txtmanip.pasCleanText(abstract)
 
@@ -358,7 +362,7 @@ class PdfToPlainText:
                 break
         
         if re.search(REGEX_CONCLUSION, text, re.IGNORECASE):
-                conclusion = re.search(REGEX_CONCLUSION, text, re.IGNORECASE).group(0)
+            conclusion = re.search(REGEX_CONCLUSION, text, re.IGNORECASE).group(0)
     
         self.conclusion = txtmanip.pasCleanText(conclusion)
 
