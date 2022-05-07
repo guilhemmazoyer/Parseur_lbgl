@@ -80,7 +80,7 @@ class PdfToPlainText:
         self.__setEmails(text)
         self.__setAuthors()
         self.__setAffiliations(text)
-        self.__setAbstract(text)
+        self.__setAbstract()
         self.__setIntroduction()
         self.__setDiscussion()
         self.__setConclusion()
@@ -291,17 +291,17 @@ class PdfToPlainText:
             print("\n")
 
     # Defini la partie Abstract de l'article
-    def __setAbstract(self, text):
-        if re.search(REGEX_ABSTRACT, text, re.IGNORECASE) is not None:
+    def __setAbstract(self):
+        text = self.getTextAnyPage(0) + self.getTextAnyPage(1)
+
+        try:
             abstract = re.search(REGEX_ABSTRACT, text, re.IGNORECASE).group(3)
-
-        # Dans le cas où le mot abstract n'est pas present
-        elif re.search(REGEX_NO_ABSTRACT, text) is not None :
-            abstract = re.search(REGEX_NO_ABSTRACT, text).group(0)
+        except:
+            try:
+                abstract = re.search(REGEX_NO_ABSTRACT, text).group(0)
+            except:
+                abstract = "N/A"
             
-        else:
-            abstract = "N/A"
-
         self.abstract = txtmanip.pasCleanText(abstract)
 
         if self.DEBUG_ABSTRACT:
