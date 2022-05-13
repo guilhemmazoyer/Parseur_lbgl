@@ -219,18 +219,17 @@ class PdfToPlainText:
             email_decompose = email[0:email.find('@')]
             tab_email_decompose = email_decompose.split('.')
             result_author = ''
-            for i in range(len(tab_email_decompose)):
+            textName = difflib.get_close_matches(tab_email_decompose[0],self.listWordForAffiliation)
+            if textName != []:
+                result_author += textName[0]
+            else:
+                result_author += tab_email_decompose[0]
+            for i in range(1, len(tab_email_decompose)):
                 textName = difflib.get_close_matches(tab_email_decompose[i],self.listWordForAffiliation)
-                if i == 0:
-                    if textName != []:
-                        result_author += textName[0]
-                    else:
-                        result_author += tab_email_decompose[i]
+                if textName != []:
+                    result_author += " " + textName[0]
                 else:
-                    if textName != []:
-                        result_author += " " + textName[0]
-                    else:
-                        result_author += " " + tab_email_decompose[i]
+                    result_author += " " + tab_email_decompose[i]
             
             result_author = txtmanip.authorClean(result_author)
             self.authors.append(result_author)
