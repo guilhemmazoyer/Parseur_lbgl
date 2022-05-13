@@ -6,7 +6,7 @@ import re
 import difflib
 import textmanipulation as txtmanip
 from textmanipulation import (
-    REGEX_ABSTRACT_NO_INTRO, REGEX_CONCLUSION, REGEX_DISCUSSION, REGEX_INTRODUCTION, REGEX_TITLE, REGEX_ABSTRACT,
+    REGEX_ABSTRACT_NO_INTRO, REGEX_CONCLUSION, REGEX_DISCUSSION, REGEX_INTRODUCTION, REGEX_REFERENCES, REGEX_TABREFERENCES, REGEX_TITLE, REGEX_ABSTRACT,
     REGEX_TITLE, REGEX_ALL_EMAILS, REGEX_TYPE_MULTI_EMAILS,
     REGEX_POST_TITLE_PRE_ABSTRACT, REGEX_POST_TITLE_PRE_NO_ABSTRACT, REGEX_ABSTRACT,
     REGEX_NO_ABSTRACT)
@@ -84,6 +84,7 @@ class PdfToPlainText:
         self.__setIntroduction()
         self.__setDiscussion()
         self.__setConclusion()
+        self.__setReferences()
 
     # Reinitialise certaines variables
     def resetCoreVariables(self):
@@ -162,7 +163,7 @@ class PdfToPlainText:
 
         if self.DEBUG_TITLE:
             print(self.title + "\n\n")
-            
+
 
     # Trouve les emails
     def __setEmails(self, text):   
@@ -375,3 +376,39 @@ class PdfToPlainText:
                 break
 
         self.conclusion = txtmanip.pasCleanText(conclusion)
+
+    def __setReferences(self):
+        text = ""
+        textTest = ""
+
+        # On part de la derniere page
+        for pages in range(self.getNbPages()-1, 0, -1):
+            textTest = self.getTextAnyPage(pages)
+
+            if re.search(REGEX_REFERENCES, textTest) is not None: # trouve le mot references
+                text = re.search(REGEX_REFERENCES, textTest).group(1) + ' ' + text + ' ' # on ajoute au début a partir du mot references
+                text = txtmanip.preCleanText(text)
+                if self.DEBUG_REFERENCE:
+                    print("REFERENCES:\n" + text + "\n\n")
+
+                if re.search(REGEX_TABREFERENCES, text) is not None: # verification de crochets
+                    # on peut nettoyaer completement et supprimer les \n en surplus
+                    text = txtmanip.pasCleanText(text)
+                    tab_ref = re.split(REGEX_TABREFERENCES, text)
+
+                    if len(tab_ref[0]) <= 5:
+                        del tab_ref[0]
+                    self.references = tab_ref
+                    
+
+                elif re.search(REGEX_TITLE, text, re.MULTILINE) is not None:
+                    for reference in re.split(REGEX_TITLE, text):
+                        self.references.append(txtmanip.pasCleanText(reference))
+
+                else: # ajout d'une simple chaine de caractere
+                    self.references.append("N/A")
+                
+                break # on stop le parcours de pages
+
+            else: # Enregistrement de la page precendente si le mot "Référence" n'est pas trouve
+                text = textTest + ' ' + text + ' '

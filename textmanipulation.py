@@ -157,6 +157,13 @@ def arrangeXML(pdfTPT):
     ET.SubElement(root, "discussion").text = pdfTPT.discussion
     ET.SubElement(root, "conclusion").text = pdfTPT.conclusion
 
+    biblioText = ""
+    for reference in pdfTPT.references:
+        if reference != "":
+            biblioText += reference
+
+    ET.SubElement(root, "biblio").text = biblioText
+
     dom = xml.dom.minidom.parseString(ET.tostring(root))
     xml_string = dom.toprettyxml()
 
