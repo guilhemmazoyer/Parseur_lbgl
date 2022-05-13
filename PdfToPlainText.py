@@ -318,7 +318,6 @@ class PdfToPlainText:
     # Definit la partie introduction
     def __setIntroduction(self):
         text = self.getTextAnyPage(0) + self.getTextAnyPage(1) + self.getTextAnyPage(2)
-        print(text)
 
         try:
             introduction = re.search(REGEX_INTRODUCTION, text).group(2)
@@ -364,7 +363,7 @@ class PdfToPlainText:
             conclusion = ""
 
             # Si on trouve le mot conclusion
-            if re.search("Conclusion", text, re.IGNORECASE):
+            if re.search("Conclusion", text):
                 if page <= self.getNbPages() - 3:
                     text += self.getTextAnyPage(page + 1)
                     text += self.getTextAnyPage(page + 2)
