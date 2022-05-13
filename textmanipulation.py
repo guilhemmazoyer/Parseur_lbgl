@@ -14,7 +14,7 @@ REGEX_POST_TITLE_PRE_NO_ABSTRACT = r"(?<=\n)(.|\n)+(?=(1(\n| |( \n)|. )Introduct
 REGEX_ABSTRACT = r"(Abstract(-|.| |\n)|a b s t r a c t)\n? ?((.|\n)*)(?=((1|I)(\n| |( \n)|. *\n*)Introduction))"
 REGEX_NO_ABSTRACT = r"(?<=\n)(.|\n)*(?=(1(\n| |( \n)|. *\n*)Introduction)|(I. INTRODUCTION))"
 REGEX_ABSTRACT_NO_INTRO = r"(Abstract(-|.| |\n)|a b s t r a c t)\n? ?((.|\n)*)(?=1|II)"
-REGEX_INTRODUCTION = r"(INTRODUCTION|Introduction)\n* *((.|\n)*)(?=(\n2.? ?\n?|\nII.? ))"
+REGEX_INTRODUCTION = r"(INTRODUCTION|Introduction)\n* *((.|\n)*)(?=\nII\.|[^-]\n2\.?( |\n))"
 REGEX_CONCLUSION = r"(Conclusions?)\n?((.|\n)*)(?=References|acknowledgments?|Follow-Up Work|Appendix)"
 REGEX_DISCUSSION = r".*discussion.*(.|\n)*(?=appendix|conclusions?|Acknowledgments|\d)"
 #r"(\d Discussion.*)(.|\n)*(?=appendix|conclusions?Acknowledgments|\n\d)"

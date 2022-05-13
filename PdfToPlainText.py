@@ -318,6 +318,7 @@ class PdfToPlainText:
     # Definit la partie introduction
     def __setIntroduction(self):
         text = self.getTextAnyPage(0) + self.getTextAnyPage(1) + self.getTextAnyPage(2)
+        print(text)
 
         try:
             introduction = re.search(REGEX_INTRODUCTION, text).group(2)
