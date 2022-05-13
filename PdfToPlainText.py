@@ -293,7 +293,6 @@ class PdfToPlainText:
     # Defini la partie Abstract de l'article
     def __setAbstract(self):
         text = self.getTextAnyPage(0) + self.getTextAnyPage(1)  
-        print(self.getTextAnyPage(0))
 
         try:
             abstract = re.search(REGEX_ABSTRACT, text, re.IGNORECASE).group(3)
@@ -347,59 +346,24 @@ class PdfToPlainText:
     def __setConclusion(self):
         
         text = ""
-        conclusion = "N/A"
         page = 0
 
         # On recupere la partie conclusion
         for page in range(self.getNbPages()-1, 0, -1):
             text = self.getTextAnyPage(page)
+            print(text+ '\n')
 
             # Si on trouve le mot conclusion
             if re.search("Conclusion", text, re.IGNORECASE):
                 if page <= self.getNbPages() - 3:
                     text += self.getTextAnyPage(page + 1)
                     text += self.getTextAnyPage(page + 2)
-                break
-        
-        if re.search(REGEX_CONCLUSION, text, re.IGNORECASE):
-            conclusion = re.search(REGEX_CONCLUSION, text, re.IGNORECASE).group(0)
-    
-        self.conclusion = txtmanip.pasCleanText(conclusion)
-
-    # Definit les references de l'article
-    # Defini les references de l'article
-    def __setReferences(self):
-        text = ""
-        textTest = ""
-
-        # On part de la derniere page
-        for pages in range(self.getNbPages()-1, 0, -1):
-            textTest = self.getTextAnyPage(pages)
-
-            if re.search(REGEX_REFERENCES, textTest) is not None: # trouve le mot references
-                text = re.search(REGEX_REFERENCES, textTest).group(1) + ' ' + text + ' ' # on ajoute au début a partir du mot references
-                text = txtmanip.preCleanText(text)
-                if self.DEBUG_REFERENCE:
-                    print("REFERENCES:\n" + text + "\n\n")
-
-                if re.search(REGEX_TABREFERENCES, text) is not None: # verification de crochets
-                    # on peut nettoyaer completement et supprimer les \n en surplus
-                    text = txtmanip.pasCleanText(text)
-                    tab_ref = re.split(REGEX_TABREFERENCES, text)
-
-                    if len(tab_ref[0]) <= 5:
-                        del tab_ref[0]
-                    self.references = tab_ref
                     
+                    try:
+                        conclusion = re.search(REGEX_CONCLUSION, text, re.IGNORECASE).group(2)
+                    except:
+                        conclusion = ""
 
-                elif re.search(REGEX_TITLE, text, re.MULTILINE) is not None:
-                    for reference in re.split(REGEX_TITLE, text):
-                        self.references.append(txtmanip.pasCleanText(reference))
+                break
 
-                else: # ajout d'une simple chaine de caractere
-                    self.references.append("N/A")
-                
-                break # on stop le parcours de pages
-
-            else: # Enregistrement de la page precendente si le mot "Référence" n'est pas trouve
-                text = textTest + ' ' + text + ' '
+        self.conclusion = txtmanip.pasCleanText(conclusion)
