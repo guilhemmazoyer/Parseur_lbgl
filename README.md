@@ -1,10 +1,10 @@
-# Parseur_LLBG
+# Parseur_LBGL
 Parseur d'articles scientifiques du format pdf au format texte ou xml.
 
 ## Auteurs
- - Guilhem Mazoyer - Maitre Scrum
- - Baptiste Lelievre - Développeur
  - Lucia Lebrun - Développeur
+ - Baptiste Lelievre - Développeur
+ - Guilhem Mazoyer - Maitre Scrum & Développeur
  - Lea Schlaflang - Développeur
 
 ## Installation
