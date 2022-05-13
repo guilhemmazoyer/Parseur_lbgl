@@ -9,7 +9,7 @@ from textmanipulation import (
     REGEX_ABSTRACT_NO_INTRO, REGEX_CONCLUSION, REGEX_DISCUSSION, REGEX_INTRODUCTION, REGEX_TITLE, REGEX_ABSTRACT,
     REGEX_TITLE, REGEX_ALL_EMAILS, REGEX_TYPE_MULTI_EMAILS,
     REGEX_POST_TITLE_PRE_ABSTRACT, REGEX_POST_TITLE_PRE_NO_ABSTRACT, REGEX_ABSTRACT,
-    REGEX_NO_ABSTRACT, REGEX_REFERENCES, REGEX_TABREFERENCES)
+    REGEX_NO_ABSTRACT)
 
 class PdfToPlainText:
     # variables utiles pour les operations
@@ -84,7 +84,6 @@ class PdfToPlainText:
         self.__setIntroduction()
         self.__setDiscussion()
         self.__setConclusion()
-        self.__setReferences()
 
     # Reinitialise certaines variables
     def resetCoreVariables(self):
@@ -163,6 +162,7 @@ class PdfToPlainText:
 
         if self.DEBUG_TITLE:
             print(self.title + "\n\n")
+            
 
     # Trouve les emails
     def __setEmails(self, text):   
@@ -199,6 +199,7 @@ class PdfToPlainText:
                 print(email + "; ")
             print("\n")
 
+
     # Defini les auteurs
     def __setAuthors(self):
         if self.emailFindingResult: # pas d'email
@@ -233,6 +234,7 @@ class PdfToPlainText:
             
             result_author = txtmanip.authorClean(result_author)
             self.authors.append(result_author)
+
 
     # Defini la partie Affiliation de l'article
     def __setAffiliations(self, text):
@@ -290,6 +292,7 @@ class PdfToPlainText:
                 print(affiliation + "; ")
             print("\n")
 
+
     # Defini la partie Abstract de l'article
     def __setAbstract(self):
         text = self.getTextAnyPage(0) + self.getTextAnyPage(1)  
@@ -310,12 +313,16 @@ class PdfToPlainText:
         if self.DEBUG_ABSTRACT:
            print(self.abstract + "\n\n")
 
+
     # Definit la partie introduction
     def __setIntroduction(self):
         text = self.getTextAnyPage(0) + self.getTextAnyPage(1) + self.getTextAnyPage(2)
-        introduction = ""
-        if re.search(REGEX_INTRODUCTION, text) is not None:
+
+        try:
             introduction = re.search(REGEX_INTRODUCTION, text).group(2)
+        except:
+            introduction = ""
+
         if self.DEBUG_INTRODUCTION:
             print(introduction + "\n\n")
         self.introduction = txtmanip.pasCleanText(introduction)
@@ -342,6 +349,7 @@ class PdfToPlainText:
     
         self.discussion = txtmanip.pasCleanText(discussion)
 
+
     # Definit la partie conclusion
     def __setConclusion(self):
         
@@ -351,7 +359,7 @@ class PdfToPlainText:
         # On recupere la partie conclusion
         for page in range(self.getNbPages()-1, 0, -1):
             text = self.getTextAnyPage(page)
-            print(text+ '\n')
+            conclusion = ""
 
             # Si on trouve le mot conclusion
             if re.search("Conclusion", text, re.IGNORECASE):
@@ -362,7 +370,7 @@ class PdfToPlainText:
                     try:
                         conclusion = re.search(REGEX_CONCLUSION, text, re.IGNORECASE).group(2)
                     except:
-                        conclusion = ""
+                        pass
 
                 break
 
