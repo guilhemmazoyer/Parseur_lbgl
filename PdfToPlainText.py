@@ -21,7 +21,7 @@ class PdfToPlainText:
     listWordForAffiliation = []
 
     # DEBUG
-    DEBUG_TEXT = False
+    DEBUG_TEXT = True
     DEBUG_TITLE = False
     DEBUG_AUTHOR = False
     DEBUG_EMAIL = False
@@ -166,6 +166,7 @@ class PdfToPlainText:
 
     # Trouve les emails
     def __setEmails(self, text):   
+        
         if re.search(REGEX_ALL_EMAILS, text) is not None:
             # Recupere les adresses emails dans le text
             emails = re.findall(REGEX_ALL_EMAILS, text, re.MULTILINE)
@@ -189,7 +190,30 @@ class PdfToPlainText:
                     self.emails.append(email)
 
             self.emailFindingResult = False # email trouvee
+        elif re.search(REGEX_ALL_EMAILS, self.getTextAnyPage(1)) is not None:
+            # Recupere les adresses emails dans le text
+            text = self.getTextAnyPage(1)
+            emails = re.findall(REGEX_ALL_EMAILS, text, re.MULTILINE)
+            
+            # Ajout des emails et verification des formats peu frequents
+            for email in emails:
+                email = re.sub('Q', '@', email)
+                if re.search(REGEX_TYPE_MULTI_EMAILS, email) is not None: # multi email
+                    # recuperation de l'email
+                    email = txtmanip.cleanEmail(email)
 
+                    # recuperation des noms dans l'adresse
+                    names_pre_adresse = email[0:email.find('@')]
+                    adresse_post_name = email[email.find('@'):]
+                    names = re.findall(r"[\w.-]+", names_pre_adresse)
+                    for name in names:
+                        email = name + adresse_post_name
+                        self.emails.append(email)
+                else:
+                    email = txtmanip.cleanEmail(email)
+                    self.emails.append(email)
+
+            self.emailFindingResult = False # email trouvee
         else:
             self.emails.append("N/A")
             self.emailFindingResult = True # pas d'email
@@ -203,7 +227,16 @@ class PdfToPlainText:
     # Defini les auteurs
     def __setAuthors(self):
         if self.emailFindingResult: # pas d'email
-            self.authors.append("N/A")
+            regAuthor = r"(?<="+self.title+r")[\w|\W]*(?=Abstract)"
+            if re.search(regAuthor,self.getTextFirstPage()) is not None:
+                authors = re.findall(regAuthor,self.getTextFirstPage(), re.MULTILINE)
+                authors = txtmanip.allClean(authors[0])
+                authors = authors.split(" and ")
+                self.authors.append(authors[0])
+                self.authors.append(" ".join(authors[1].split()[:2]))
+
+            else:
+                self.authors.append("N/A")
         
         else: # email
             self.getAuthorsFromEmails()
@@ -219,13 +252,15 @@ class PdfToPlainText:
             email_decompose = email[0:email.find('@')]
             tab_email_decompose = email_decompose.split('.')
             result_author = ''
-            textName = difflib.get_close_matches(tab_email_decompose[0],self.listWordForAffiliation)
+            for i in range(len(tab_email_decompose)):
+                tab_email_decompose[i] = re.sub(r"[^a-zA-Z]+", '', tab_email_decompose[i])
+            textName = difflib.get_close_matches(tab_email_decompose[0],self.listWordForAffiliation, cutoff=0.8)
             if textName != []:
                 result_author += textName[0]
             else:
                 result_author += tab_email_decompose[0]
             for i in range(1, len(tab_email_decompose)):
-                textName = difflib.get_close_matches(tab_email_decompose[i],self.listWordForAffiliation)
+                textName = difflib.get_close_matches(tab_email_decompose[i],self.listWordForAffiliation, cutoff=0.9)
                 if textName != []:
                     result_author += " " + textName[0]
                 else:
