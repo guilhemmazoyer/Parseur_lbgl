@@ -15,7 +15,7 @@ REGEX_ABSTRACT = r"(Abstract(-|.| |\n)|a b s t r a c t)\n? ?((.|\n)*)(?=((1|I)(\
 REGEX_NO_ABSTRACT = r"(?<=\n)(.|\n)*(?=(1(\n| |( \n)|. *\n*)Introduction)|(I. INTRODUCTION))"
 REGEX_ABSTRACT_NO_INTRO = r"(Abstract(-|.| |\n)|a b s t r a c t)\n? ?((.|\n)*)(?=1|II)"
 REGEX_INTRODUCTION = r"(INTRODUCTION|Introduction)\n* *((.|\n)*)(?=\nII\.|[^-]\n2\.?( |\n))"
-REGEX_CONCLUSION = r"(Conclusions?)\n?((.|\n)*)(?=References|acknowledgments?|Follow-Up Work|Appendix)"
+REGEX_CONCLUSION = r"((\. |\d\.? ?\n)Conclusions?.*)\n?((.|\n)*)(?=\n(References|acknowledgments?|Follow-Up Work|Appendix))"
 REGEX_DISCUSSION = r".*discussion.*(.|\n)*(?=appendix|conclusions?|Acknowledgments|\d)"
 #r"(\d Discussion.*)(.|\n)*(?=appendix|conclusions?Acknowledgments|\n\d)"
 REGEX_REFERENCES = r"(((?<=References|REFERENCES)|(?<=Bibliographie|BIBLIOGRAPHIE))+((.|\n)*))"

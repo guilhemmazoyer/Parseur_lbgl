@@ -356,22 +356,20 @@ class PdfToPlainText:
         
         text = ""
         page = 0
+        conclusion = ""
 
         # On recupere la partie conclusion
         for page in range(self.getNbPages()-1, 0, -1):
             text = self.getTextAnyPage(page)
-            conclusion = ""
-
             # Si on trouve le mot conclusion
-            if re.search("Conclusion", text):
-                if page <= self.getNbPages() - 3:
-                    text += self.getTextAnyPage(page + 1)
-                    text += self.getTextAnyPage(page + 2)
-                    
-                    try:
-                        conclusion = re.search(REGEX_CONCLUSION, text, re.IGNORECASE).group(2)
-                    except:
-                        pass
+            if re.search("Conclusions?|CONCLUSIONS?", text):
+                for pages in range(page+1, self.getNbPages()):
+                    text += self.getTextAnyPage(pages)
+
+                try:
+                    conclusion = re.search(REGEX_CONCLUSION, text, re.IGNORECASE).group(3)
+                except:
+                    pass
 
                 break
 
