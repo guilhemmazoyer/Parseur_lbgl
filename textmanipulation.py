@@ -98,9 +98,9 @@ def cleanAllEmails(emails):
     return newEmails
 
 def cleanToXMLFormat(text):
-    text = text.replace('&','&amp')
-    text = text.replace('>','&gt')
-    text = text.replace('<','&lt')
+    text = text.replace('&',' &amp ')
+    text = text.replace('>',' &gt ')
+    text = text.replace('<',' &lt ')
 
     return text
 
