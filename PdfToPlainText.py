@@ -9,7 +9,7 @@ from textmanipulation import (
     REGEX_ABSTRACT_NO_INTRO, REGEX_CONCLUSION, REGEX_DISCUSSION, REGEX_INTRODUCTION, REGEX_TITLE, REGEX_ABSTRACT,
     REGEX_TITLE, REGEX_ALL_EMAILS, REGEX_TYPE_MULTI_EMAILS,
     REGEX_POST_TITLE_PRE_ABSTRACT, REGEX_POST_TITLE_PRE_NO_ABSTRACT, REGEX_ABSTRACT,
-    REGEX_NO_ABSTRACT)
+    REGEX_NO_ABSTRACT, REGEX_AFFILIATIONS)
 
 class PdfToPlainText:
     # variables utiles pour les operations
@@ -229,9 +229,9 @@ class PdfToPlainText:
         if self.emailFindingResult: # pas d'email
 
             regAuthor = r"(?<="+self.title+r")[\w|\W]*(?=Abstract|Introduction)"
-            if re.search(regAuthor,self.getTextFirstPage()) is not None:
-                authors = re.findall(regAuthor,self.getTextFirstPage(), re.MULTILINE) # recuperation jusqu'au "Abstract"
-                authors = txtmanip.allClean(authors[0])
+            try:
+                authors = re.search(regAuthor,self.getTextFirstPage(), re.MULTILINE).group(0) # recuperation jusqu'au "Abstract"
+                authors = txtmanip.allClean(authors)
                 authors = authors.split(" and ") # separation en 2 parties
                 authorsFirstPart = authors[0]
                 authorsSecondPart = authors[1] # dernier auteur etant les 2 premiers mots
@@ -239,8 +239,7 @@ class PdfToPlainText:
                 for author in authorsFirstPart: # on ajoute la premiere partie
                     self.authors.append(author)
                 self.authors.append(" ".join(authorsSecondPart.split()[:2])) # on ajoute le dernier auteur
-
-            else:
+            except:
                 #self.authors.append("N/A")
                 pass
         
@@ -280,7 +279,6 @@ class PdfToPlainText:
     def __setAffiliations(self, text):
         if self.authors != [] and self.emailFindingResult: # pas de mail mais au moins un auteur
             regAff = r"(?<="+self.authors[-1]+r")[\w|\W]*(?=Abstract|Introduction)"
-            print(re.findall(regAff, text)[0])
             for i in range(len(self.authors)):
                 self.affiliations.append(re.findall(regAff, text)[0])
             return
@@ -328,11 +326,18 @@ class PdfToPlainText:
             '''
 
             regex_affiliation = r"(?<=" + wordCloseToAuthor + ")(.|\n)+(?=(" + self.emails[i] + "))"
-            if re.search(regex_affiliation, self.preCoupage) is not None:
+            try:
                 resultAffiliation = re.search(regex_affiliation, self.preCoupage).group(0)
                 self.affiliations.append(resultAffiliation)
-            else:
-                self.affiliations.append("N/A")
+            except:
+                try:
+                    affiliation = re.search(REGEX_AFFILIATIONS, self.emails[i]).group(1)
+                    affiliation = affiliation.replace('-', ' ')
+                    affiliation = affiliation.capitalize()
+                    self.affiliations.append(txtmanip.pasCleanText(affiliation))
+                except:
+                    self.affiliations.append("N/A")
+
         
         if self.DEBUG_AFFILIATION:
             for affiliation in self.affiliations:

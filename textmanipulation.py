@@ -20,6 +20,7 @@ REGEX_DISCUSSION = r".*discussion.*(.|\n)*(?=appendix|conclusions?|Acknowledgmen
 #r"(\d Discussion.*)(.|\n)*(?=appendix|conclusions?Acknowledgments|\n\d)"
 REGEX_REFERENCES = r"(((?<=References|REFERENCES)|(?<=Bibliographie|BIBLIOGRAPHIE))+((.|\n)*))"
 REGEX_TABREFERENCES = r"\[[0-9|, ]+\]"
+REGEX_AFFILIATIONS = r"(?<=@)([^\.]*)\."
 
 # Retire les caracteres indesirables d'un String
 def preCleanText(text):
