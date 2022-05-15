@@ -133,7 +133,7 @@ def arrangeXML(pdfTPT):
 
     root = ET.Element("article")
 
-    ET.SubElement(root, "preamble").text = pdfTPT.currentFile
+    ET.SubElement(root, "preambule").text = pdfTPT.currentFile
     ET.SubElement(root, "titre").text = pdfTPT.title
 
     auteurs = ET.SubElement(root, "auteurs")
@@ -141,11 +141,14 @@ def arrangeXML(pdfTPT):
 
     for i in range(maxIndex):
         auteur = ET.SubElement(auteurs, "auteur")
-        ET.SubElement(auteur, "name").text = pdfTPT.authors[i]
         try:
-            ET.SubElement(auteur, "mail").text = pdfTPT.emails[i]
+            ET.SubElement(auteur, "nom").text = pdfTPT.authors[i]
         except:
-            ET.SubElement(auteur, "mail").text = ""
+            ET.SubElement(auteur, "nom").text = ""
+        try:
+            ET.SubElement(auteur, "email").text = pdfTPT.emails[i]
+        except:
+            ET.SubElement(auteur, "email").text = ""
         try:
             ET.SubElement(auteur, "affiliation").text = pdfTPT.affiliations[i]
         except:
@@ -153,7 +156,7 @@ def arrangeXML(pdfTPT):
 
     ET.SubElement(root, "abstract").text = pdfTPT.abstract
     ET.SubElement(root, "introduction").text = pdfTPT.introduction
-    ET.SubElement(root, "body").text = pdfTPT.corps
+    ET.SubElement(root, "corps").text = pdfTPT.corps
     ET.SubElement(root, "discussion").text = pdfTPT.discussion
     ET.SubElement(root, "conclusion").text = pdfTPT.conclusion
 
