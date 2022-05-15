@@ -21,7 +21,7 @@ class PdfToPlainText:
     listWordForAffiliation = []
 
     # DEBUG
-    DEBUG_TEXT = True
+    DEBUG_TEXT = False
     DEBUG_TITLE = False
     DEBUG_AUTHOR = False
     DEBUG_EMAIL = False
@@ -227,16 +227,22 @@ class PdfToPlainText:
     # Defini les auteurs
     def __setAuthors(self):
         if self.emailFindingResult: # pas d'email
-            regAuthor = r"(?<="+self.title+r")[\w|\W]*(?=Abstract)"
+
+            regAuthor = r"(?<="+self.title+r")[\w|\W]*(?=Abstract|Introduction)"
             if re.search(regAuthor,self.getTextFirstPage()) is not None:
-                authors = re.findall(regAuthor,self.getTextFirstPage(), re.MULTILINE)
+                authors = re.findall(regAuthor,self.getTextFirstPage(), re.MULTILINE) # recuperation jusqu'au "Abstract"
                 authors = txtmanip.allClean(authors[0])
-                authors = authors.split(" and ")
-                self.authors.append(authors[0])
-                self.authors.append(" ".join(authors[1].split()[:2]))
+                authors = authors.split(" and ") # separation en 2 parties
+                authorsFirstPart = authors[0]
+                authorsSecondPart = authors[1] # dernier auteur etant les 2 premiers mots
+                authorsFirstPart = authorsFirstPart.split(",") # on separe les auteurs s'il y en a plusieurs dans la premiere partie
+                for author in authorsFirstPart: # on ajoute la premiere partie
+                    self.authors.append(author)
+                self.authors.append(" ".join(authorsSecondPart.split()[:2])) # on ajoute le dernier auteur
 
             else:
-                self.authors.append("N/A")
+                #self.authors.append("N/A")
+                pass
         
         else: # email
             self.getAuthorsFromEmails()
@@ -272,9 +278,16 @@ class PdfToPlainText:
 
     # Defini la partie Affiliation de l'article
     def __setAffiliations(self, text):
-        if self.emailFindingResult: # si pas d'email et d'auteur
-            for i in range(len(self.authors)-1):
-                self.affiliations.append("N/A")
+        if self.authors != [] and self.emailFindingResult: # pas de mail mais au moins un auteur
+            regAff = r"(?<="+self.authors[-1]+r")[\w|\W]*(?=Abstract|Introduction)"
+            print(re.findall(regAff, text)[0])
+            for i in range(len(self.authors)):
+                self.affiliations.append(re.findall(regAff, text)[0])
+            return
+        elif self.emailFindingResult: # si pas d'email et d'auteur
+
+            #for i in range(len(self.authors)-1):
+                #self.affiliations.append("N/A")
             return None # Saute toute l'execution qui suit
 
         # Verification de la proximité entre deux mots et utiliser le mot trouvé pour faire la borne du regex avec l'email
