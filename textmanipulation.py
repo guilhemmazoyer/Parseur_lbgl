@@ -1,18 +1,21 @@
 # -*- coding : utf-8 -*-
 
-import re
+import xml.etree.cElementTree as ET
+import xml.dom.minidom
 
 REGEX_TITLE = r"^([A-Z].*)+"
 REGEX_ALL_EMAILS = r"{?\(?\b[\w][\w, .-]*[a-z\d]\)?}?\n?[@|Q][\w\-_.]+"
 REGEX_TYPE_MULTI_EMAILS = r"({|\()?([\w.\- ]+,[\w.\- ]+)+(\)|})?\n?@[\w\-_.]+"
+REGEX_AFFILIATIONS = r"(?<=@)([^\.]*)\."
 REGEX_POST_TITLE_PRE_ABSTRACT = r"(?<=\n)(.|\n)+(?=(Abstract))"
 REGEX_POST_TITLE_PRE_NO_ABSTRACT = r"(?<=\n)(.|\n)+(?=(1(\n| |( \n)|. )Introduction)|(I. INTRODUCTION))"
-REGEX_ABSTRACT = r"(Abstract(-|.| |\n))\n? ?((.|\n)*)(?=(1(\n| |( \n)|. )Introduction)|(I. INTRODUCTION))"
-REGEX_NO_ABSTRACT = r"(?<=\n)(.|\n)*(?=(1(\n| |( \n)|. )Introduction)|(I. INTRODUCTION))"
-REGEX_INTRODUCTION = r"(INTRODUCTION|Introduction)\n* *((.|\n)*)(?=(\n2.? ?\n?|\nII.? ))"
+REGEX_ABSTRACT = r"(Abstract(-|.| |\n)|a b s t r a c t)\n? ?((.|\n)*)(?=((1|I)(\n| |( \n)|. *\n*)Introduction))"
+REGEX_NO_ABSTRACT = r"(?<=\n)(.|\n)*(?=(1(\n| |( \n)|. *\n*)Introduction)|(I. INTRODUCTION))"
+REGEX_ABSTRACT_NO_INTRO = r"(Abstract(-|.| |\n)|a b s t r a c t)\n? ?((.|\n)*)(?=1|II)"
 REGEX_CORPS = r"\n(2|II)\.? ?.*\n((.|\n)*)(?=conclusion|discussion)"
-REGEX_CONCLUSION = r"(.*Conclusions?.*)(.|\n)*(?=References|acknowledgments?|Follow-Up Work|Appendix)"
-REGEX_DISCUSSION = r".*discussion.*(.|\n)*(?=appendix|conclusions?|\n\d)"
+REGEX_INTRODUCTION = r"(INTRODUCTION|Introduction)\n* *((.|\n)*)(?=\nII\.|[^-]\n2\.?( |\n))"
+REGEX_CONCLUSION = r"((\. |\d\.? ?\n)Conclusions?.*)\n?((.|\n)*)(?=\n(References|acknowledgments?|Follow-Up Work|Appendix))"
+REGEX_DISCUSSION = r".*discussion.*(.|\n)*(?=appendix|conclusions?|Acknowledgments|\d)"
 REGEX_REFERENCES = r"(((?<=References|REFERENCES)|(?<=Bibliographie|BIBLIOGRAPHIE))+((.|\n)*))"
 REGEX_TABREFERENCES = r"\[[0-9|, ]+\]"
 
@@ -128,51 +131,40 @@ def arrangeTXT(pdfTPT):
 
 def arrangeXML(pdfTPT):
 
-    pdfTPT.abstract = cleanToXMLFormat(pdfTPT.abstract)
-    pdfTPT.conclusion = cleanToXMLFormat(pdfTPT.conclusion)
-    pdfTPT.corps = cleanToXMLFormat(pdfTPT.corps)
-    pdfTPT.discussion = cleanToXMLFormat(pdfTPT.discussion)
+    root = ET.Element("article")
 
-    mergeAll = "<article>\n"
-    mergeAll += "\t<preambule>" + pdfTPT.filename + "</preambule>\n"
-    mergeAll += "\t<titre>" + pdfTPT.title + "</titre>\n"
-    mergeAll += "\t<auteurs>\n"
+    ET.SubElement(root, "preamble").text = pdfTPT.currentFile
+    ET.SubElement(root, "titre").text = pdfTPT.title
 
+    auteurs = ET.SubElement(root, "auteurs")
     maxIndex = max(max(len(pdfTPT.authors), len(pdfTPT.emails)), len(pdfTPT.affiliations))
 
     for i in range(maxIndex):
-        mergeAll += "\t\t<auteur>\n"
-
+        auteur = ET.SubElement(auteurs, "auteur")
+        ET.SubElement(auteur, "name").text = pdfTPT.authors[i]
         try:
-            mergeAll += "\t\t\t<nom>" + pdfTPT.authors[i] +"</nom>\n"
+            ET.SubElement(auteur, "mail").text = pdfTPT.emails[i]
         except:
-            mergeAll += "\t\t\t<nom></nom>\n"
-            
+            ET.SubElement(auteur, "mail").text = ""
         try:
-            mergeAll += "\t\t\t<email>" + pdfTPT.emails[i] + "</email>\n"
+            ET.SubElement(auteur, "affiliation").text = pdfTPT.affiliations[i]
         except:
-            mergeAll += "\t\t\t<email></email>\n"
+            ET.SubElement(auteur, "affiliation").text = ""
 
-        try:
-            mergeAll += "\t\t\t<affiliation>" + pdfTPT.affiliations[i] + "</affiliation>\n"
-        except:
-            mergeAll += "\t\t\t<affiliation></affiliation>\n"
+    ET.SubElement(root, "abstract").text = pdfTPT.abstract
+    ET.SubElement(root, "introduction").text = pdfTPT.introduction
+    ET.SubElement(root, "body").text = pdfTPT.corps
+    ET.SubElement(root, "discussion").text = pdfTPT.discussion
+    ET.SubElement(root, "conclusion").text = pdfTPT.conclusion
 
-        mergeAll += "\t\t</auteur>\n"
-
-    mergeAll += "\t</auteurs>\n"
-    mergeAll += "\t<abstract>" + pdfTPT.abstract + "</abstract>\n"
-    mergeAll += "\t<introduction>" + pdfTPT.introduction + "</introduction>\n"
-    mergeAll += "\t<corps>" + pdfTPT.corps + "</corps>\n"
-    mergeAll += "\t<discussion>" + pdfTPT.discussion + "</discussion>\n"
-    mergeAll += "\t<conclusion>" + pdfTPT.conclusion + "</conclusion>\n"
-    mergeAll += "\t<biblios>\n"
-
+    biblioText = ""
     for reference in pdfTPT.references:
         if reference != "":
-            mergeAll += "\t\t<biblio>" + reference + "</biblio>\n"
+            biblioText += reference
 
-    mergeAll += "\t</biblios>\n"
-    mergeAll += "</article>"
+    ET.SubElement(root, "biblio").text = biblioText
 
-    return mergeAll
+    dom = xml.dom.minidom.parseString(ET.tostring(root))
+    xml_string = dom.toprettyxml()
+
+    return xml_string

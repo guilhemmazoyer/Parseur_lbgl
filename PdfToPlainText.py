@@ -1,12 +1,10 @@
 # -*- coding : utf-8 -*-
 
-from dis import dis
-from distutils.debug import DEBUG
 import re
 import difflib
 import textmanipulation as txtmanip
 from textmanipulation import (
-    REGEX_CONCLUSION, REGEX_CORPS, REGEX_DISCUSSION, REGEX_INTRODUCTION, REGEX_TITLE, REGEX_ABSTRACT,
+    REGEX_ABSTRACT_NO_INTRO, REGEX_AFFILIATIONS, REGEX_CONCLUSION, REGEX_CORPS, REGEX_DISCUSSION, REGEX_INTRODUCTION, REGEX_TITLE, REGEX_ABSTRACT,
     REGEX_TITLE, REGEX_ALL_EMAILS, REGEX_TYPE_MULTI_EMAILS,
     REGEX_POST_TITLE_PRE_ABSTRACT, REGEX_POST_TITLE_PRE_NO_ABSTRACT, REGEX_ABSTRACT,
     REGEX_NO_ABSTRACT, REGEX_REFERENCES, REGEX_TABREFERENCES)
@@ -77,7 +75,7 @@ class PdfToPlainText:
         self.__setEmails(text)
         self.__setAuthors()
         self.__setAffiliations(text)
-        self.__setAbstract(text)
+        self.__setAbstract()
         self.__setIntroduction()
         self.__setCorps()
         self.__setDiscussion()
@@ -145,7 +143,7 @@ class PdfToPlainText:
 
     # Defini le nom du fichier
     def __setFilename(self):
-        self.filename = self.manager.getFileName(self.currentFile)
+        self.filename = self.manager.getFileName(self.currentFile + ".pdf")
 
     # Defini le titre de l'article
     def __setTitle(self, metadatas, text):
@@ -163,7 +161,7 @@ class PdfToPlainText:
             print(self.title + "\n\n")
 
     # Trouve les emails
-    def __setEmails(self, text):   
+    def __setEmails(self, text):    
         if re.search(REGEX_ALL_EMAILS, text) is not None:
             # Recupere les adresses emails dans le text
             emails = re.findall(REGEX_ALL_EMAILS, text, re.MULTILINE)
@@ -187,7 +185,30 @@ class PdfToPlainText:
                     self.emails.append(email)
 
             self.emailFindingResult = False # email trouvee
+        elif re.search(REGEX_ALL_EMAILS, self.getTextAnyPage(1)) is not None:
+            # Recupere les adresses emails dans le text
+            text = self.getTextAnyPage(1)
+            emails = re.findall(REGEX_ALL_EMAILS, text, re.MULTILINE)
+            
+            # Ajout des emails et verification des formats peu frequents
+            for email in emails:
+                email = re.sub('Q', '@', email)
+                if re.search(REGEX_TYPE_MULTI_EMAILS, email) is not None: # multi email
+                    # recuperation de l'email
+                    email = txtmanip.cleanEmail(email)
 
+                    # recuperation des noms dans l'adresse
+                    names_pre_adresse = email[0:email.find('@')]
+                    adresse_post_name = email[email.find('@'):]
+                    names = re.findall(r"[\w.-]+", names_pre_adresse)
+                    for name in names:
+                        email = name + adresse_post_name
+                        self.emails.append(email)
+                else:
+                    email = txtmanip.cleanEmail(email)
+                    self.emails.append(email)
+
+            self.emailFindingResult = False # email trouvee
         else:
             self.emails.append("N/A")
             self.emailFindingResult = True # pas d'email
@@ -200,7 +221,21 @@ class PdfToPlainText:
     # Defini les auteurs
     def __setAuthors(self):
         if self.emailFindingResult: # pas d'email
-            self.authors.append("N/A")
+
+            regAuthor = r"(?<="+self.title+r")[\w|\W]*(?=Abstract|Introduction)"
+            try:
+                authors = re.search(regAuthor,self.getTextFirstPage(), re.MULTILINE).group(0) # recuperation jusqu'au "Abstract"
+                authors = txtmanip.allClean(authors)
+                authors = authors.split(" and ") # separation en 2 parties
+                authorsFirstPart = authors[0]
+                authorsSecondPart = authors[1] # dernier auteur etant les 2 premiers mots
+                authorsFirstPart = authorsFirstPart.split(",") # on separe les auteurs s'il y en a plusieurs dans la premiere partie
+                for author in authorsFirstPart: # on ajoute la premiere partie
+                    self.authors.append(author)
+                self.authors.append(" ".join(authorsSecondPart.split()[:2])) # on ajoute le dernier auteur
+            except:
+                #self.authors.append("N/A")
+                pass
         
         else: # email
             self.getAuthorsFromEmails()
@@ -234,9 +269,15 @@ class PdfToPlainText:
 
     # Defini la partie Affiliation de l'article
     def __setAffiliations(self, text):
-        if self.emailFindingResult: # si pas d'email et d'auteur
-            for i in range(len(self.authors)-1):
-                self.affiliations.append("N/A")
+        if self.authors != [] and self.emailFindingResult: # pas de mail mais au moins un auteur
+            regAff = r"(?<="+self.authors[-1]+r")[\w|\W]*(?=Abstract|Introduction)"
+            for i in range(len(self.authors)):
+                self.affiliations.append(re.findall(regAff, text)[0])
+            return
+        elif self.emailFindingResult: # si pas d'email et d'auteur
+
+            #for i in range(len(self.authors)-1):
+                #self.affiliations.append("N/A")
             return None # Saute toute l'execution qui suit
 
         # Verification de la proximité entre deux mots et utiliser le mot trouvé pour faire la borne du regex avec l'email
@@ -267,39 +308,42 @@ class PdfToPlainText:
             for word in wordsCloseToEmail:
                 wordCloseToEmail += word
 
-            '''
-            print('\n' + self.emails[i] + " #")
-            print(emailTruePart + " ##")
-            print(wordsCloseToAuthor, " ###")
-            print(wordCloseToAuthor + " ####")
-            print(wordsCloseToEmail, " #####")
-            print(wordCloseToEmail + " ######")
-            '''
-
             regex_affiliation = r"(?<=" + wordCloseToAuthor + ")(.|\n)+(?=(" + self.emails[i] + "))"
-            if re.search(regex_affiliation, self.preCoupage) is not None:
+            try:
                 resultAffiliation = re.search(regex_affiliation, self.preCoupage).group(0)
                 self.affiliations.append(resultAffiliation)
-            else:
-                self.affiliations.append("N/A")
+            except:
+                try:
+                    affiliation = re.search(REGEX_AFFILIATIONS, self.emails[i]).group(1)
+                    affiliation = affiliation.replace('-', ' ')
+                    affiliation = affiliation.capitalize()
+                    self.affiliations.append(txtmanip.pasCleanText(affiliation))
+                except:
+                    self.affiliations.append("N/A")
+
         
         if self.DEBUG_AFFILIATION:
             for affiliation in self.affiliations:
                 print(affiliation + "; ")
             print("\n")
 
+     
+
     # Defini la partie Abstract de l'article
-    def __setAbstract(self, text):
-        if re.search(REGEX_ABSTRACT, text) is not None:
-            abstract = re.search(REGEX_ABSTRACT, text).group(3)
+    def __setAbstract(self):
+        text = self.getTextAnyPage(0) + self.getTextAnyPage(1)  
 
-        # Dans le cas où le mot abstract n'est pas present
-        elif re.search(REGEX_NO_ABSTRACT, text) is not None :
-            abstract = re.search(REGEX_NO_ABSTRACT, text).group(0)
+        try:
+            abstract = re.search(REGEX_ABSTRACT, text, re.IGNORECASE).group(3)
+        except:
+            try:
+                abstract = re.search(REGEX_NO_ABSTRACT, text).group(0)
+            except:
+                try:
+                  abstract = re.search(REGEX_ABSTRACT_NO_INTRO, text, re.IGNORECASE).group(3)  
+                except:
+                    abstract = "N/A"
             
-        else:
-            abstract = "N/A"
-
         self.abstract = txtmanip.pasCleanText(abstract)
 
         if self.DEBUG_ABSTRACT:
@@ -308,9 +352,12 @@ class PdfToPlainText:
     # Definit la partie introduction
     def __setIntroduction(self):
         text = self.getTextAnyPage(0) + self.getTextAnyPage(1) + self.getTextAnyPage(2)
-        introduction = "N/A"
-        if re.search(REGEX_INTRODUCTION, text) is not None:
+
+        try:
             introduction = re.search(REGEX_INTRODUCTION, text).group(2)
+        except:
+            introduction = ""
+
         if self.DEBUG_INTRODUCTION:
             print(introduction + "\n\n")
         self.introduction = txtmanip.pasCleanText(introduction)
@@ -350,23 +397,24 @@ class PdfToPlainText:
     def __setConclusion(self):
         
         text = ""
-        conclusion = "N/A"
         page = 0
+        conclusion = ""
 
         # On recupere la partie conclusion
         for page in range(self.getNbPages()-1, 0, -1):
             text = self.getTextAnyPage(page)
-
             # Si on trouve le mot conclusion
-            if re.search("Conclusion", text, re.IGNORECASE):
-                if page <= self.getNbPages() - 3:
-                    text += self.getTextAnyPage(page + 1)
-                    text += self.getTextAnyPage(page + 2)
+            if re.search("Conclusions?|CONCLUSIONS?", text):
+                for pages in range(page+1, self.getNbPages()):
+                    text += self.getTextAnyPage(pages)
+
+                try:
+                    conclusion = re.search(REGEX_CONCLUSION, text, re.IGNORECASE).group(3)
+                except:
+                    pass
+
                 break
-        
-        if re.search(REGEX_CONCLUSION, text, re.IGNORECASE):
-                conclusion = re.search(REGEX_CONCLUSION, text, re.IGNORECASE).group(0)
-    
+
         self.conclusion = txtmanip.pasCleanText(conclusion)
 
     # Definit les references de l'article
