@@ -20,6 +20,7 @@ REGEX_DISCUSSION = r".*discussion.*(.|\n)*(?=appendix|conclusions?|Acknowledgmen
 #r"(\d Discussion.*)(.|\n)*(?=appendix|conclusions?Acknowledgments|\n\d)"
 REGEX_REFERENCES = r"(((?<=References|REFERENCES)|(?<=Bibliographie|BIBLIOGRAPHIE))+((.|\n)*))"
 REGEX_TABREFERENCES = r"\[[0-9|, ]+\]"
+REGEX_AFFILIATIONS = r"(?<=@)([^\.]*)\."
 
 # Retire les caracteres indesirables d'un String
 def preCleanText(text):
@@ -146,7 +147,10 @@ def arrangeXML(pdfTPT):
     for i in range(maxIndex):
         auteur = ET.SubElement(auteurs, "auteur")
         ET.SubElement(auteur, "name").text = pdfTPT.authors[i]
-        ET.SubElement(auteur, "mail").text = pdfTPT.emails[i]
+        try:
+            ET.SubElement(auteur, "mail").text = pdfTPT.emails[i]
+        except:
+            ET.SubElement(auteur, "mail").text = ""
         try:
             ET.SubElement(auteur, "affiliation").text = pdfTPT.affiliations[i]
         except:
