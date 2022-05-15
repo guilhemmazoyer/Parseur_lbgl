@@ -3,7 +3,7 @@
 import os
 import textmanipulation as txtmanip
 from fileManager import FileManager as fM
-from PdfToPlainText import PdfToPlainText
+from pdfToPlainText import PdfToPlainText
 
 class ToXML:
     folder = ""
